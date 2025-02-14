@@ -40,6 +40,20 @@ education:
     Ph.D. Student - Dual Degree in Computer Science
   date: Feb. 2024 - present
 
+- name: Carnegie Mellon University
+  logo: /assets/images/badges/CMU_Logo.png
+
+  position: >- 
+    Language Technologies Institute - School of Computer Science<br/>
+    Ph.D. Student - Dual Degree in Language Technologies
+  date: Feb. 2024 - present
+- name: Instituto Superior Técnico
+  logo: /assets/images/badges/IST_Logo.png
+  position: >- 
+    INESC-ID<br/>
+    Ph.D. Student - Dual Degree in Computer Science
+  date: Feb. 2024 - present
+
 
 # awards:
 # - name: Spark Award - Best Ph.D. Student Article
