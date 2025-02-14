@@ -1,3 +1,28 @@
+<!-- Inline styles for hover effects -->
+<style>
+    .contact-link {
+        color: #2C497F;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .contact-link:hover {
+        color: #4778cc;
+    }
+    
+    .contact-link i {
+        color: #293961;
+        transition: color 0.3s ease;
+    }
+    
+    .contact-link:hover i {
+        color: #4778cc;
+    }
+    </style>
+
+
+
+
 <div class="row">
     <div class="col">
       <div class="card border-0 shadow-sm bg-white">
@@ -48,71 +73,77 @@
     
           <hr />
     
-          <!-- Third row: Links (email, Scholar, GitHub, CV, etc.) -->
           <div class="row">
             <div class="col">
-              <!-- Email -->
-              <a class="pr-3 no-break" href="mailto:{{ site.data.profile.email | encode_email }}">
-                <i class="fas fa-at"></i>
-                <span class="email-text">{{ site.data.profile.email | replace: "@", "(at)" }}</span>
-              </a>
-    
-              <!-- Google Scholar -->
-              {% if site.data.profile.gscholar %}
-                <a class="pr-3 no-break" target="_blank"
-                   href="https://scholar.google.com/citations?user={{ site.data.profile.gscholar }}&hl=en">
-                  <i class="fab fa-google-scholar"></i> Google Scholar
-                </a>
-              {% endif %}
-    
-              <!-- GitHub -->
-              {% if site.data.profile.github %}
-                <a class="pr-3 no-break" target="_blank"
-                   href="https://github.com/{{ site.data.profile.github }}">
-                  <i class="fab fa-github"></i> GitHub
-                </a>
-              {% endif %}
-    
-              <!-- WeChat (if applicable) -->
-              {% if site.data.profile.wechat_qrcode %}
-                <a class="pr-3 no-break" data-toggle="modal" data-target="#modal-wechat">
-                  <i class="fab fa-weixin"></i> WeChat
-                </a>
-              {% endif %}
-    
-              <!-- Twitter -->
-              {% if site.data.profile.twitter %}
-                <a class="pr-3 no-break" target="_blank"
-                   href="https://twitter.com/{{ site.data.profile.twitter }}">
-                  <i class="fab fa-twitter"></i> Twitter
-                </a>
-              {% endif %}
-    
-              <!-- LinkedIn -->
-              {% if site.data.profile.linkedin %}
-                <a class="pr-3 no-break" target="_blank"
-                   href="https://www.linkedin.com/in/{{ site.data.profile.linkedin }}">
-                  <i class="fab fa-linkedin"></i> LinkedIn
-                </a>
-              {% endif %}
-    
-              <!-- ORCID -->
-              {% if site.data.profile.orcid %}
-                <a class="pr-3 no-break" target="_blank"
-                   href="https://orcid.org/{{ site.data.profile.orcid }}">
-                  <i class="fab fa-orcid"></i> ORCID
-                </a>
-              {% endif %}
-    
-              <!-- Curriculum Vitae -->
-              {% if site.data.profile.cv_link %}
-                <a class="pr-3 no-break" target="_blank"
-                   href="{{ site.data.profile.cv_link }}">
-                  <i class="fas fa-file-alt"></i> Curriculum Vitae
-                </a>
-              {% endif %}
+                <!-- Email -->
+                <a class="pr-3 no-break contact-link" href="mailto:{{ site.data.profile.email | encode_email }}">
+                    <i class="fas fa-envelope" style="font-size: 1em;"></i>
+                    <span class="email-text">{{ site.data.profile.email }}</span>
+                </a>              
+        
+                <!-- Google Scholar -->
+                {% if site.data.profile.gscholar %}
+                    <a class="pr-3 no-break contact-link" target="_blank"
+                       href="https://scholar.google.com/citations?user={{ site.data.profile.gscholar }}&hl=en">
+                        <i class="fab fa-google-scholar"></i>
+                        <span>Google Scholar</span>
+                    </a>
+                {% endif %}
+        
+                <!-- GitHub -->
+                {% if site.data.profile.github %}
+                    <a class="pr-3 no-break contact-link" target="_blank"
+                       href="https://github.com/{{ site.data.profile.github }}">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                {% endif %}
+        
+                <!-- WeChat (if applicable) -->
+                {% if site.data.profile.wechat_qrcode %}
+                    <a class="pr-3 no-break contact-link" data-toggle="modal" data-target="#modal-wechat">
+                        <i class="fab fa-weixin"></i>
+                        <span>WeChat</span>
+                    </a>
+                {% endif %}
+        
+                <!-- Twitter -->
+                {% if site.data.profile.twitter %}
+                    <a class="pr-3 no-break contact-link" target="_blank"
+                       href="https://twitter.com/{{ site.data.profile.twitter }}">
+                        <i class="fab fa-twitter"></i>
+                        <span>Twitter</span>
+                    </a>
+                {% endif %}
+        
+                <!-- LinkedIn -->
+                {% if site.data.profile.linkedin %}
+                    <a class="pr-3 no-break contact-link" target="_blank"
+                       href="https://www.linkedin.com/in/{{ site.data.profile.linkedin }}">
+                        <i class="fab fa-linkedin"></i>
+                        <span>LinkedIn</span>
+                    </a>
+                {% endif %}
+        
+                <!-- ORCID -->
+                {% if site.data.profile.orcid %}
+                    <a class="pr-3 no-break contact-link" target="_blank"
+                       href="https://orcid.org/{{ site.data.profile.orcid }}">
+                        <i class="fab fa-orcid"></i>
+                        <span>ORCID</span>
+                    </a>
+                {% endif %}
+        
+                <!-- Curriculum Vitae -->
+                {% if site.data.profile.cv_link %}
+                    <a class="pr-3 no-break contact-link" target="_blank"
+                       href="{{ site.data.profile.cv_link }}">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Curriculum Vitae</span>
+                    </a>
+                {% endif %}
             </div>
-          </div> <!-- End Third Row -->
+        </div> <!-- End Third Row -->      
     
         </div> <!-- End card-body -->
       </div> <!-- End card -->

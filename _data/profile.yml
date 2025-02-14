@@ -6,7 +6,7 @@ navbar_name: "André V. Duarte"
 
 
 email: "aduarte@andrew.cmu.edu"
-cv_link: https://drive.google.com/file/d/1RJ8GR7Ez-uE_KrGpi5vhuInp_kjOW40r/view?usp=drive_link
+# cv_link: https://drive.google.com/file/d/1RJ8GR7Ez-uE_KrGpi5vhuInp_kjOW40r/view?usp=drive_link
 gscholar: Q8CoYScAAAAJ  # This is an example, replace it with your own Google Scholar ID
 github: avduarte333
 twitter: avduarte3333  # Do not include the '@' symbol
@@ -27,19 +27,32 @@ portrait_url: /assets/images/photos/portrait.jpg
 portrait_caption: >-
 
 education:
-- name: Carnegie Mellon University
-  logo: /assets/images/badges/CMU_Logo.png
+- name: Carnegie Mellon University and Instituto Superior Técnico
+  # logo: /assets/images/badges/CMU_Logo.png
 
   position: >- 
-    Language Technologies Institute - School of Computer Science<br/>
-    Ph.D. Student - Dual Degree in Language Technologies
+    Currently in Lisbon, Portugal<br/>
+    Dual Degree Ph.D. in Language Technologies and Computer Science
   date: Feb. 2024 - present
+
+
 - name: Instituto Superior Técnico
-  logo: /assets/images/badges/IST_Logo.png
+  # logo: /assets/images/badges/IST_Logo.png
   position: >- 
-    INESC-ID<br/>
-    Ph.D. Student - Dual Degree in Computer Science
-  date: Feb. 2024 - present
+    Lisbon, Portugal<br/>
+    MSc. in Data Science and Engineering
+  date: Set. 2020 - Dec. 2022
+
+
+- name: Instituto Superior Técnico
+  # logo: /assets/images/badges/IST_Logo.png
+  position: >- 
+    Lisbon, Portugal<br/>
+    BSc. in Electrical and Computer Engineering
+  date: Set. 2017 - Dec. 2020
+
+
+  
 
 
 
