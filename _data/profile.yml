@@ -32,13 +32,14 @@ portrait_caption: >-
 
 education:
 - name: Carnegie Mellon University
-  logo: /assets/images/badges/MIT_Social_circle.png
+  logo: /assets/images/badges/CMU_Logo.png
+
   position: >- 
     Language Technologies Institute - School of Computer Science<br/>
     Ph.D. Student - Dual Degree
   date: Sep. 2024 - present
 - name: Instituto Superior Técnico
-  logo: /assets/images/badges/PKU_red.png
+  logo: /assets/images/badges/IST_Logo.png
   position: >- 
     Language Technologies Institute - School of Computer Science<br/>
     Ph.D. Student - Dual Degree
