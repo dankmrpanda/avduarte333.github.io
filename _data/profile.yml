@@ -2,10 +2,10 @@ primary_name: "André V. Duarte"
 secondary_name: ""
 navbar_name: "André V. Duarte"
 
-positions:
-- logo: /assets/images/badges/MIT_Social_circle.png  # Logo is optional
-  name: Position 1 with logo
-- name: Position 2 without logo
+# positions:
+# - logo: /assets/images/badges/MIT_Social_circle.png  # Logo is optional
+#   name: Position 1 with logo
+# - name: Position 2 without logo
 
 
 email: "aduarte@andrew.cmu.edu"
@@ -16,7 +16,7 @@ twitter: avduarte3333  # Do not include the '@' symbol
 linkedin: b69373181
 # orcid: 0000-0000-0000-0000
 
-short_bio_text_justify: false
+short_bio_text_justify: true
 short_bio: >-
   <p>
     I am currently a 2nd year PhD student on the Dual Degree program between Carnegie Mellon University & Instituto Superior Técnico, supervised by Lei Li and Arlindo Oliveira.<br>
@@ -34,25 +34,20 @@ education:
 
   position: >- 
     Language Technologies Institute - School of Computer Science<br/>
-    Ph.D. Student - Dual Degree
-  date: Sep. 2024 - present
+    Ph.D. Student - Dual Degree in Language Technologies and Computer Science
+  date: Feb. 2024 - present
 - name: Instituto Superior Técnico
   logo: /assets/images/badges/IST_Logo.png
   position: >- 
-    Language Technologies Institute - School of Computer Science<br/>
-    Ph.D. Student - Dual Degree
+    INESC-ID<br/>
+    Ph.D. Student - Dual Degree in Language Technologies and Computer Science
   date: Feb. 2024 - present
 
-# experience:
-# - name: Peking University
-#   logo: /assets/images/badges/PKU_red.png
-#   position: Research Intern
-#   date: Sep. 2019 - Jul. 2021
 
 awards:
-- name: Award Name 2
+- name: Spark Award - Best Ph.D. Student Article
   date: 2024
-- name: Award Name 1 
-  date: 2021
-- name: A quick brown fox jumps over the lazy dog and runs away award
-  date: 2021
+- name: CMU Portugal - Dual Degree Ph.D. Scholarship
+  date: 2024
+- name: CMU Portugal - Visiting Student Scholarship
+  date: 2023
