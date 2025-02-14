@@ -10,16 +10,17 @@ cv_link: https://drive.google.com/file/d/1RJ8GR7Ez-uE_KrGpi5vhuInp_kjOW40r/view?
 gscholar: Q8CoYScAAAAJ  # This is an example, replace it with your own Google Scholar ID
 github: avduarte333
 twitter: avduarte3333  # Do not include the '@' symbol
-linkedin: b69373181
+linkedin: andré-duarte-b69373181/
 # orcid: 0000-0000-0000-0000
 
 short_bio_text_justify: true
 short_bio: >-
   <p>
-    I am currently a 2nd year PhD student on the Dual Degree program between Carnegie Mellon University & Instituto Superior Técnico, supervised by Lei Li and Arlindo Oliveira.<br>
-    Prior to this, I studied only at Instituto Superior Técnico, where I did my Bachelor's and Master's in Electrical and Computer Engineering and Data Science, respectively.<br><br>
-    My research in mainly focused on Security and Privacy of GenAI models, with an enphasis on Membership Inference Attacks. In other words: Trying to figure out wheter specific data was used to train a certain model.<br><br>
-    I'm always happy to connect and collaborate. If you work in a similar area or see potential for us to work together, feel free to reach out!
+    I am a 2nd year PhD student on the Dual Degree program between Carnegie Mellon University</a> & Instituto Superior Técnico, supervised by <a href="https://www.cs.cmu.edu/~leili/" style="color: #2C497F; text-decoration: none;">Lei Li</a> and <a href="https://web.tecnico.ulisboa.pt/arlindo.oliveira/" style="color: #2C497F; text-decoration: none;">Arlindo Oliveira</a>.<br>
+    Before starting my PhD, I completed my undergraduate studies in Electrical and Computer Engineering and a master's in Data Science, both at Instituto Superior Técnico.<br><br>
+    My research in mainly focused on Security and Privacy of GenAI models, with an enphasis on Membership Inference Attacks. In other words: Trying to figure out wheter specific data was used to train a certain model!<br><br>
+    <span style="color: #2C497F; font-weight: bold;">I'm always happy to connect and collaborate. If you work in a similar area or see potential for us to work together, feel free to reach out :)</span>
+
   </p>
 
 portrait_url: /assets/images/photos/portrait.jpg
