@@ -41,10 +41,10 @@ education:
   date: Feb. 2024 - present
 
 
-awards:
-- name: Spark Award - Best Ph.D. Student Article
-  date: 2024
-- name: CMU Portugal - Dual Degree Ph.D. Scholarship
-  date: 2024
-- name: CMU Portugal - Visiting Student Scholarship
-  date: 2023
+# awards:
+# - name: Spark Award - Best Ph.D. Student Article
+#   date: 2024
+# - name: CMU Portugal - Dual Degree Ph.D. Scholarship
+#   date: 2024
+# - name: CMU Portugal - Visiting Student Scholarship
+#   date: 2023
