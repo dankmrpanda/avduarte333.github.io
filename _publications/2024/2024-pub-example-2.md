@@ -5,7 +5,7 @@ selected:       true
 pub:            "Proceedings of ICML"
 # pub_pre:        "Submitted to "
 # pub_post:       'Under review.'
-# pub_last:       ' <span class="badge badge-pill badge-publication badge-success">Best Scientific Paper Award at Portuguese Responsible AI Forum</span>'
+pub_last:       ' <span class="badge badge-pill badge-publication badge-success">Test</span>'
 pub_date:       "2024"
 
 abstract: >-
