@@ -1,18 +1,82 @@
 <nav class="navbar navbar-expand-sm navbar-light bg-light fixed-top mb-5 shadow-sm">
     <div class="container">
-        <a class="navbar-brand"><strong>{{site.data.profile.navbar_name}}</strong></a>
-        <button class="navbar-toggler" style="font-size: 1em; padding: 0.5em;" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="fas fa-map"></i> Menu
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-            <ul class="navbar-nav ml-auto">
-                {% for item in site.data.navigation.pages %}
-                <li class="nav-item {% if item.name == page.navbar_title %}active{% endif %}">
-                    <a class="nav-link" href="{{ item.url | relative_url }}">{{ item.name }}</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+    {% if site.data.profile.navbar_name and site.data.profile.show_navbar_brand %}
+        <a class="navbar-brand"><strong>{{ site.data.profile.navbar_name }}</strong></a>
+    {% endif %}      
+      <button class="navbar-toggler" style="font-size: 1em; padding: 0.5em;" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-map"></i> Menu
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav mx-auto">
+          {% for item in site.data.navigation.pages %}
+            <li class="nav-item {% if item.name == page.navbar_title %}active{% endif %}">
+              <a class="nav-link" href="{{ item.url | relative_url }}">{{ item.name }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-</nav>
+  </nav>
+  
+  <!-- Inline styles for hover effects and custom underline -->
+  <style>
+    /* Link styles for contact or any other links if needed */
+    .contact-link {
+        color: #2C497F;
+        text-decoration: none;
+        transition: color 0.1s ease;
+    }
+    
+    .contact-link:hover {
+        color: #4778cc;
+    }
+    
+    .contact-link i {
+        color: #293961;
+        transition: color 0.1s ease;
+    }
+    
+    .contact-link:hover i {
+        color: #4778cc;
+    }
+  
+    /* Make the font size slightly bigger for nav links */
+    .navbar-nav .nav-link {
+        font-size: 1.1em;
+        position: relative;       /* Needed for pseudo-element positioning */
+        text-decoration: none;    /* Remove default underline from links */
+        padding-bottom: 5px;      /* Adds space so the bottom line sits below the text */
+        color: #000;              /* Initial color (adjust to your preference) */
+    }
+  
+    /* Hover color change for the text */
+    .navbar-nav .nav-link:hover {
+        color: #007bff;           /* Example hover color */
+        text-decoration: none;    /* Ensure no default underline on hover */
+    }
+  
+    /* Create a pseudo-element for the custom underline */
+    .navbar-nav .nav-link::after {
+        content: "";
+        position: absolute;
+        left: 50%;                 /* Start from the horizontal center */
+        bottom: 0;                 /* Position at the bottom of the link */
+        width: 80%;                /* Desired final width of the underline */
+        height: 2px;               /* Thickness of the underline */
+        background-color: #007bff; /* Color of the underline */
+        transform: translateX(-50%) scaleX(0); /* Invisible by default */
+        transform-origin: center;
+        transition: transform 0.1s ease-in-out;
+    }
+  
+    /* Reveal the underline on hover by scaling it from 0 to 1 */
+    .navbar-nav .nav-link:hover::after {
+        transform: translateX(-50%) scaleX(1);
+    }
+  
+    /* Keep the underline visible for the active page */
+    .navbar-nav .nav-item.active .nav-link::after {
+        transform: translateX(-50%) scaleX(1);
+    }
+  </style>
+  
