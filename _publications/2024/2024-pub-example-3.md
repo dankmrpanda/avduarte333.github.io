@@ -19,6 +19,7 @@ authors:
   - Lei Li
   - Arlindo L. Oliveira
 links:
-  Code: https://github.com/luost26/academic-homepage
-  Unsplash: https://unsplash.com/photos/sliced-in-half-pineapple--_PLJZmHZzk
+  Paper: https://aclanthology.org/2024.findings-emnlp.377/
+  Code: https://github.com/joaodsmarques/LumberChunker
+  Dataset: https://huggingface.co/datasets/LumberChunker/GutenQA
 ---
