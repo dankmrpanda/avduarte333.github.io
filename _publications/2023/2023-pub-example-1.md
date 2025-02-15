@@ -1,17 +1,16 @@
 ---
-title:          "Lorem ipsum: Dolor sit amet, consectetur adipiscing elit"
-date:           2023-01-05 00:01:00 +0800
-selected:       true
-pub:            "Nature Communications"
+title:          "Improving Address Matching using Siamese Transformer Networks"
+date:           2023-09-01 00:01:00 +0800
+selected:       false
+pub:            "EPIA"
 pub_date:       "2023"
 abstract: >-
-  Cover image is a photo by Thomas Renaud on Unsplash. The abstract of the publication is meant to be a TLDR (very brief summary with 1~2 sentences) of your paper.
-cover:          /assets/images/covers/cover1.jpg
+  We explore the use of Pre-Trained BERT models to perform address matching for Portuguese Postal Data.
+cover:          /assets/images/covers/epia_bert.png
 authors:
-- Your Name*
-- Robert White*
-- John Doe
-- Charles Green (Stanford)
+  - André V. Duarte
+  - Arlindo L. Oliveira
+
 links:
-  Paper: https://www.cell.com
+  Paper: https://arxiv.org/pdf/2307.02300
 ---
