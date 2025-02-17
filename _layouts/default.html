@@ -3,31 +3,7 @@
 <!-- Template: https://github.com/luost26/academic-homepage -->
 <head>
     <meta charset="utf-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
-
-    <meta name="viewport" content="width=1024, initial-scale=1, user-scalable=yes">
-
-    <script>
-    function updateViewport() {
-        var desktopWidth = 1024; // your design width
-        var deviceWidth = window.innerWidth;
-        var scale = deviceWidth / desktopWidth;
-        var viewport = document.querySelector("meta[name=viewport]");
-        
-        // Set the scale factors, locking them can prevent dynamic zoom changes
-        viewport.setAttribute('content',
-        'width=' + desktopWidth +
-        ', initial-scale=' + scale +
-        ', minimum-scale=' + scale +
-        ', maximum-scale=' + scale +
-        ', user-scalable=no'
-        );
-    }
-    
-    updateViewport();
-    window.addEventListener('resize', updateViewport);
-    </script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 
     <title>{{ page.title }} - {{ site.data.profile.navbar_name }}</title>
