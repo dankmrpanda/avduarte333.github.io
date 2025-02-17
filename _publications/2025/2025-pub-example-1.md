@@ -17,7 +17,7 @@ authors:
   - Arlindo L. Oliveira
   - Lei Li
 links:
-  Website:
+  Website: /projects/disco/
   Paper: 
   Code: https://github.com/avduarte333/DIS-CO
   Dataset: https://huggingface.co/datasets/DIS-CO/MovieTection
