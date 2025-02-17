@@ -118,7 +118,7 @@ navbar_title: "DIS-CO"
   <div class="container is-max-desktop">
     <!-- Abstract. -->
     <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
+      <div class="column is-fullwidth">
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
@@ -134,57 +134,60 @@ navbar_title: "DIS-CO"
       </div>
     </div>
     <!--/ Abstract. -->
+</section>
 
-    <!-- The quiz section -->
-    <section class="section" id="quiz">
-      <div class="container">
-        <!-- A card to neatly wrap the content -->
-        <div class="card" style="width: 100%; margin: 0;">
+
+
+  <!-- The quiz section -->
+  <section class="section" id="quiz">
+    <div class="container">
+      <!-- A card to neatly wrap the content -->
+      <div class="card" style="width: 100%; margin: 0;">
+        
+        <!-- Card image (the movie frame) -->
+        <div class="card-image">
+          <figure class="image">
+            <!-- Replace with your actual frame image -->
+            <img src="./static/images/quiz_frame.png" alt="Movie Frame">
+          </figure>
+        </div>
+        
+        <!-- Card content for the quiz question -->
+        <div class="card-content">
+          <!-- Centered title under the image -->
+          <p class="title is-4 has-text-centered">Identify the Movie</p>
           
-          <!-- Card image (the movie frame) -->
-          <div class="card-image">
-            <figure class="image">
-              <!-- Replace with your actual frame image -->
-              <img src="./static/images/quiz_frame.png" alt="Movie Frame">
-            </figure>
-          </div>
-          
-          <!-- Card content for the quiz question -->
-          <div class="card-content">
-            <!-- Centered title under the image -->
-            <p class="title is-4 has-text-centered">Identify the Movie</p>
+          <!-- The quiz form -->
+          <form id="quiz-form">
+            <div class="field">
+              <label class="label">What movie is present on this frame?</label>
+              <div class="control">
+                <!-- Include a default '-' option -->
+                <select id="quiz-answer" name="quiz-answer" placeholder="Select a movie...">
+                  <option value="-" selected>-</option>
+                </select>
+              </div>
+            </div>
             
-            <!-- The quiz form -->
-            <form id="quiz-form">
-              <div class="field">
-                <label class="label">What movie is present on this frame?</label>
-                <div class="control">
-                  <!-- Include a default '-' option -->
-                  <select id="quiz-answer" name="quiz-answer" placeholder="Select a movie...">
-                    <option value="-" selected>-</option>
-                  </select>
-                </div>
+            <div class="field">
+              <div class="control">
+                <button type="submit" class="button is-primary is-fullwidth">
+                  Submit
+                </button>
               </div>
-              
-              <div class="field">
-                <div class="control">
-                  <button type="submit" class="button is-primary is-fullwidth">
-                    Submit
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div> <!-- end card-content -->
-        </div> <!-- end card -->
-      </div> <!-- end container -->
-    </section>
+            </div>
+          </form>
+        </div> <!-- end card-content -->
+      </div> <!-- end card -->
+    </div> <!-- end container -->
+  </section>
 
-    <style>
-      /* Adjust if needed; Tom Select generally handles the layout well. */
-      .card {
-        overflow: visible; /* So the dropdown won't be clipped */
-      }
-    </style>
+  <style>
+    /* Adjust if needed; Tom Select generally handles the layout well. */
+    .card {
+      overflow: visible; /* So the dropdown won't be clipped */
+    }
+  </style>
 
 <script>
   fetch('./static/data/movies.txt')
@@ -246,7 +249,7 @@ navbar_title: "DIS-CO"
 
 
     <!-- Rest of your page content continues... -->
-
+<section>
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
         <h2 class="title is-3">Video</h2>
