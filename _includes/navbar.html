@@ -1,22 +1,33 @@
 <nav class="navbar navbar-expand-sm navbar-light bg-light fixed-top mb-5 shadow-sm">
-    <div class="container">
+  <div class="container">
     {% if site.data.profile.navbar_name and site.data.profile.show_navbar_brand %}
-        <a class="navbar-brand"><strong>{{ site.data.profile.navbar_name }}</strong></a>
+      <a class="navbar-brand"><strong>{{ site.data.profile.navbar_name }}</strong></a>
     {% endif %}      
-      <button class="navbar-toggler" style="font-size: 1em; padding: 0.5em;" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        <i class="fas fa-map"></i> Menu
-      </button>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
-        <ul class="navbar-nav mx-auto">
-          {% for item in site.data.navigation.pages %}
-            <li class="nav-item {% if item.name == page.navbar_title %}active{% endif %}">
-              <a class="nav-link" href="{{ item.url | relative_url }}">{{ item.name }}</a>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+    <button class="navbar-toggler" style="font-size: 1em; padding: 0.5em;" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-map"></i> Menu
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav mx-auto">
+        {% for item in site.data.navigation.pages %}
+          <li class="nav-item {% if item.name == page.navbar_title %}active{% endif %}">
+            <a class="nav-link" href="{{ item.url | relative_url }}">{{ item.name }}</a>
+          </li>
+        {% endfor %}
+
+        {% comment %}
+          Below is the extra item that only shows if we're on the "DIS-CO" page
+        {% endcomment %}
+        {% if page.navbar_title == "DIS-CO" %}
+          <li class="nav-item active">
+            <a class="nav-link" href="/projects/disco/">DIS-CO</a>
+          </li>
+        {% endif %}
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
+
   
   <!-- Inline styles for hover effects and custom underline -->
   <style>
