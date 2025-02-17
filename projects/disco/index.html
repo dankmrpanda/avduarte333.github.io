@@ -1,15 +1,14 @@
----
+<!-- ---
 layout: default
 title: "DIS-CO: Discovering Copyrighted Content in VLMs Training Data"
 navbar_title: "DIS-CO"
----
+--- -->
 
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="description"
-        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="description" content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
   <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -28,225 +27,217 @@ navbar_title: "DIS-CO"
     gtag('config', 'G-PYVRSFMDRL');
   </script>
 
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <!-- Bulma CSS -->
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
   <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  
+  <!-- FontAwesome & Academicons -->
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  
+  <!-- Your Custom CSS -->
   <link rel="stylesheet" href="./static/css/index.css">
+  
+  <!-- Favicon -->
   <link rel="icon" href="./static/images/disco_ball_icon.png">
 
+  <!-- Load jQuery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  
+  <!-- Load Bootstrap CSS AFTER Bulma so that the navbar styles take precedence -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css" 
+        integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA==" 
+        crossorigin="anonymous" />
+
+  <!-- Load Bootstrap JS (with Popper.js) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" 
+          integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" 
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js" 
+          integrity="sha512-XKa9Hemdy1Ui3KSGgJdgMyYlUg1gM+QhL6cnlyTe2qzMCYm4nAZ1PsVerQzTTXzonUR+dmswHqgJPuwCq1MaAg==" 
+          crossorigin="anonymous"></script>
+  
+  <!-- Other scripts (FontAwesome, Bulma JS, etc.) -->
   <script defer src="./static/js/fontawesome.all.min.js"></script>
   <script src="./static/js/bulma-carousel.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
+
+
 </head>
 <body>
 
-<section class="hero">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">DIS-CO: Discovering Copyrighted Content in VLMs Training Data</h1>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">
-              <a href="/">André V. Duarte</a><sup>1,2</sup>,</span>
-            <span class="author-block">
-              <a href="https://xuandongzhao.github.io/">Xuandong Zhao</a><sup>3</sup>,</span>
-            <span class="author-block">
-              <a href="https://web.tecnico.ulisboa.pt/arlindo.oliveira/">Arlindo L. Oliveira</a><sup>2</sup>,
-            </span>
-            <span class="author-block">
-              <a href="https://lileicc.github.io/">Lei Li</a><sup>1</sup>,
-            </span>
-          </div>
 
-          <div class="is-size-5 publication-authors">
-            <span class="author-block"><sup>1</sup>Carnegie Mellon University,</span>
-            <span class="author-block"><sup>2</sup>Instituto Superior Técnico</span>
-            <span class="author-block"><sup>3</sup>UC Berkeley</span>
-          </div>
+  <!-- Begin Bulma-Based Page Content -->
 
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
           <div class="column has-text-centered">
-            <div class="publication-links">
-              <!-- PDF Link. -->
-              <span class="link-block">
-                <a href="https://arxiv.org/pdf/2011.12948"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fas fa-file-pdf"></i>
-                  </span>
-                  <span>Paper</span>
-                </a>
+            <h1 class="title is-1 publication-title">
+              DIS-CO: Discovering Copyrighted Content in VLMs Training Data
+            </h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="/">André V. Duarte</a><sup>1,2</sup>,
               </span>
-              <!-- Code Link. -->
-              <span class="link-block">
-                <a href="https://github.com/avduarte333/DIS-CO"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-github"></i>
-                  </span>
-                  <span>Code</span>
-                  </a>
+              <span class="author-block">
+                <a href="https://xuandongzhao.github.io/">Xuandong Zhao</a><sup>3</sup>,
               </span>
-              <!-- Dataset Link. -->
-              <span class="link-block">
-                <a href="https://huggingface.co/datasets/DIS-CO/MovieTection"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="far fa-images"></i>
-                  </span>
-                  <span>Data</span>
+              <span class="author-block">
+                <a href="https://web.tecnico.ulisboa.pt/arlindo.oliveira/">Arlindo L. Oliveira</a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://lileicc.github.io/">Lei Li</a><sup>1</sup>,
+              </span>
+            </div>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><sup>1</sup>Carnegie Mellon University,</span>
+              <span class="author-block"><sup>2</sup>Instituto Superior Técnico</span>
+              <span class="author-block"><sup>3</sup>UC Berkeley</span>
+            </div>
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- PDF Link -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/pdf/2011.12948" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                    <span>Paper</span>
                   </a>
+                </span>
+                <!-- Code Link -->
+                <span class="link-block">
+                  <a href="https://github.com/avduarte333/DIS-CO" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fab fa-github"></i></span>
+                    <span>Code</span>
+                  </a>
+                </span>
+                <!-- Dataset Link -->
+                <span class="link-block">
+                  <a href="https://huggingface.co/datasets/DIS-CO/MovieTection" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="far fa-images"></i></span>
+                    <span>Data</span>
+                  </a>
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container is-max-desktop">
-    <!-- Abstract. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-fullwidth">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            <em>How can we verify whether copyrighted content was used to train a large vision-language model (VLM) without direct access to its training data?</em><br><br>
-            Motivated by the hypothesis that a VLM is able to recognize images from its training corpus, we propose DIS-CO, a novel
-            approach to infer the inclusion of copyrighted content during the model's development. 
-            By repeatedly querying a VLM with specific frames from targeted copyrighted material, DIS-CO extracts the content's identity through free-form text completions. 
-            To assess its effectiveness, we introduce MovieTection, a benchmark comprising 14,000 frames paired with detailed captions, drawn from films released both before and after a model’s training cutoff. 
-            Our results show that DIS-CO significantly improves detection performance, nearly doubling the average AUC of the best prior method on models with logits available. 
-            Our findings also highlight a broader concern: all tested models appear to have been exposed to some extent to copyrighted content.
-          </p>
-        </div>
-      </div>
-    </div>
-    <!--/ Abstract. -->
-</section>
-
-
-
-  <!-- The quiz section -->
-  <section class="section" id="quiz">
-    <div class="container is-max-desktop">
-      <!-- A card to neatly wrap the content -->
-       <!-- <div class="columns is-centered has-text-centered"> -->
-      <div class="card" style="width: 100%; margin: 0;">
-        
-        <!-- Card image (the movie frame) -->
-        <div class="card-image">
-          <figure class="image">
-            <!-- Replace with your actual frame image -->
-            <img src="./static/images/quiz_frame.png" alt="Movie Frame">
-          </figure>
-        </div>
-        
-        <!-- Card content for the quiz question -->
-        <div class="card-content">
-          <!-- Centered title under the image -->
-          <p class="title is-4 has-text-centered">Identify the Movie</p>
-          
-          <!-- The quiz form -->
-          <form id="quiz-form">
-            <div class="field">
-              <label class="label">What movie is present on this frame?</label>
-              <div class="control">
-                <!-- Include a default '-' option -->
-                <select id="quiz-answer" name="quiz-answer" placeholder="Select a movie...">
-                  <option value="-" selected>-</option>
-                </select>
-              </div>
-            </div>
-            
-            <div class="field">
-              <div class="control">
-                <button type="submit" class="button is-primary is-fullwidth">
-                  Submit
-                </button>
-              </div>
-            </div>
-          </form>
-        </div> <!-- end card-content -->
-      </div> <!-- end card -->
-    </div> <!-- end container -->
   </section>
 
+  <!-- Abstract Section -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              <em>How can we verify whether copyrighted content was used to train a large vision-language model (VLM) without direct access to its training data?</em><br><br>
+              Motivated by the hypothesis that a VLM is able to recognize images from its training corpus, we propose DIS-CO, a novel
+              approach to infer the inclusion of copyrighted content during the model's development. 
+              By repeatedly querying a VLM with specific frames from targeted copyrighted material, DIS-CO extracts the content's identity through free-form text completions. 
+              To assess its effectiveness, we introduce MovieTection, a benchmark comprising 14,000 frames paired with detailed captions, drawn from films released both before and after a model’s training cutoff. 
+              Our results show that DIS-CO significantly improves detection performance, nearly doubling the average AUC of the best prior method on models with logits available. 
+              Our findings also highlight a broader concern: all tested models appear to have been exposed to some extent to copyrighted content.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quiz Section -->
+  <div class="has-background-light">
+    <section class="section" id="quiz">
+      <div class="container is-max-desktop">
+        <h2 class="title is-3 has-text-centered">Let's Play a Game - Can you beat ChatGPT?</h2>
+        <div class="card" style="width: 100%; margin: 0;">
+          <!-- Card image (the movie frame) -->
+          <div class="card-image">
+            <figure class="image">
+              <img src="./static/images/quiz_frame.png" alt="Movie Frame">
+            </figure>
+          </div>
+          <!-- Card content for the quiz question -->
+          <div class="card-content">
+            <p class="title is-4 has-text-centered">Identify the Movie</p>
+            <form id="quiz-form">
+              <div class="field">
+                <label class="label">What movie is present on this frame?</label>
+                <div class="control">
+                  <select id="quiz-answer" name="quiz-answer" placeholder="Select a movie...">
+                    <option value="-" selected>-</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <div class="control">
+                  <button type="submit" class="button is-primary is-fullwidth">Submit</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <style>
-    /* Adjust if needed; Tom Select generally handles the layout well. */
     .card {
-      overflow: visible; /* So the dropdown won't be clipped */
+      overflow: visible;
     }
   </style>
 
-<script>
-  fetch('./static/data/movies.txt')
-    .then(res => res.text())
-    .then(data => {
-      const lines = data.split('\n')
-                       .map(x => x.trim())
-                       .filter(x => x.length > 0);
-
-      const selectEl = document.getElementById('quiz-answer');
-
-      // Populate the <select> with movie titles
-      for (const movie of lines) {
-        const option = document.createElement('option');
-        option.value = movie;
-        option.textContent = movie;
-        selectEl.appendChild(option);
-      }
-
-      new TomSelect('#quiz-answer', {
-        create: false,
-        maxItems: 1,
-        allowEmptyOption: true,
-        placeholder: 'Select a movie...',
-        maxOptions: 7000,    // Show only 10 at a time (scroll for the rest)
-
-        // If user starts typing again AND we already have a selection
-        // (not the placeholder "-"), then clear everything:
-        onType: function(inputText) {
-          if (this.getValue()) { // if any value (including '-') exists, clear it.
-            this.clear();
-          }
-        },
-
-        // If the user refocuses (clicks again) and already has a valid selection,
-        // also clear it out. (Useful if you want to handle the re-focus case as well.)
-        onFocus: function() {
-          if (this.getValue() && this.getValue() !== '-') {
-            this.clear();
-          }
+  <script>
+    fetch('./static/data/movies.txt')
+      .then(res => res.text())
+      .then(data => {
+        const lines = data.split('\n').map(x => x.trim()).filter(x => x.length > 0);
+        const selectEl = document.getElementById('quiz-answer');
+        for (const movie of lines) {
+          const option = document.createElement('option');
+          option.value = movie;
+          option.textContent = movie;
+          selectEl.appendChild(option);
         }
-      });
-    })
-    .catch(err => console.error('Error loading movies.txt:', err));
+        new TomSelect('#quiz-answer', {
+          create: false,
+          maxItems: 1,
+          allowEmptyOption: true,
+          placeholder: 'Select a movie...',
+          maxOptions: 7000,
+          onType: function(inputText) {
+            if (this.getValue()) { this.clear(); }
+          },
+          onFocus: function() {
+            if (this.getValue() && this.getValue() !== '-') { this.clear(); }
+          }
+        });
+      })
+      .catch(err => console.error('Error loading movies.txt:', err));
 
-  // Simple form submission
-  document.getElementById('quiz-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const selectEl = document.getElementById('quiz-answer');
-    const selectedValue = selectEl.value;
-    if (!selectedValue || selectedValue === '-') {
-      alert("Please select a movie.");
-    } else {
-      alert("You selected: " + selectedValue);
-    }
-  });
-</script>
+    document.getElementById('quiz-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const selectEl = document.getElementById('quiz-answer');
+      const selectedValue = selectEl.value;
+      if (!selectedValue || selectedValue === '-') {
+        alert("Please select a movie.");
+      } else {
+        alert("You selected: " + selectedValue);
+      }
+    });
+  </script>
 
-
-
-    <!-- Rest of your page content continues... -->
-<section>
+  <!-- Video Section -->
+  <section>
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
         <h2 class="title is-3">Video</h2>
@@ -256,54 +247,53 @@ navbar_title: "DIS-CO"
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Other sections ... -->
-
-<section class="section" id="BibTeX">
-  <div class="container is-max-desktop content">
-    <h2 class="title">BibTeX</h2>
-    <pre><code>@article{park2021nerfies,
+  <!-- BibTeX Section -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@article{park2021nerfies,
   author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
   title     = {Nerfies: Deformable Neural Radiance Fields},
   journal   = {ICCV},
   year      = {2021},
 }</code></pre>
-  </div>
-</section>
-
-<footer class="footer">
-  <div class="container">
-    <div class="content has-text-centered">
-      <a class="icon-link" href="./static/videos/nerfies_paper.pdf">
-        <i class="fas fa-file-pdf"></i>
-      </a>
-      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
-        <i class="fab fa-github"></i>
-      </a>
     </div>
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-          <p>
-            This website is licensed under a 
-            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
-              Creative Commons Attribution-ShareAlike 4.0 International License
-            </a>.
-          </p>
-          <p>
-            This means you are free to borrow the 
-            <a href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website;
-            we just ask that you link back to this page in the footer.
-            Please remember to remove the analytics code included in the header of the website which
-            you do not want on your website.
-          </p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="content has-text-centered">
+        <a class="icon-link" href="./static/videos/nerfies_paper.pdf">
+          <i class="fas fa-file-pdf"></i>
+        </a>
+        <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+          <i class="fab fa-github"></i>
+        </a>
+      </div>
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This website is licensed under a 
+              <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+                Creative Commons Attribution-ShareAlike 4.0 International License
+              </a>.
+            </p>
+            <p>
+              This means you are free to borrow the 
+              <a href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website;
+              we just ask that you link back to this page in the footer.
+              Please remember to remove the analytics code included in the header of the website which
+              you do not want on your website.
+            </p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</footer>
-
+  </footer>
+  
 </body>
 </html>
