@@ -30,7 +30,7 @@ navbar_title: "DIS-CO"
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
 
-  <!-- Bulma CSS -->
+  <!-- Bulma CSS (You can remove references to bulma-carousel if you don't need it) -->
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
   <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
@@ -49,28 +49,26 @@ navbar_title: "DIS-CO"
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   
   <!-- Load Bootstrap CSS AFTER Bulma so that the navbar styles take precedence -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css" 
-        integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA==" 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
+        integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA=="
         crossorigin="anonymous" />
 
   <!-- Load Bootstrap JS (with Popper.js) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" 
-          integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+          integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
           crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js" 
-          integrity="sha512-XKa9Hemdy1Ui3KSGgJdgMyYlUg1gM+QhL6cnlyTe2qzMCYm4nAZ1PsVerQzTTXzonUR+dmswHqgJPuwCq1MaAg==" 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"
+          integrity="sha512-XKa9Hemdy1Ui3KSGJdgMyYlUg1gM+QhL6cnlyTe2qzMCYm4nAZ1PsVerQzTTXzonUR+dmswHqgJPuwCq1MaAg=="
           crossorigin="anonymous"></script>
   
-  <!-- Other scripts (FontAwesome, Bulma JS, etc.) -->
+  <!-- Other scripts (FontAwesome, etc.) -->
   <script defer src="./static/js/fontawesome.all.min.js"></script>
   <script src="./static/js/bulma-carousel.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
 
-
 </head>
 <body>
-
 
   <!-- Begin Bulma-Based Page Content -->
 
@@ -154,7 +152,6 @@ navbar_title: "DIS-CO"
     </div>
   </section>
 
-
   <section class="section" id="intuition-section">
     <div class="container">
       <!-- Red Title -->
@@ -169,248 +166,289 @@ navbar_title: "DIS-CO"
     </div>
   </section>
 
+  <!-- Quiz Section with manual "carousel" (Prev/Next) -->
+  <div class="has-background-light">
+    <section class="section" id="quiz">
+      <div class="container is-max-desktop">
+        <h2 class="title is-3 has-text-centered">
+          Let's Play a Game - Can you beat ChatGPT?
+        </h2>
 
+        <!-- A simple container to hold the current quiz image -->
+        <div class="quiz-frame" style="background: none; display: flex; justify-content: center;">
+          <figure class="image" style="margin: 2rem auto 0; width: 60%; background-color: #fff;">
+            <img id="quiz-image" src="./static/images/quiz_images/quiz1.png" alt="Movie Frame" style="max-width: 100%;">
+          </figure>
+        </div>
 
+        <!-- Navigation Arrows -->
+        <div class="navigation-controls" style="text-align: center; margin-top: 1rem;">
+          <button id="prev-btn" class="button is-info" style="margin-right: 1rem;">&larr; Previous</button>
+          <span id="quiz-counter" style="font-weight: bold;">Frame 1 of 8</span>
+          <button id="next-btn" class="button is-info" style="margin-left: 1rem;">Next &rarr;</button>
+        </div>
 
-<!-- Quiz Section -->
-<div class="has-background-light">
-  <section class="section" id="quiz">
-    <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered">
-        Let's Play a Game - Can you beat ChatGPT?
-      </h2>
+        <!-- Answer Container -->
+        <div class="answer-container" style="margin: 2rem auto 0; width: 60%; background-color: #fff; border: 1px solid #ccc; padding: 1.5rem; border-radius: 10px;">
+          <label class="label">What movie is present in this frame?</label>
+          <!-- Plain <select> for TomSelect to take over -->
+          <select id="quiz-answer" name="quiz-answer" placeholder="Select a movie...">
+            <option value="-" selected>-</option>
+          </select>
+        </div>
+        
+        <!-- Final submission button -->
+        <div class="field" style="margin-top: 1.5rem; text-align: center;">
+          <button id="submit-all" class="button is-primary">Submit All Guesses</button>
+        </div>
 
-      <!-- 
-        1) Quiz Frame: No white background. 
-           Just center the image.
-      -->
-      <div class="quiz-frame" style="background: none; display: flex; justify-content: center;">
-        <figure class="image column is-three-fifths">
-          <img src="./static/images/quiz_images/quiz1.png" alt="Movie Frame">
-        </figure>
       </div>
+    </section>
+  </div>
 
-      <!-- 
-        2) Answer Container:
-           White background, thin border, some padding.
-      -->
-      <div class="answer-container" style="margin-top: 2rem;">
-        <form id="quiz-form">
-          <div class="field">
-            <label class="label">What movie is present on this frame?</label>
-            <!-- Plain <select> so TomSelect can take over -->
-            <select id="quiz-answer" name="quiz-answer" placeholder="Select a movie...">
-              <option value="-" selected>-</option>
-            </select>
-          </div>
+  <style>
+    /* 1) White, Outlined Container for the Answer Box */
+    .answer-container {
+      background-color: #fff;    /* White fill */
+      border: 1px solid #ccc;   /* Thin gray outline */
+      padding: 1.5rem;
+      border-radius: 10px;
+    }
 
-          <div class="field" style="margin-top: 1rem;">
-            <div class="control">
-              <button type="submit" class="button is-primary is-fullwidth">Submit</button>
-            </div>
-          </div>
-        </form>
+    /*
+      2) TomSelect uses .ts-wrapper and .ts-control by default
+         (unless overridden by classNames in JS).
+    */
+    .ts-wrapper .ts-control {
+      background: #f0f0f0;      /* Light gray background */
+      border: 1px solid #ccc;   /* Thin border to match container */
+      border-radius: 5px;
+      position: relative;       /* Needed for the custom arrow */
+      padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+    }
+
+    .ts-wrapper .ts-control:hover,
+    .ts-wrapper .ts-control:focus-within {
+      box-shadow: none; /* Remove default TomSelect hover/focus shadow */
+    }
+
+    /* 3) Custom arrow on the right side */
+    .ts-wrapper .ts-control::after {
+      content: "⌄";  /* Down arrow */
+      position: absolute;
+      right: 0.75rem;
+      top: 35%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #666;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* 4) The text input inside TomSelect’s control */
+    .ts-wrapper .ts-control input {
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+
+    /* 5) The dropdown that appears with options */
+    .ts-wrapper .ts-dropdown {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* Hide the original <select> if needed (TomSelect generally does this automatically) */
+    select#quiz-answer {
+      display: none !important;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 1) We have 8 images: quiz1.png -> quiz8.png
+      //    We'll store them in an array to cycle through
+      const quizImages = [
+        './static/images/quiz_images/quiz1.png',
+        './static/images/quiz_images/quiz2.png',
+        './static/images/quiz_images/quiz3.png',
+        './static/images/quiz_images/quiz4.png',
+        './static/images/quiz_images/quiz5.png',
+        './static/images/quiz_images/quiz6.png',
+        './static/images/quiz_images/quiz7.png',
+        './static/images/quiz_images/quiz8.png'
+      ];
+      let currentIndex = 0;  // We start at quizImages[0]
+
+      // 2) We'll keep track of user's guesses in an array of length 8
+      //    Initialize all to null or '-'
+      let userAnswers = new Array(8).fill(null);
+
+      // 3) Grab important DOM elements
+      const quizImageEl = document.getElementById('quiz-image');
+      const quizCounterEl = document.getElementById('quiz-counter');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      let quizSelect; // Will hold our TomSelect instance
+
+      // 4) Populate the <select> with movie options from movies.txt
+      fetch('./static/data/movies.txt')
+        .then(res => res.text())
+        .then(data => {
+          const lines = data
+            .split('\n')
+            .map(x => x.trim())
+            .filter(x => x.length > 0);
+
+          const selectEl = document.getElementById('quiz-answer');
+          for (const movie of lines) {
+            const option = document.createElement('option');
+            option.value = movie;
+            option.textContent = movie;
+            selectEl.appendChild(option);
+          }
+
+          // Now, initialize TomSelect
+          quizSelect = new TomSelect('#quiz-answer', {
+            create: false,
+            maxItems: 1,
+            allowEmptyOption: true,
+            placeholder: 'Select a movie...',
+            maxOptions: 7000,
+            onType: function(inputText) {
+              if (this.getValue()) {
+                this.clear();
+              }
+            },
+            onFocus: function() {
+              // Optionally clear if there's a selection
+              // but let's do nothing for now so we don't lose typed text
+            }
+          });
+
+          // Make sure the default guess is clear
+          quizSelect.clear();
+        })
+        .catch(err => console.error('Error loading movies.txt:', err));
+
+      // 5) Function to update displayed image and the quizSelect with stored guess
+      function updateSlide() {
+        // Update image source
+        quizImageEl.src = quizImages[currentIndex];
+        // Update text "Frame X of 8"
+        quizCounterEl.textContent = `Frame ${currentIndex + 1} of ${quizImages.length}`;
+
+        // If there's a stored guess for this index, re-populate TomSelect
+        if (quizSelect) {
+          const guess = userAnswers[currentIndex];
+          if (guess) {
+            quizSelect.setValue(guess);
+          } else {
+            quizSelect.clear();
+          }
+        }
+      }
+
+      // 6) Navigation button event listeners
+      prevBtn.addEventListener('click', function() {
+        // Before changing slides, store the current guess
+        if (quizSelect) {
+          userAnswers[currentIndex] = quizSelect.getValue();
+        }
+        // Decrement index if possible
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateSlide();
+        }
+      });
+
+      nextBtn.addEventListener('click', function() {
+        // Store the current guess
+        if (quizSelect) {
+          userAnswers[currentIndex] = quizSelect.getValue();
+        }
+        // Increment index if possible
+        if (currentIndex < quizImages.length - 1) {
+          currentIndex++;
+          updateSlide();
+        }
+      });
+
+      // 7) "Submit All" button
+      document.getElementById('submit-all').addEventListener('click', function() {
+        // Make sure we store the guess for the current slide
+        if (quizSelect) {
+          userAnswers[currentIndex] = quizSelect.getValue();
+        }
+
+        // For now, just alert the array of guesses
+        // In practice, you could POST to a server or compute accuracy
+        alert('Your guesses:\n' + JSON.stringify(userAnswers, null, 2));
+      });
+
+      // 8) On load, ensure the first slide is displayed properly
+      updateSlide();
+    });
+  </script>
+
+  <!-- Video Section -->
+  <section>
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
       </div>
     </div>
   </section>
-</div>
 
-<style>
-  /* 1) White, Outlined Container for the Answer Box */
-  .answer-container {
-    background-color: #fff;    /* White fill */
-    border: 1px solid #ccc;   /* Thin gray outline */
-    padding: 1.5rem;
-    border-radius: 10px;
-  }
-
-  /*
-    2) TomSelect uses .ts-wrapper and .ts-control by default
-       (unless overridden by classNames in JS).
-  */
-  .ts-wrapper .ts-control {
-    background: #f0f0f0;      /* Light gray background */
-    border: 1px solid #ccc;   /* Thin border to match container */
-    border-radius: 5px;
-    position: relative;       /* Needed for the custom arrow */
-    padding: 0.375rem 1.75rem 0.375rem 0.75rem;
-  }
-
-  .ts-wrapper .ts-control:hover,
-  .ts-wrapper .ts-control:focus-within {
-    box-shadow: none; /* Remove default TomSelect hover/focus shadow */
-  }
-
-  /* 3) Custom arrow on the right side */
-  .ts-wrapper .ts-control::after {
-    content: "⌄";  /* Down arrow */
-    position: absolute;
-    right: 0.75rem;
-    top: 35%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    color: #666;
-    font-size: 1.2rem;
-    font-weight: bold;
-  }
-
-  /* 4) The text input inside TomSelect’s control */
-  .ts-wrapper .ts-control input {
-    background: transparent;
-    border: none;
-    outline: none;
-  }
-
-  /* 5) The dropdown that appears with options */
-  .ts-wrapper .ts-dropdown {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-
-  /*
-    6) Hide the original <select> if needed
-       (TomSelect generally does this automatically).
-  */
-  select#quiz-answer {
-    display: none !important;
-  }
-
-
-  /* Submit button styling: Smaller height and width */
-  .answer-container .button {
-  background-color: #4a90e2; /* Custom background color */
-  border: none;
-  color: #fff;
-  font-size: 1rem;
-  padding: 0.2rem 0.5rem;   /* Reduced padding */
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-  width: 100%;               /* 50% width relative to its container */
-  max-width: 100%;
-  margin: 0 auto;
-  line-height: 1.6;           /* Override default line-height */
-  min-height: 0;            /* Remove Bulma's potential min-height */
-  height: auto;             /* Let the height be determined by content */
-  box-sizing: border-box;   /* Ensure padding/border are included in the width */
-  }
-
-
-  /* Hover effect for the submit button */
-  .answer-container .button:hover {
-    background-color: #357ab8; /* Darker background on hover */
-  }
-
-
-
-</style>
-
-<script>
-  // 1) Fetch the list of movies and populate the <select>
-  fetch('./static/data/movies.txt')
-    .then(res => res.text())
-    .then(data => {
-      const lines = data
-        .split('\n')
-        .map(x => x.trim())
-        .filter(x => x.length > 0);
-
-      const selectEl = document.getElementById('quiz-answer');
-      for (const movie of lines) {
-        const option = document.createElement('option');
-        option.value = movie;
-        option.textContent = movie;
-        selectEl.appendChild(option);
-      }
-
-      // 2) Initialize TomSelect on #quiz-answer
-      new TomSelect('#quiz-answer', {
-        create: false,
-        maxItems: 1,
-        allowEmptyOption: true,
-        placeholder: 'Select a movie...',
-        maxOptions: 7000,
-        // If you want to clear the selection automatically on type/focus:
-        onType: function(inputText) {
-          if (this.getValue()) { this.clear(); }
-        },
-        onFocus: function() {
-          if (this.getValue() && this.getValue() !== '-') { this.clear(); }
-        }
-      });
-    })
-    .catch(err => console.error('Error loading movies.txt:', err));
-
-  // 3) Handle form submission
-  document.getElementById('quiz-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const tomSelectInstance = TomSelect.getInstance('#quiz-answer');
-    const selectedValue = tomSelectInstance.getValue();
-    if (!selectedValue || selectedValue === '-') {
-      alert("Please select a movie.");
-    } else {
-      alert("You selected: " + selectedValue);
-    }
-  });
-</script>
-
-<!-- Video Section -->
-<section>
-  <div class="columns is-centered has-text-centered">
-    <div class="column is-four-fifths">
-      <h2 class="title is-3">Video</h2>
-      <div class="publication-video">
-        <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
-                frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- BibTeX Section -->
-<section class="section" id="BibTeX">
-  <div class="container is-max-desktop content">
-    <h2 class="title">BibTeX</h2>
-    <pre><code>@article{park2021nerfies,
+  <!-- BibTeX Section -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@article{park2021nerfies,
   author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},
   title     = {Nerfies: Deformable Neural Radiance Fields},
   journal   = {ICCV},
   year      = {2021},
 }</code></pre>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="footer">
-  <div class="container">
-    <div class="content has-text-centered">
-      <a class="icon-link" href="./static/videos/nerfies_paper.pdf">
-        <i class="fas fa-file-pdf"></i>
-      </a>
-      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
-        <i class="fab fa-github"></i>
-      </a>
     </div>
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-          <p>
-            This website is licensed under a 
-            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
-              Creative Commons Attribution-ShareAlike 4.0 International License
-            </a>.
-          </p>
-          <p>
-            This means you are free to borrow the 
-            <a href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website;
-            we just ask that you link back to this page in the footer.
-            Please remember to remove the analytics code included in the header of the website which
-            you do not want on your website.
-          </p>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="content has-text-centered">
+        <a class="icon-link" href="./static/videos/nerfies_paper.pdf">
+          <i class="fas fa-file-pdf"></i>
+        </a>
+        <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+          <i class="fab fa-github"></i>
+        </a>
+      </div>
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This website is licensed under a 
+              <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+                Creative Commons Attribution-ShareAlike 4.0 International License
+              </a>.
+            </p>
+            <p>
+              This means you are free to borrow the 
+              <a href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website;
+              we just ask that you link back to this page in the footer.
+              Please remember to remove the analytics code included in the header of the website which
+              you do not want on your website.
+            </p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</footer>
+  </footer>
   
 </body>
 </html>
