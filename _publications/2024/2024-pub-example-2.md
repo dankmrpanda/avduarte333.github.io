@@ -25,7 +25,7 @@ authors:
   - Lei Li
   - Arlindo L. Oliveira
 links:
-  Website: 
+  # Website: 
   Paper: https://arxiv.org/abs/2402.09910
   Code: https://github.com/LeiLiLab/DE-COP
   Dataset: https://huggingface.co/datasets/avduarte333/BookTection
