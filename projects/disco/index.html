@@ -70,22 +70,42 @@ navbar_title: "DIS-CO"
   <style>
     /* Navigation controls: buttons and dot indicators */
     .navigation-controls {
-      width: 50%;
-      margin: 1rem auto;
-      display: flex;
-      justify-content: space-between;
+      display: flex; /* Makes container only as wide as its children */
+      justify-content: center;
       align-items: center;
+      gap: 0.5rem;        /* Adjust gap between children as needed */
+      
+      width: fit-content;
+      margin: 1rem auto;  /* Center the whole thing if desired */
     }
 
+
     .navigation-controls button {
-      width: 20%;
+      width: 10%;
       margin: 0;
     }
 
+
+    .round-button {
+      width: 3rem !important;
+      height: 3rem !important;
+      min-width: 3rem !important; /* Overrides Bulma's min-width */
+      padding: 0 !important;      /* Remove extra padding */
+      border-radius: 50% !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem !important;
+      box-sizing: border-box;
+    }
+
+
+
     /* Dot indicator container */
     #dot-indicators {
-      width: 60%;
-      text-align: center;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0.4rem; /* Adjust gap between dots as needed */
     }
 
     /* Individual dot styling */
@@ -270,12 +290,19 @@ navbar_title: "DIS-CO"
           </figure>
         </div>
 
-        <!-- Navigation: Previous button, dot indicators, Next button -->
+
+
         <div class="navigation-controls" style="text-align: center; margin-top: 1rem;">
-          <button id="prev-btn" class="button is-info" style="margin-right: 1rem;">&larr; Previous</button>
+          <button id="prev-btn" class="button is-info round-button" style="margin-right: 1rem;">
+            <i class="fas fa-arrow-left"></i>
+          </button>
           <div id="dot-indicators"></div>
-          <button id="next-btn" class="button is-info" style="margin-left: 1rem;">Next &rarr;</button>
+          <button id="next-btn" class="button is-info round-button" style="margin-left: 1rem;">
+            <i class="fas fa-arrow-right"></i>
+          </button>
         </div>
+        
+        
 
         <!-- Answer Container -->
         <div class="answer-container" style="margin: 2rem auto 0; width: 60%; background-color: #fff; border: 1px solid #ccc; padding: 1.5rem; border-radius: 10px;">
