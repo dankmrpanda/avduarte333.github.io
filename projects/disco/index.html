@@ -67,6 +67,89 @@ navbar_title: "DIS-CO"
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
 
+  <style>
+    /* Navigation controls: buttons and dot indicators */
+    .navigation-controls {
+      width: 50%;
+      margin: 1rem auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navigation-controls button {
+      width: 20%;
+      margin: 0;
+    }
+
+    /* Dot indicator container */
+    #dot-indicators {
+      width: 60%;
+      text-align: center;
+    }
+
+    /* Individual dot styling */
+    #dot-indicators .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin: 0 4px;
+      background-color: #ddd;
+      border-radius: 50%;
+      transition: transform 0.3s, background-color 0.3s;
+    }
+
+    /* Active/current dot */
+    #dot-indicators .dot.active {
+      background-color: #3273dc; /* Bulma's is-info color */
+      transform: scale(1.2);
+    }
+
+    /* Answer container styling */
+    .answer-container {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 1.5rem;
+      border-radius: 10px;
+    }
+
+    /* TomSelect control styles */
+    .ts-wrapper .ts-control {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      position: relative;
+      padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+    }
+    .ts-wrapper .ts-control:hover,
+    .ts-wrapper .ts-control:focus-within {
+      box-shadow: none;
+    }
+    .ts-wrapper .ts-control::after {
+      content: "⌄";
+      position: absolute;
+      right: 0.75rem;
+      top: 35%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #666;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .ts-wrapper .ts-control input {
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+    .ts-wrapper .ts-dropdown {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    select#quiz-answer {
+      display: none !important;
+    }
+  </style>
+
 </head>
 <body>
 
@@ -174,17 +257,17 @@ navbar_title: "DIS-CO"
           Let's Play a Game - Can you beat ChatGPT?
         </h2>
 
-        <!-- A simple container to hold the current quiz image -->
+        <!-- Quiz image container -->
         <div class="quiz-frame" style="background: none; display: flex; justify-content: center;">
           <figure class="image" style="margin: 2rem auto 0; width: 60%; background-color: #fff;">
             <img id="quiz-image" src="./static/images/quiz_images/quiz1.png" alt="Movie Frame" style="max-width: 100%;">
           </figure>
         </div>
 
-        <!-- Navigation Arrows -->
+        <!-- Navigation: Previous button, dot indicators, Next button -->
         <div class="navigation-controls" style="text-align: center; margin-top: 1rem;">
           <button id="prev-btn" class="button is-info" style="margin-right: 1rem;">&larr; Previous</button>
-          <span id="quiz-counter" style="font-weight: bold;">Frame 1 of 8</span>
+          <div id="dot-indicators"></div>
           <button id="next-btn" class="button is-info" style="margin-left: 1rem;">Next &rarr;</button>
         </div>
 
@@ -206,68 +289,9 @@ navbar_title: "DIS-CO"
     </section>
   </div>
 
-  <style>
-    /* 1) White, Outlined Container for the Answer Box */
-    .answer-container {
-      background-color: #fff;    /* White fill */
-      border: 1px solid #ccc;   /* Thin gray outline */
-      padding: 1.5rem;
-      border-radius: 10px;
-    }
-
-    /*
-      2) TomSelect uses .ts-wrapper and .ts-control by default
-         (unless overridden by classNames in JS).
-    */
-    .ts-wrapper .ts-control {
-      background: #f0f0f0;      /* Light gray background */
-      border: 1px solid #ccc;   /* Thin border to match container */
-      border-radius: 5px;
-      position: relative;       /* Needed for the custom arrow */
-      padding: 0.375rem 1.75rem 0.375rem 0.75rem;
-    }
-
-    .ts-wrapper .ts-control:hover,
-    .ts-wrapper .ts-control:focus-within {
-      box-shadow: none; /* Remove default TomSelect hover/focus shadow */
-    }
-
-    /* 3) Custom arrow on the right side */
-    .ts-wrapper .ts-control::after {
-      content: "⌄";  /* Down arrow */
-      position: absolute;
-      right: 0.75rem;
-      top: 35%;
-      transform: translateY(-50%);
-      pointer-events: none;
-      color: #666;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-
-    /* 4) The text input inside TomSelect’s control */
-    .ts-wrapper .ts-control input {
-      background: transparent;
-      border: none;
-      outline: none;
-    }
-
-    /* 5) The dropdown that appears with options */
-    .ts-wrapper .ts-dropdown {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    /* Hide the original <select> if needed (TomSelect generally does this automatically) */
-    select#quiz-answer {
-      display: none !important;
-    }
-  </style>
-
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // 1) We have 8 images: quiz1.png -> quiz8.png
-      //    We'll store them in an array to cycle through
+      // 1) Define the 8 quiz images (quiz1.png -> quiz8.png)
       const quizImages = [
         './static/images/quiz_images/quiz1.png',
         './static/images/quiz_images/quiz2.png',
@@ -278,28 +302,46 @@ navbar_title: "DIS-CO"
         './static/images/quiz_images/quiz7.png',
         './static/images/quiz_images/quiz8.png'
       ];
-      let currentIndex = 0;  // We start at quizImages[0]
-
-      // 2) We'll keep track of user's guesses in an array of length 8
-      //    Initialize all to null or '-'
-      let userAnswers = new Array(8).fill(null);
-
-      // 3) Grab important DOM elements
+      let currentIndex = 0;  // Starting at the first image
+  
+      // 2) Array to store the user's guesses for each slide
+      // Change from .fill(null) to .fill('-') so that each entry is '-' by default
+      let userAnswers = new Array(8).fill('-');
+  
+      // 3) Grab key DOM elements
       const quizImageEl = document.getElementById('quiz-image');
-      const quizCounterEl = document.getElementById('quiz-counter');
       const prevBtn = document.getElementById('prev-btn');
       const nextBtn = document.getElementById('next-btn');
-      let quizSelect; // Will hold our TomSelect instance
-
-      // 4) Populate the <select> with movie options from movies.txt
+      let quizSelect; // Will hold the TomSelect instance
+  
+      // 4) Generate dot indicators (one per quiz image)
+      const dotContainer = document.getElementById('dot-indicators');
+      for (let i = 0; i < quizImages.length; i++) {
+        const dot = document.createElement('span');
+        dot.classList.add('dot');
+        if(i === currentIndex) {
+          dot.classList.add('active');
+        }
+        dotContainer.appendChild(dot);
+      }
+  
+      // Function to update which dot is active based on currentIndex
+      function updateDots() {
+        const dots = document.querySelectorAll('#dot-indicators .dot');
+        dots.forEach((dot, index) => {
+          if (index === currentIndex) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+      }
+  
+      // 5) Populate the <select> with movie options from movies.txt
       fetch('./static/data/movies.txt')
         .then(res => res.text())
         .then(data => {
-          const lines = data
-            .split('\n')
-            .map(x => x.trim())
-            .filter(x => x.length > 0);
-
+          const lines = data.split('\n').map(x => x.trim()).filter(x => x.length > 0);
           const selectEl = document.getElementById('quiz-answer');
           for (const movie of lines) {
             const option = document.createElement('option');
@@ -307,8 +349,7 @@ navbar_title: "DIS-CO"
             option.textContent = movie;
             selectEl.appendChild(option);
           }
-
-          // Now, initialize TomSelect
+          // Initialize TomSelect
           quizSelect = new TomSelect('#quiz-answer', {
             create: false,
             maxItems: 1,
@@ -319,74 +360,54 @@ navbar_title: "DIS-CO"
               if (this.getValue()) {
                 this.clear();
               }
-            },
-            onFocus: function() {
-              // Optionally clear if there's a selection
-              // but let's do nothing for now so we don't lose typed text
             }
           });
-
-          // Make sure the default guess is clear
-          quizSelect.clear();
+          // Ensure the select starts with the default value '-'
+          quizSelect.setValue('-');
         })
         .catch(err => console.error('Error loading movies.txt:', err));
-
-      // 5) Function to update displayed image and the quizSelect with stored guess
+  
+      // 6) Function to update the current slide (image and stored guess)
       function updateSlide() {
-        // Update image source
         quizImageEl.src = quizImages[currentIndex];
-        // Update text "Frame X of 8"
-        quizCounterEl.textContent = `Frame ${currentIndex + 1} of ${quizImages.length}`;
-
-        // If there's a stored guess for this index, re-populate TomSelect
         if (quizSelect) {
           const guess = userAnswers[currentIndex];
-          if (guess) {
-            quizSelect.setValue(guess);
-          } else {
-            quizSelect.clear();
-          }
+          // Since '-' is a valid default guess, we set it directly
+          quizSelect.setValue(guess);
         }
+        updateDots();
       }
-
-      // 6) Navigation button event listeners
+  
+      // 7) Navigation button event listeners
       prevBtn.addEventListener('click', function() {
-        // Before changing slides, store the current guess
         if (quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
-        // Decrement index if possible
         if (currentIndex > 0) {
           currentIndex--;
           updateSlide();
         }
       });
-
+  
       nextBtn.addEventListener('click', function() {
-        // Store the current guess
         if (quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
-        // Increment index if possible
         if (currentIndex < quizImages.length - 1) {
           currentIndex++;
           updateSlide();
         }
       });
-
-      // 7) "Submit All" button
+  
+      // 8) "Submit All" button: store current guess and display all answers
       document.getElementById('submit-all').addEventListener('click', function() {
-        // Make sure we store the guess for the current slide
         if (quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
-
-        // For now, just alert the array of guesses
-        // In practice, you could POST to a server or compute accuracy
         alert('Your guesses:\n' + JSON.stringify(userAnswers, null, 2));
       });
-
-      // 8) On load, ensure the first slide is displayed properly
+  
+      // 9) On load, display the first slide
       updateSlide();
     });
   </script>
