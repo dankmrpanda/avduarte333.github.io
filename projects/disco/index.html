@@ -275,11 +275,8 @@
 
 
   /* Make images larger on mobile devices (screens with a max-width of 768px) */
-  @media only screen and (max-width: 768px) {
-    figure.chart-or-image {
-      width: 90% !important;
-    }
-  }
+  @media only screen and (max-width: 768px) {figure.chart-or-image, #chart-or-image {width: 90% !important;}}
+
 
 
 
@@ -416,7 +413,7 @@
         
         
         <!-- Answer Container -->
-        <div id="quiz-container" class="answer-container">
+        <div id="quiz-container" class="answer-container" style="width: 60%;">
           <label class="label">What movie is present in this frame?</label>
           <!-- Plain <select> for TomSelect to transform -->
           <select id="quiz-answer" name="quiz-answer" placeholder="Select a movie...">
