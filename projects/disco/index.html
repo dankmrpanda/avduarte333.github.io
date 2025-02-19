@@ -1,8 +1,8 @@
-<!-- ---
-layout: default
-title: "DIS-CO: Discovering Copyrighted Content in VLMs Training Data"
-navbar_title: "DIS-CO"
---- -->
+<!--
+  layout: default
+  title: "DIS-CO: Discovering Copyrighted Content in VLMs Training Data"
+  navbar_title: "DIS-CO"
+-->
 
 <!DOCTYPE html>
 <html>
@@ -49,7 +49,8 @@ navbar_title: "DIS-CO"
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   
   <!-- Load Bootstrap CSS AFTER Bulma so that the navbar styles take precedence -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
+  <link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
         integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA=="
         crossorigin="anonymous" />
 
@@ -67,30 +68,31 @@ navbar_title: "DIS-CO"
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
 
+  <!-- Import d3 for Generating Quiz-Results -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+
   <style>
     /* Navigation controls: buttons and dot indicators */
     .navigation-controls {
       display: flex; /* Makes container only as wide as its children */
       justify-content: center;
       align-items: center;
-      gap: 0.5rem;        /* Adjust gap between children as needed */
-      
+      gap: 0.5rem;      
       width: fit-content;
-      margin: 1rem auto;  /* Center the whole thing if desired */
+      margin: 1rem auto;
     }
-
-
     .navigation-controls button {
       width: 10%;
       margin: 0;
     }
 
-
+    /* Round button to circle the slider - styling */
     .round-button {
       width: 3rem !important;
       height: 3rem !important;
       min-width: 3rem !important; /* Overrides Bulma's min-width */
-      padding: 0 !important;      /* Remove extra padding */
+      padding: 0 !important;      
       border-radius: 50% !important;
       display: flex;
       align-items: center;
@@ -99,13 +101,11 @@ navbar_title: "DIS-CO"
       box-sizing: border-box;
     }
 
-
-
-    /* Dot indicator container */
+    /* Slider - Dot indicator container */
     #dot-indicators {
       display: flex;
       flex-wrap: nowrap;
-      gap: 0.4rem; /* Adjust gap between dots as needed */
+      gap: 0.4rem;
     }
 
     /* Individual dot styling */
@@ -121,7 +121,7 @@ navbar_title: "DIS-CO"
 
     /* Active/current dot */
     #dot-indicators .dot.active {
-      background-color: #3273dc; /* Bulma's is-info color */
+      background-color: #3273dc;
       transform: scale(1.2);
     }
 
@@ -131,6 +131,8 @@ navbar_title: "DIS-CO"
       border: 1px solid #ccc;
       padding: 1.5rem;
       border-radius: 10px;
+      width: 60%;
+      margin: 2rem auto 0;
     }
 
     /* TomSelect control styles */
@@ -145,23 +147,19 @@ navbar_title: "DIS-CO"
     .ts-wrapper .ts-control:focus-within {
       box-shadow: none;
     }
-
-
     .ts-wrapper .ts-control::after {
       content: "";
-      background-image: url('./static/images/arrow_down_sign.png'); /* Replace with your icon's URL */
+      background-image: url('./static/images/arrow_down_sign.png'); 
       background-size: contain;
       background-repeat: no-repeat;
       position: absolute;
       right: 0.75rem;
-      top: 50%;  /* Adjusted for vertical centering */
-      width: 1.0rem;  /* Set width to match your icon's dimensions */
-      height: 1.0rem; /* Set height to match your icon's dimensions */
+      top: 50%;  
+      width: 1.0rem;  
+      height: 1.0rem;
       transform: translateY(-50%);
       pointer-events: none;
     }
-
-
     .ts-wrapper .ts-control input {
       background: transparent;
       border: none;
@@ -173,6 +171,33 @@ navbar_title: "DIS-CO"
     }
     select#quiz-answer {
       display: none !important;
+    }
+
+    /* Aesthetics for the Submit - Quiz Button */
+    #submit-all {
+      /* Pill shape */
+      border-radius: 10px;
+      /* White background */
+      background-color: #ffffff;
+      /* No border */
+      border: none;
+      /* Purple text color */
+      color: #595ddf;
+      /* Uppercase text, similar to "CONTINUAR" */
+      text-transform: uppercase;
+      font-weight: bold;
+      font-size: 1rem;
+      /* Spacing around text */
+      padding: 0.75rem 1.5rem;
+      /* Subtle "bottom edge" shadow */
+      box-shadow: 0 4px 0 #cccccc;
+      cursor: pointer;
+      transition: all 0.1s ease-in-out;
+      display: none; /* Hidden until the last "slide" */
+    }
+    #submit-all:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #cccccc;
     }
   </style>
 
@@ -284,14 +309,16 @@ navbar_title: "DIS-CO"
         </h2>
 
         <!-- Quiz image container -->
-        <div class="quiz-frame" style="background: none; display: flex; justify-content: center;">
-          <figure class="image" style="margin: 2rem auto 0; width: 60%; background-color: #fff;">
-            <img id="quiz-image" src="./static/images/quiz_images/quiz1.png" alt="Movie Frame" style="max-width: 100%;">
+        <div id="quiz-frame" style="background: none; display: flex; justify-content: center;">
+          <figure class="image chart-or-image" style="margin: 2rem auto 0; width: 60%; position: relative;">
+            <!-- The quiz image -->
+            <img id="quiz-image" src="./static/images/quiz_images/quiz1.png" alt="Movie Frame" style="width: 100%; height: auto; display: block;">
+            <!-- The SVG chart (initially hidden) -->
+            <svg id="bar-chart" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none;"></svg>
           </figure>
         </div>
 
-
-
+        <!-- Navigation controls + Dot Indicators -->
         <div class="navigation-controls" style="text-align: center; margin-top: 1rem;">
           <button id="prev-btn" class="button is-info round-button" style="margin-right: 1rem;">
             <i class="fas fa-arrow-left"></i>
@@ -302,29 +329,29 @@ navbar_title: "DIS-CO"
           </button>
         </div>
         
-        
-
         <!-- Answer Container -->
-        <div class="answer-container" style="margin: 2rem auto 0; width: 60%; background-color: #fff; border: 1px solid #ccc; padding: 1.5rem; border-radius: 10px;">
+        <div id="quiz-container" class="answer-container">
           <label class="label">What movie is present in this frame?</label>
-          <!-- Plain <select> for TomSelect to take over -->
+          <!-- Plain <select> for TomSelect to transform -->
           <select id="quiz-answer" name="quiz-answer" placeholder="Select a movie...">
             <option value="-" selected>-</option>
           </select>
         </div>
         
-        <!-- Final submission button -->
+        <!-- Final submission button (hidden until the last dot) -->
         <div class="field" style="margin-top: 1.5rem; text-align: center;">
-          <button id="submit-all" class="button is-primary">Submit All Guesses</button>
+          <button id="submit-all">Submit All Guesses</button>
         </div>
-
       </div>
     </section>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // 1) Define the 8 quiz images (quiz1.png -> quiz8.png)
+
+      /*************************************************************
+       * Global Setup
+       *************************************************************/
       const quizImages = [
         './static/images/quiz_images/quiz1.png',
         './static/images/quiz_images/quiz2.png',
@@ -335,42 +362,40 @@ navbar_title: "DIS-CO"
         './static/images/quiz_images/quiz7.png',
         './static/images/quiz_images/quiz8.png'
       ];
-      let currentIndex = 0;  // Starting at the first image
-  
-      // 2) Array to store the user's guesses for each slide
-      // Change from .fill(null) to .fill('-') so that each entry is '-' by default
+      const totalSlides = quizImages.length + 1; // 9 total slides (0..8)
+      let currentIndex = 0;  // start at slide 0
       let userAnswers = new Array(8).fill('-');
-  
-      // 3) Grab key DOM elements
-      const quizImageEl = document.getElementById('quiz-image');
-      const prevBtn = document.getElementById('prev-btn');
-      const nextBtn = document.getElementById('next-btn');
-      let quizSelect; // Will hold the TomSelect instance
-  
-      // 4) Generate dot indicators (one per quiz image)
+      
+      // A flag to avoid redrawing the chart structure repeatedly.
+      let chartStructureDrawn = false;
+      
+      // References to DOM elements
+      const quizImageEl   = document.getElementById('quiz-image');
+      const quizContainer = document.getElementById('quiz-container');
+      const prevBtn       = document.getElementById('prev-btn');
+      const nextBtn       = document.getElementById('next-btn');
+      const submitBtn     = document.getElementById('submit-all');
+      const barChartSvg   = document.getElementById('bar-chart');
+      
+      // Dot indicators
       const dotContainer = document.getElementById('dot-indicators');
-      for (let i = 0; i < quizImages.length; i++) {
+      for (let i = 0; i < totalSlides; i++) {
         const dot = document.createElement('span');
         dot.classList.add('dot');
-        if(i === currentIndex) {
-          dot.classList.add('active');
-        }
+        if (i === 0) dot.classList.add('active');
         dotContainer.appendChild(dot);
       }
-  
-      // Function to update which dot is active based on currentIndex
       function updateDots() {
-        const dots = document.querySelectorAll('#dot-indicators .dot');
-        dots.forEach((dot, index) => {
-          if (index === currentIndex) {
-            dot.classList.add('active');
-          } else {
-            dot.classList.remove('active');
-          }
+        const dots = dotContainer.querySelectorAll('.dot');
+        dots.forEach((dot, idx) => {
+          dot.classList.toggle('active', idx === currentIndex);
         });
       }
-  
-      // 5) Populate the <select> with movie options from movies.txt
+      
+      /*************************************************************
+       * Load TomSelect Options
+       *************************************************************/
+      let quizSelect;
       fetch('./static/data/movies.txt')
         .then(res => res.text())
         .then(data => {
@@ -382,38 +407,166 @@ navbar_title: "DIS-CO"
             option.textContent = movie;
             selectEl.appendChild(option);
           }
-          // Initialize TomSelect
           quizSelect = new TomSelect('#quiz-answer', {
             create: false,
             maxItems: 1,
             allowEmptyOption: true,
             placeholder: 'Select a movie...',
             maxOptions: 7000,
-            onType: function(inputText) {
-              if (this.getValue()) {
-                this.clear();
-              }
-            }
+            onItemAdd: function() { this.blur(); },
+            onType: function() { if (this.getValue()) this.clear(); }
           });
-          // Ensure the select starts with the default value '-'
           quizSelect.setValue('-');
         })
         .catch(err => console.error('Error loading movies.txt:', err));
-  
-      // 6) Function to update the current slide (image and stored guess)
+      
+      /*************************************************************
+       * Chart Functions
+       *************************************************************/
+      function drawChartStructure() {
+        // Clear any existing content
+        const svg = d3.select(barChartSvg);
+        svg.selectAll('*').remove();
+        
+        // Get current dimensions from the SVG container
+        const bbox = barChartSvg.getBoundingClientRect();
+        const width  = bbox.width;
+        const height = bbox.height;
+        
+        // Define margins and inner dimensions
+        const margin = {top: 20, right: 30, bottom: 30, left: 30};
+        const innerWidth  = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+        
+        // Append a group element to account for margins
+        const g = svg.append("g")
+                     .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // Create a y-scale from 0 to 100
+        const yScale = d3.scaleLinear()
+                         .domain([0, 100])
+                         .range([innerHeight, 0]);
+        
+        // Draw y-axis with 5 ticks
+        const yAxis = d3.axisLeft(yScale).ticks(5);
+        g.append("g")
+         .attr("class", "y-axis")
+         .call(yAxis);
+        
+        // Draw horizontal grid lines
+        g.append("g")
+         .attr("class", "grid")
+         .call(d3.axisLeft(yScale)
+                 .ticks(5)
+                 .tickSize(-innerWidth)
+                 .tickFormat(""));
+        
+        // Draw an outline around the inner chart area
+        g.append("rect")
+         .attr("x", 0)
+         .attr("y", 0)
+         .attr("width", innerWidth)
+         .attr("height", innerHeight)
+         .attr("fill", "none")
+         .attr("stroke", "#333")
+         .attr("stroke-width", 2);
+      }
+      
+      function animateBar(finalValue) {
+        // Get dimensions and set up margins and scales (same as in drawChartStructure)
+        const svg = d3.select(barChartSvg);
+        const bbox = barChartSvg.getBoundingClientRect();
+        const width  = bbox.width;
+        const height = bbox.height;
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const innerWidth  = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+        
+        // Recreate yScale (domain fixed at [0, 100])
+        const yScale = d3.scaleLinear()
+                         .domain([0, 100])
+                         .range([innerHeight, 0]);
+        
+        // Select the group element created in drawChartStructure
+        const g = svg.select("g");
+        
+        // Remove any previous bar/text
+        g.selectAll(".animated-bar").remove();
+        g.selectAll(".bar-text").remove();
+        
+        // Define the bar width (you can adjust this value as needed)
+        const barWidth = Math.min(80, innerWidth / 2);
+        const barX = (innerWidth - barWidth) / 2;
+        
+        // Append the bar with initial height 0 (starting from bottom)
+        const bar = g.append("rect")
+                     .attr("class", "animated-bar")
+                     .attr("x", barX)
+                     .attr("y", innerHeight)
+                     .attr("width", barWidth)
+                     .attr("height", 0)
+                     .attr("fill", "#69b3a2");
+        
+        // Animate the bar growing upward
+        bar.transition()
+           .duration(1200)
+           .attr("height", innerHeight - yScale(finalValue))
+           .attr("y", yScale(finalValue));
+        
+        // Append and animate the value text above the bar
+        const text = g.append("text")
+                      .attr("class", "bar-text")
+                      .attr("x", barX + barWidth / 2)
+                      .attr("y", yScale(finalValue) - 10)
+                      .attr("fill", "black")
+                      .attr("text-anchor", "middle")
+                      .attr("font-size", "16px")
+                      .text("0%");
+        
+        text.transition()
+            .duration(1200)
+            .tween("text", function() {
+              const node = this;
+              const i = d3.interpolateNumber(0, finalValue);
+              return function(t) {
+                d3.select(node).text(i(t).toFixed(0) + '%');
+              };
+            });
+      }
+      
+      /*************************************************************
+       * updateSlide() - Show/hide elements per slide
+       *************************************************************/
       function updateSlide() {
-        quizImageEl.src = quizImages[currentIndex];
-        if (quizSelect) {
-          const guess = userAnswers[currentIndex];
-          // Since '-' is a valid default guess, we set it directly
-          quizSelect.setValue(guess);
+        if (currentIndex < quizImages.length) {
+          // Quiz slides: show the image and answer container
+          quizImageEl.style.opacity = '1';
+          quizImageEl.style.display = 'block';
+          barChartSvg.style.display = 'none';
+          quizContainer.style.display = 'block';
+          submitBtn.style.display = 'none';
+          quizImageEl.src = quizImages[currentIndex];
+        } else {
+          // Final slide: keep the image for layout (invisible) and show the chart
+          quizImageEl.style.opacity = '0';
+          quizImageEl.style.display = 'block';
+          barChartSvg.style.display = 'block';
+          quizContainer.style.display = 'none';
+          submitBtn.style.display = 'inline-block';
+          // Draw chart structure only once
+          if (!chartStructureDrawn) {
+            drawChartStructure();
+            chartStructureDrawn = true;
+          }
         }
         updateDots();
       }
-  
-      // 7) Navigation button event listeners
-      prevBtn.addEventListener('click', function() {
-        if (quizSelect) {
+      
+      /*************************************************************
+       * Navigation Buttons
+       *************************************************************/
+      prevBtn.addEventListener('click', () => {
+        if (currentIndex < quizImages.length && quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
         if (currentIndex > 0) {
@@ -421,30 +574,36 @@ navbar_title: "DIS-CO"
           updateSlide();
         }
       });
-  
-      nextBtn.addEventListener('click', function() {
-        if (quizSelect) {
+      
+      nextBtn.addEventListener('click', () => {
+        if (currentIndex < quizImages.length && quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
-        if (currentIndex < quizImages.length - 1) {
+        if (currentIndex < totalSlides - 1) {
           currentIndex++;
           updateSlide();
         }
       });
-  
-      // 8) "Submit All" button: store current guess and display all answers
-      document.getElementById('submit-all').addEventListener('click', function() {
-        if (quizSelect) {
+      
+      /*************************************************************
+       * Submit Button – on click, animate the bar (leaving the grid intact)
+       *************************************************************/
+      submitBtn.addEventListener('click', () => {
+        if (currentIndex < quizImages.length && quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
         alert('Your guesses:\n' + JSON.stringify(userAnswers, null, 2));
+        const finalValue = 80; // Example value (calculate based on userAnswers as needed)
+        animateBar(finalValue);
       });
-  
-      // 9) On load, display the first slide
+      
+      /*************************************************************
+       * Initialize – show the first slide
+       *************************************************************/
       updateSlide();
     });
   </script>
-
+    
   <!-- Video Section -->
   <section>
     <div class="columns is-centered has-text-centered">
