@@ -29,6 +29,8 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700">
+
 
   <!-- Bulma CSS (You can remove references to bulma-carousel if you don't need it) -->
   <link rel="stylesheet" href="./static/css/bulma.min.css">
@@ -200,6 +202,33 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 0 #cccccc;
     }
+
+
+    /* This is to customize fonts in the quiz section - Mostly to the Results Plot*/
+  .text-label {
+    font-size: 16px;         /* Increased from 12px */
+    font-weight: 600;        /* Slightly bolder for clarity */
+    fill: #333;              /* A dark gray instead of pure black for softer contrast */
+  }
+
+  .axis text {
+    font-size: 15px;         /* Adjusted for axis ticks */
+    fill: #333;
+  }
+
+  .bar-text {
+    font-size: 18px;         /* Larger for emphasis */
+    font-weight: bold;
+    fill: #333;
+  }
+
+  .text-label, .axis text, .bar-text {
+    font-family: 'Roboto', sans-serif;
+  }
+
+
+
+
   </style>
 
 </head>
@@ -366,7 +395,8 @@
       const totalSlides = quizImages.length + 1; // 9 total slides (0..8)
       let currentIndex = 0;  // start at slide 0
       let userAnswers = new Array(8).fill('-');
-      
+
+            
       // A flag to avoid redrawing the chart structure repeatedly.
       let chartStructureDrawn = false;
       
@@ -383,20 +413,23 @@
       for (let i = 0; i < totalSlides; i++) {
         const dot = document.createElement('span');
         dot.classList.add('dot');
-        if (i === 0) dot.classList.add('active');
+
+      if (i === 0) dot.classList.add('active');
         dotContainer.appendChild(dot);
       }
+
       function updateDots() {
         const dots = dotContainer.querySelectorAll('.dot');
         dots.forEach((dot, idx) => {
           dot.classList.toggle('active', idx === currentIndex);
         });
       }
+
       
       /*************************************************************
        * Load TomSelect Options
        *************************************************************/
-      let quizSelect;
+       let quizSelect;
       fetch('./static/data/movies.txt')
         .then(res => res.text())
         .then(data => {
@@ -408,22 +441,33 @@
             option.textContent = movie;
             selectEl.appendChild(option);
           }
+
           quizSelect = new TomSelect('#quiz-answer', {
             create: false,
             maxItems: 1,
             allowEmptyOption: true,
             placeholder: 'Select a movie...',
             maxOptions: 7000,
+
             onItemAdd: function() { this.blur(); },
             onType: function() { if (this.getValue()) this.clear(); }
           });
+
           quizSelect.setValue('-');
         })
         .catch(err => console.error('Error loading movies.txt:', err));
+
+
+
       
       /*************************************************************
        * Chart Functions
        *************************************************************/
+
+      // User-defined parameters:
+      const borderWidth = 2;              // Width for all outline borders.
+      const barWidthFraction = 0.8;       // Each bar uses 60% of its allocated x-scale band.
+
       function drawChartStructure() {
         // Clear any existing content
         const svg = d3.select(barChartSvg);
@@ -435,126 +479,269 @@
         const height = bbox.height;
         
         // Define margins and inner dimensions
-        const margin = {top: 5, right: 25, bottom: 5, left: 25};
+        const margin = { top: 10, right: 35, bottom: 20, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         
         // Append a group element to account for margins
         const g = svg.append("g")
-                     .attr("transform", `translate(${margin.left},${margin.top})`);
+          .attr("transform", `translate(${margin.left},${margin.top})`);
         
         // Create a y-scale from 0 to 100
         const yScale = d3.scaleLinear()
-                         .domain([0, 100])
-                         .range([innerHeight, 0]);
+          .domain([0, 105])
+          .range([innerHeight, 0]);
         
         // Draw y-axis with 5 ticks
-        const yAxis = d3.axisLeft(yScale).ticks(5);
-        g.append("g")
-         .attr("class", "y-axis")
-         .call(yAxis);
+        const yAxis = d3.axisLeft(yScale)
+          .ticks(5)
+          .tickSizeInner(0)
+          .tickSizeOuter(0)
+          .tickPadding(7);
         
-        // Draw horizontal grid lines
         g.append("g")
-         .attr("class", "grid")
-         .call(d3.axisLeft(yScale)
-                 .ticks(5)
-                 .tickSize(-innerWidth)
-                 .tickFormat(""));
+          .attr("class", "y-axis axis")
+          .call(yAxis);
         
-        // Draw an outline around the inner chart area
-        g.append("rect")
-         .attr("x", 0)
-         .attr("y", 0)
-         .attr("width", innerWidth)
-         .attr("height", innerHeight)
-         .attr("fill", "none")
-         .attr("stroke", "#333")
-         .attr("stroke-width", 2);
+        // Filter out the 0 tick to avoid drawing the grid line at the x-axis.
+        const yTicks = yScale.ticks(5).filter(tickValue => tickValue !== 0);
+        
+        // Draw horizontal grid lines (red and dashed) without the 0 tick.
+        g.append("g")
+          .attr("class", "grid horizontal-grid")
+          .call(d3.axisLeft(yScale)
+            .tickValues(yTicks)
+            .tickSize(-innerWidth)
+            .tickFormat(""))
+          .selectAll("line")
+            .attr("stroke", "lightgray")
+            .attr("stroke-dasharray", "5")
+            .attr("stroke-width", "2");  // Increase stroke width here
+        
+        // Define x-scale for five categories.
+        const categories = ["GPT-4o", "Gemini-1.5 Pro", "Llama-3.2", "Qwen2-VL 72B", "You"];
+        const xScale = d3.scaleBand()
+          .domain(categories)
+          .range([0, innerWidth])
+          .padding(0.2);
+        
+        // Draw vertical grid lines (red and dashed) at the center of each x-scale band.
+        categories.forEach(cat => {
+          const xPos = xScale(cat) + xScale.bandwidth() / 2;
+          g.append("line")
+            .attr("class", "grid vertical-grid")
+            .attr("x1", xPos)
+            .attr("y1", 0)
+            .attr("x2", xPos)
+            .attr("y2", innerHeight)
+            .attr("stroke", "lightgray")
+            .attr("stroke-dasharray", "5")
+            .attr("stroke-width", "2");  // Increase stroke width here
+        });
+        
+        // Draw borders with custom color stroke and user defined width.
+        // Top border
+        g.append("line")
+          .attr("class", "border")
+          .attr("x1", 0)
+          .attr("y1", 0)
+          .attr("x2", innerWidth)
+          .attr("y2", 0)
+          .attr("stroke", "lightgray")
+          .attr("stroke-width", borderWidth);
+        
+        // Right border
+        g.append("line")
+          .attr("class", "border")
+          .attr("x1", innerWidth)
+          .attr("y1", 0)
+          .attr("x2", innerWidth)
+          .attr("y2", innerHeight)
+          .attr("stroke", "lightgray")
+          .attr("stroke-width", borderWidth);
+
+
+        // Left border
+        g.append("line")
+          .attr("class", "border")
+          .attr("x1", 0)
+          .attr("y1", -1)
+          .attr("x2", 0)
+          .attr("y2", innerHeight+1)
+          .attr("stroke", "#36454F")  // Note the '#' added here
+          .attr("stroke-width", borderWidth);
+        
+        // Bottom border
+        g.append("line")
+          .attr("class", "border")
+          .attr("x1", -1)
+          .attr("y1", innerHeight)
+          .attr("x2", innerWidth)
+          .attr("y2", innerHeight)
+          .attr("stroke", "#36454F")  // And here
+          .attr("stroke-width", borderWidth);
+        
+        // Draw the initial static bars with labels.
+        drawInitialBars(g, innerWidth, innerHeight, yScale, xScale);
       }
-      
+
+
+
+      function drawInitialBars(g, innerWidth, innerHeight, yScale, xScale) {
+        // Define the five slots/categories.
+        const categories = ["GPT-4o", "Gemini-1.5 Pro", "Llama-3.2", "Qwen2-VL 72B", "You"];
+        
+        // Data for the four static bars with user specified colors (including transparency).
+        const staticData = [
+          { name: "GPT-4o", value: 50, color: "#06402be6"},      // Red with transparency
+          { name: "Gemini-1.5 Pro", value: 70, color: "#90520ce6" },     // Green with transparency
+          { name: "Llama-3.2", value: 40, color: "#0c5f90e6" },      // Blue with transparency
+          { name: "Qwen2-VL 72B", value: 60, color: "#624aa1e6" }        // Orange with transparency
+        ];
+        
+        // For each static bar, compute a narrower bar width (e.g., 60% of the full band width)
+        staticData.forEach(d => {
+          const fullBandWidth = xScale.bandwidth();
+          const barWidth = fullBandWidth * barWidthFraction;
+          // Center the bar inside its band.
+          const xPos = xScale(d.name) + (fullBandWidth - barWidth) / 2;
+          
+          // Append the bar rectangle with a black outline.
+          g.append("rect")
+            .attr("class", "static-bar")
+            .attr("x", xPos)
+            .attr("y", yScale(d.value))
+            .attr("width", barWidth)
+            .attr("height", innerHeight - yScale(d.value))
+            .attr("fill", d.color)
+            .attr("stroke", "black")
+            .attr("stroke-width", borderWidth);
+          
+          // Append the label below the bar.
+          g.append("text")
+            .attr("class", "x-axis-label text-label")
+            .attr("x", xScale(d.name) + xScale.bandwidth()/2)
+            .attr("y", innerHeight + 20)
+            .attr("text-anchor", "middle")
+            .text(d.name);
+        });
+        
+        // Add the label for the "You" category (bar not drawn yet)
+        g.append("text")
+          .attr("class", "x-axis-label text-label")
+          .attr("x", xScale("You") + xScale.bandwidth()/2)
+          .attr("y", innerHeight + 20)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "12px")
+          .text("You");
+      }
+
+            
       function animateBar(finalValue) {
-        // Get dimensions and set up margins and scales (same as in drawChartStructure)
+        // Get dimensions and set up margins and scales (should match drawChartStructure)
         const svg = d3.select(barChartSvg);
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width;
         const height = bbox.height;
-        const margin = {top: 5, right: 25, bottom: 5, left: 25};
+        
+        const margin = { top: 10, right: 35, bottom: 20, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         
-        // Recreate yScale (domain fixed at [0, 100])
+        // Recreate yScale (domain fixed at [0, 105])
         const yScale = d3.scaleLinear()
-                         .domain([0, 100])
-                         .range([innerHeight, 0]);
+          .domain([0, 105])
+          .range([innerHeight, 0]);
+        
+        // Create the same xScale used for the initial bars.
+        const categories = ["GPT-4o", "Gemini-1.5 Pro", "Llama-3.2", "Qwen2-VL 72B", "You"];
+        const xScale = d3.scaleBand()
+          .domain(categories)
+          .range([0, innerWidth])
+          .padding(0.2);
         
         // Select the group element created in drawChartStructure
         const g = svg.select("g");
         
-        // Remove any previous bar/text
+        // Remove any previous animated bar and its text.
         g.selectAll(".animated-bar").remove();
         g.selectAll(".bar-text").remove();
         
-        // Define the bar width (you can adjust this value as needed)
-        const barWidth = Math.min(80, innerWidth / 2);
-        const barX = (innerWidth - barWidth) / 2;
+        // Compute narrower bar width for the "You" bar.
+        const fullBandWidth = xScale.bandwidth();
+        const barWidth = fullBandWidth * barWidthFraction;
+        const xPos = xScale("You") + (fullBandWidth - barWidth) / 2;
         
-        // Append the bar with initial height 0 (starting from bottom)
+        // Append the animated bar (starting with height 0) with a black outline.
         const bar = g.append("rect")
-                     .attr("class", "animated-bar")
-                     .attr("x", barX)
-                     .attr("y", innerHeight)
-                     .attr("width", barWidth)
-                     .attr("height", 0)
-                     .attr("fill", "#69b3a2");
+          .attr("class", "animated-bar")
+          .attr("x", xPos)
+          .attr("y", innerHeight)
+          .attr("width", barWidth)
+          .attr("height", 0)
+          .attr("fill", "#69b3a2")
+          .attr("stroke", "black")
+          .attr("stroke-width", borderWidth);
         
-        // Animate the bar growing upward
+        // Animate the bar growing upward.
         bar.transition()
-           .duration(1200)
-           .attr("height", innerHeight - yScale(finalValue))
-           .attr("y", yScale(finalValue));
+          .duration(1200)
+          .attr("height", innerHeight - yScale(finalValue))
+          .attr("y", yScale(finalValue));
         
-        // Append and animate the value text above the bar
+        // Append and animate the value text above the bar.
         const text = g.append("text")
-                      .attr("class", "bar-text")
-                      .attr("x", barX + barWidth / 2)
-                      .attr("y", yScale(finalValue) - 10)
-                      .attr("fill", "black")
-                      .attr("text-anchor", "middle")
-                      .attr("font-size", "16px")
-                      .text("0%");
+          .attr("class", "bar-text")
+          .attr("x", xScale("You") + xScale.bandwidth()/2)
+          .attr("y", yScale(finalValue) - 10)
+          .attr("fill", "black")
+          .attr("text-anchor", "middle")
+          .text("0%");
         
         text.transition()
-            .duration(1200)
-            .tween("text", function() {
-              const node = this;
-              const i = d3.interpolateNumber(0, finalValue);
-              return function(t) {
-                d3.select(node).text(i(t).toFixed(0) + '%');
-              };
-            });
+          .duration(1200)
+          .tween("text", function() {
+            const node = this;
+            const i = d3.interpolateNumber(0, finalValue);
+            return function(t) {
+              d3.select(node).text(i(t).toFixed(0) + '%');
+            };
+          });
       }
+
+
       
       /*************************************************************
        * updateSlide() - Show/hide elements per slide
        *************************************************************/
-      function updateSlide() {
+       function updateSlide() {
         if (currentIndex < quizImages.length) {
-          // Quiz slides: show the image and answer container
+          // For quiz slides: show image and answer container
           quizImageEl.style.opacity = '1';
           quizImageEl.style.display = 'block';
           barChartSvg.style.display = 'none';
           quizContainer.style.display = 'block';
           submitBtn.style.display = 'none';
           quizImageEl.src = quizImages[currentIndex];
+
+          // Update the TomSelect value based on the stored answer:
+          if (quizSelect) {
+            // If an answer was previously provided (and is not the default '-')
+            if (userAnswers[currentIndex] && userAnswers[currentIndex] !== '-') {
+              quizSelect.setValue(userAnswers[currentIndex]);
+            } else {
+              // Otherwise, clear the selection and set the default '-' option.
+              quizSelect.clear();
+              quizSelect.setValue('-');
+            }
+          }
         } else {
-          // Final slide: keep the image for layout (invisible) and show the chart
+          // For the final slide: hide quiz elements and show the chart.
           quizImageEl.style.opacity = '0';
           quizImageEl.style.display = 'block';
           barChartSvg.style.display = 'block';
           quizContainer.style.display = 'none';
           submitBtn.style.display = 'inline-block';
-          // Draw chart structure only once
           if (!chartStructureDrawn) {
             drawChartStructure();
             chartStructureDrawn = true;
@@ -562,6 +749,7 @@
         }
         updateDots();
       }
+
       
       /*************************************************************
        * Navigation Buttons
