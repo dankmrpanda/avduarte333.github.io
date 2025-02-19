@@ -83,7 +83,7 @@
       margin: 1rem auto;
     }
     .navigation-controls button {
-      width: 10%;
+      width: 5%;
       margin: 0;
     }
 
@@ -106,6 +106,7 @@
       display: flex;
       flex-wrap: nowrap;
       gap: 0.4rem;
+      justify-content: center;
     }
 
     /* Individual dot styling */
@@ -434,7 +435,7 @@
         const height = bbox.height;
         
         // Define margins and inner dimensions
-        const margin = {top: 20, right: 30, bottom: 30, left: 30};
+        const margin = {top: 5, right: 25, bottom: 5, left: 25};
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         
@@ -478,7 +479,7 @@
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width;
         const height = bbox.height;
-        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const margin = {top: 5, right: 25, bottom: 5, left: 25};
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         
