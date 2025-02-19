@@ -112,19 +112,44 @@
     }
 
 
+    /* Ripple effect pseudo-element */
+    .round-button::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 10px;   /* Initial size of the ripple */
+      height: 10px;
+      background: rgba(255, 255, 255, 0.5);  /* Ripple color & opacity */
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);  /* Start scaled down */
+      opacity: 0;    /* Hidden initially */
+      pointer-events: none;  /* So it doesn't block button interactions */
+    }
 
+    /* Trigger the ripple animation on button press */
+    .round-button:active::after {
+      animation: ripple 0.6s ease-out;
+    }
 
-
-    /* On hover, move the button slightly left & deepen the shadow offset */
-    #prev-btn:hover {
-      outline: 2px solid #9c9c9c;         /* Add an outline effect */
+    .round-button:hover {
+      transform: scale(0.95);
     }
 
 
-    /* On hover, move the button slightly left & deepen the shadow offset */
-    #next-btn:hover {
-      outline: 2px solid #9c9c9c;         /* Add an outline effect */
+      @keyframes ripple {
+    0% {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0.5;
     }
+    100% {
+      transform: translate(-50%, -50%) scale(4);
+      opacity: 0;
+    }
+  }
+
+
+
 
 
 
@@ -132,7 +157,7 @@
     /* Slider - Dot indicator container */
     #dot-indicators {
       display: flex;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       gap: 0.4rem;
       justify-content: center;
     }
@@ -150,7 +175,7 @@
 
     /* Active/current dot */
     #dot-indicators .dot.active {
-      background-color: #3273dc;
+      background-color: #626161;
       transform: scale(1.2);
     }
 
@@ -319,6 +344,7 @@
       </div>
     </div>
   </section>
+  
 
   <!-- Abstract Section -->
   <section class="section">
