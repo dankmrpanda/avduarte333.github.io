@@ -94,14 +94,40 @@
       width: 3rem !important;
       height: 3rem !important;
       min-width: 3rem !important; /* Overrides Bulma's min-width */
-      padding: 0 !important;      
+      padding: 0 !important;
       border-radius: 50% !important;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.25rem !important;
       box-sizing: border-box;
+
+
+      background-color: #626161 !important;
+      color: #ffffff !important;
+
+      /* Match "Submit All" timing & cursor style */
+      cursor: pointer;
+      transition: all 0.1s ease-in-out;
     }
+
+
+
+
+
+    /* On hover, move the button slightly left & deepen the shadow offset */
+    #prev-btn:hover {
+      outline: 2px solid #9c9c9c;         /* Add an outline effect */
+    }
+
+
+    /* On hover, move the button slightly left & deepen the shadow offset */
+    #next-btn:hover {
+      outline: 2px solid #9c9c9c;         /* Add an outline effect */
+    }
+
+
+
 
     /* Slider - Dot indicator container */
     #dot-indicators {
@@ -358,6 +384,7 @@
             <i class="fas fa-arrow-right"></i>
           </button>
         </div>
+        
         
         <!-- Answer Container -->
         <div id="quiz-container" class="answer-container">
