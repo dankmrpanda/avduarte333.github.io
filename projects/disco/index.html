@@ -762,7 +762,7 @@
             const totalGridWidth = widthCol0 + colSpacing + widthCol1;
 
             // place them
-            let y0 = -30;
+            let y0 = 0;
             // item0 => top-left
             d3.select(items.nodes()[0]).attr("transform", `translate(0, ${y0})`);
             // item1 => top-right
@@ -786,7 +786,7 @@
           const minFontSize   = 8;
           const maxSquareSize = 14;
           const minSquareSize = 6;
-          const shrinkStep    = 1;  // how many px we reduce each iteration
+          const shrinkStep    = 2;  // how many px we reduce each iteration
 
           // 1) Try single-line at largest size, down to min
           let fontSize   = maxFontSize;
