@@ -31,8 +31,7 @@
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700">
 
-
-  <!-- Bulma CSS (You can remove references to bulma-carousel if you don't need it) -->
+  <!-- Bulma CSS -->
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
   <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
@@ -47,16 +46,16 @@
   <!-- Favicon -->
   <link rel="icon" href="./static/images/disco_ball_icon.png">
 
-  <!-- Load jQuery -->
+  <!-- jQuery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   
-  <!-- Load Bootstrap CSS AFTER Bulma so that the navbar styles take precedence -->
+  <!-- Bootstrap CSS AFTER Bulma so that the navbar styles take precedence -->
   <link rel="stylesheet" 
         href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
         integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA=="
         crossorigin="anonymous" />
 
-  <!-- Load Bootstrap JS (with Popper.js) -->
+  <!-- Bootstrap JS (with Popper.js) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
           integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
           crossorigin="anonymous"></script>
@@ -64,29 +63,24 @@
           integrity="sha512-XKa9Hemdy1Ui3KSGJdgMyYlUg1gM+QhL6cnlyTe2qzMCYm4nAZ1PsVerQzTTXzonUR+dmswHqgJPuwCq1MaAg=="
           crossorigin="anonymous"></script>
   
-  <!-- Other scripts (FontAwesome, etc.) -->
+  <!-- FontAwesome, Bulma Carousel, etc. -->
   <script defer src="./static/js/fontawesome.all.min.js"></script>
   <script src="./static/js/bulma-carousel.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
 
-  <!-- Import d3 for Generating Quiz-Results -->
+  <!-- d3 -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
-
 
   <style>
 
     .title.is-3 {
       color: #5d5d5d;
       font-weight: bold;
-      /* Add any additional styles you want here */
     }
 
-
-
-    /* Navigation controls: buttons and dot indicators */
     .navigation-controls {
-      display: flex; /* Makes container only as wide as its children */
+      display: flex;
       justify-content: center;
       align-items: center;
       gap: 0.5rem;      
@@ -98,11 +92,10 @@
       margin: 0;
     }
 
-    /* Round button to circle the slider - styling */
     .round-button {
       width: 3rem !important;
       height: 3rem !important;
-      min-width: 3rem !important; /* Overrides Bulma's min-width */
+      min-width: 3rem !important; 
       padding: 0 !important;
       border-radius: 50% !important;
       display: flex;
@@ -110,64 +103,47 @@
       justify-content: center;
       font-size: 1.25rem !important;
       box-sizing: border-box;
-
-
       background-color: #626161 !important;
       color: #ffffff !important;
-
-      /* Match "Submit All" timing & cursor style */
       cursor: pointer;
       transition: all 0.1s ease-in-out;
     }
-
-
-    /* Ripple effect pseudo-element */
     .round-button::after {
       content: "";
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 10px;   /* Initial size of the ripple */
+      width: 10px;
       height: 10px;
-      background: rgba(255, 255, 255, 0.5);  /* Ripple color & opacity */
+      background: rgba(255, 255, 255, 0.5);
       border-radius: 50%;
-      transform: translate(-50%, -50%) scale(0);  /* Start scaled down */
-      opacity: 0;    /* Hidden initially */
-      pointer-events: none;  /* So it doesn't block button interactions */
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      pointer-events: none;
     }
-
-    /* Trigger the ripple animation on button press */
     .round-button:active::after {
       animation: ripple 0.6s ease-out;
     }
-
     .round-button:hover {
       transform: scale(0.95);
     }
-
-
-      @keyframes ripple {
-    0% {
-      transform: translate(-50%, -50%) scale(0);
-      opacity: 0.5;
+    @keyframes ripple {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+      }
     }
-    100% {
-      transform: translate(-50%, -50%) scale(4);
-      opacity: 0;
-    }
-  }
 
-
-
-    /* Slider - Dot indicator container */
     #dot-indicators {
       display: flex;
       flex-wrap: wrap;
       gap: 0.4rem;
       justify-content: center;
     }
-
-    /* Individual dot styling */
     #dot-indicators .dot {
       display: inline-block;
       width: 12px;
@@ -177,14 +153,11 @@
       border-radius: 50%;
       transition: transform 0.3s, background-color 0.3s;
     }
-
-    /* Active/current dot */
     #dot-indicators .dot.active {
       background-color: #626161;
       transform: scale(1.2);
     }
 
-    /* Answer container styling */
     .answer-container {
       background-color: #fff;
       border: 1px solid #ccc;
@@ -194,7 +167,6 @@
       margin: 2rem auto 0;
     }
 
-    /* TomSelect control styles */
     .ts-wrapper .ts-control {
       background: #F0F3F7;
       border: 1px solid #ccc;
@@ -232,118 +204,72 @@
       display: none !important;
     }
 
-    /* Aesthetics for the Submit - Quiz Button */
     #submit-all {
-      /* Pill shape */
       border-radius: 10px;
-      /* White background */
       background-color: #ffffff;
-      /* No border */
       border: none;
-      /* Purple text color */
       color: #595ddf;
-      /* Uppercase text, similar to "CONTINUAR" */
       text-transform: uppercase;
       font-weight: bold;
       font-size: 1rem;
-      /* Spacing around text */
       padding: 0.75rem 1.5rem;
-      /* Subtle "bottom edge" shadow */
       box-shadow: 0 4px 0 #cccccc;
       cursor: pointer;
       transition: all 0.1s ease-in-out;
-      display: none; /* Hidden until the last "slide" */
+      display: none; 
     }
     #submit-all:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 0 #cccccc;
     }
 
-
-    /* This is to customize fonts in the quiz section - Mostly to the Results Plot*/
-  .text-label {
-    font-size: 16px;         /* Increased from 12px */
-    font-weight: 600;        /* Slightly bolder for clarity */
-    fill: #333;              /* A dark gray instead of pure black for softer contrast */
-  }
-
-  .axis text {
-    font-size: 15px;         /* Adjusted for axis ticks */
-    fill: #464646;
-    font-weight: 500;
-  }
-
-  .bar-text {
-    font-size: 18px;         /* Larger for emphasis */
-    font-weight: bold;
-    fill: #333;
-  }
-
-  .text-label, .axis text, .bar-text {
-    font-family: 'Roboto', sans-serif;
-  }
-
-
-
-  /* Base styling for legend text */
-  .legend-text {
-    font-family: 'Roboto', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    fill: #464646;
-  }
-
-  /* Base styling for legend square */
-  /* For SVG elements, using CSS to set width/height can sometimes be tricky.
-    If the attributes in the D3 code are set, they take precedence. 
-    If you prefer CSS-only control, remove the width/height attributes in D3
-    and define them here using the style property, e.g.: */
-  .legend-square {
-    /* Using vector-effect ensures stroke remains crisp when scaling */
-    vector-effect: non-scaling-stroke;
-  }
-
-  /* Optionally, if you want to use CSS to set dimensions (and remove them from D3) */
-  @media screen {
-    .legend-square {
-      width: 12px;  /* used in browsers that apply CSS to SVG elements */
-      height: 12px;
+    .text-label {
+      font-size: 16px;
+      font-weight: 600;
+      fill: #333;
     }
-  }
+    .axis text {
+      font-size: 15px;
+      fill: #464646;
+      font-weight: 500;
+    }
+    .bar-text {
+      font-size: 18px;
+      font-weight: bold;
+      fill: #333;
+    }
+    .text-label, .axis text, .bar-text {
+      font-family: 'Roboto', sans-serif;
+    }
 
-  /* Responsive adjustments for mobile devices */
+    .legend-text {
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      fill: #464646;
+    }
+    .legend-square {
+      vector-effect: non-scaling-stroke;
+    }
+
+    /* For smaller screens, we can set some baseline smaller sizes; 
+       but we'll also programmatically scale them. */
     @media screen and (max-width: 768px) {
-    .legend-text {
-      font-size: 12px !important;
+      .legend-text {
+        font-size: 12px !important;
+      }
+      .legend-square {
+        width: 8px !important;
+        height: 8px !important;
+      }
     }
-    .legend-square {
-      width: 8px !important;
-      height: 8px !important;
+
+    @media screen and (max-width: 768px) {
+      figure.chart-or-image, #quiz-container {
+        width: 90% !important;
+      }
     }
-  }
-
-  @media screen and (min-width: 768px) and (max-width: 1024px) {
-    .legend-text {
-      font-size: 10px !important; /* Adjust as needed */
-    }
-    .legend-square {
-      width: 6px !important;
-      height: 6px !important;
-    }
-  }
-
-
-
-
-
-  /* Make images larger on mobile devices (screens with a max-width of 768px) */
-  @media only screen and (max-width: 768px) {figure.chart-or-image, #quiz-container {width: 90% !important;}}
-
-
-
-
   </style>
-
 </head>
 <body>
 
@@ -431,6 +357,7 @@
   </section>
 
 
+  <!-- Intuition Section -->
   <section class="section">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
@@ -518,7 +445,6 @@
       let currentIndex = 0;  // start at slide 0
       let userAnswers = new Array(8).fill('-');
 
-            
       // A flag to avoid redrawing the chart structure repeatedly.
       let chartStructureDrawn = false;
       
@@ -535,11 +461,9 @@
       for (let i = 0; i < totalSlides; i++) {
         const dot = document.createElement('span');
         dot.classList.add('dot');
-
-      if (i === 0) dot.classList.add('active');
+        if (i === 0) dot.classList.add('active');
         dotContainer.appendChild(dot);
       }
-
       function updateDots() {
         const dots = dotContainer.querySelectorAll('.dot');
         dots.forEach((dot, idx) => {
@@ -547,7 +471,6 @@
         });
       }
 
-      
       /*************************************************************
        * Load TomSelect Options
        *************************************************************/
@@ -580,23 +503,18 @@
         .catch(err => console.error('Error loading movies.txt:', err));
 
 
-
-      
-
       /*************************************************************
-       * Chart Functions
+       * Chart + Legend Functions
        *************************************************************/
-
-      // User-defined parameters:
-      const borderWidth = 2;              // Width for all outline borders.
-      const barWidthFraction = 0.8;       // Each bar uses 80% of its allocated x-scale band.
+      const borderWidth = 2;              
+      const barWidthFraction = 0.8;       
 
       function drawChartStructure() {
         // Clear any existing content
         const svg = d3.select(barChartSvg);
         svg.selectAll('*').remove();
         
-        // Get current dimensions from the SVG container
+        // Get current dimensions
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width + 20;
         const height = bbox.height;
@@ -606,7 +524,7 @@
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         
-        // Append a group element to account for margins
+        // Append a group to account for margins
         const g = svg.append("g")
           .attr("transform", `translate(${margin.left},${margin.top})`);
         
@@ -615,7 +533,7 @@
           .domain([0, 105])
           .range([innerHeight, 0]);
         
-        // Draw y-axis with 5 ticks
+        // Draw y-axis
         const yAxis = d3.axisLeft(yScale)
           .ticks(5)
           .tickSizeInner(0)
@@ -626,10 +544,8 @@
           .attr("class", "y-axis axis")
           .call(yAxis);
         
-        // Filter out the 0 tick to avoid drawing the grid line at the x-axis.
+        // Exclude 0 for horizontal grid lines
         const yTicks = yScale.ticks(5).filter(tickValue => tickValue !== 0);
-        
-        // Draw horizontal grid lines (red and dashed) without the 0 tick.
         g.append("g")
           .attr("class", "grid horizontal-grid")
           .call(d3.axisLeft(yScale)
@@ -639,16 +555,16 @@
           .selectAll("line")
             .attr("stroke", "lightgray")
             .attr("stroke-dasharray", "5")
-            .attr("stroke-width", "2");  // Increase stroke width here
+            .attr("stroke-width", "2");
         
-        // Define x-scale for five categories.
+        // x-scale for categories
         const categories = ["GPT-4o", "Gemini-1.5 Pro", "Qwen2-VL 72B", "You"];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
           .padding(0.2);
         
-        // Draw vertical grid lines (red and dashed) at the center of each x-scale band.
+        // Vertical grid lines
         categories.forEach(cat => {
           const xPos = xScale(cat) + xScale.bandwidth() / 2;
           g.append("line")
@@ -659,211 +575,238 @@
             .attr("y2", innerHeight)
             .attr("stroke", "lightgray")
             .attr("stroke-dasharray", "5")
-            .attr("stroke-width", "2");  // Increase stroke width here
+            .attr("stroke-width", "2");
         });
         
-        // Draw borders with custom color stroke and user defined width.
-        // Top border
+        // Borders (top + right in light gray; left + bottom in darker shade)
         g.append("line")
           .attr("class", "border")
-          .attr("x1", 0)
-          .attr("y1", 0)
-          .attr("x2", innerWidth)
-          .attr("y2", 0)
-          .attr("stroke", "lightgray")
-          .attr("stroke-width", borderWidth);
-        
-        // Right border
-        g.append("line")
-          .attr("class", "border")
-          .attr("x1", innerWidth)
-          .attr("y1", 0)
-          .attr("x2", innerWidth)
-          .attr("y2", innerHeight)
+          .attr("x1", 0).attr("y1", 0)
+          .attr("x2", innerWidth).attr("y2", 0)
           .attr("stroke", "lightgray")
           .attr("stroke-width", borderWidth);
 
-        // Left border
         g.append("line")
           .attr("class", "border")
-          .attr("x1", 0)
-          .attr("y1", -1)
-          .attr("x2", 0)
-          .attr("y2", innerHeight+1)
+          .attr("x1", innerWidth).attr("y1", 0)
+          .attr("x2", innerWidth).attr("y2", innerHeight)
+          .attr("stroke", "lightgray")
+          .attr("stroke-width", borderWidth);
+
+        g.append("line")
+          .attr("class", "border")
+          .attr("x1", 0).attr("y1", -1)
+          .attr("x2", 0).attr("y2", innerHeight+1)
+          .attr("stroke", "#36454F")
+          .attr("stroke-width", borderWidth);
+
+        g.append("line")
+          .attr("class", "border")
+          .attr("x1", -1).attr("y1", innerHeight)
+          .attr("x2", innerWidth).attr("y2", innerHeight)
           .attr("stroke", "#36454F")
           .attr("stroke-width", borderWidth);
         
-        // Bottom border
-        g.append("line")
-          .attr("class", "border")
-          .attr("x1", -1)
-          .attr("y1", innerHeight)
-          .attr("x2", innerWidth)
-          .attr("y2", innerHeight)
-          .attr("stroke", "#36454F")
-          .attr("stroke-width", borderWidth);
-        
-        // Draw initial static bars in hidden state (height 0)
-        // and do NOT add x-axis labels (deprecated in favor of a legend).
+        // Draw static bars in hidden state
         drawInitialBars(g, innerWidth, innerHeight, yScale, xScale);
-        
-        // Draw legend inside the plot area.
+
+        // Draw legend
         drawLegend(g, innerWidth, innerHeight);
       }
 
       function drawInitialBars(g, innerWidth, innerHeight, yScale, xScale) {
-        // Define the four static model categories with precomputed values.
         const staticData = [
-          { name: "GPT-4o", value: 50, color: "#7bb296e6"},
+          { name: "GPT-4o",         value: 50, color: "#7bb296e6"},
           { name: "Gemini-1.5 Pro", value: 70, color: "#f6d379e6"},
-          { name: "Qwen2-VL 72B", value: 60, color: "#695e93e6" }
+          { name: "Qwen2-VL 72B",   value: 60, color: "#695e93e6" }
         ];
-
         
-        // For each static bar, compute a narrower bar width.
         staticData.forEach(d => {
           const fullBandWidth = xScale.bandwidth();
           const barWidth = fullBandWidth * barWidthFraction;
           const xPos = xScale(d.name) + (fullBandWidth - barWidth) / 2;
           
-          // Append the static bar rectangle in hidden state (height 0).
           g.append("rect")
             .attr("class", "static-bar")
             .attr("x", xPos)
-            .attr("y", innerHeight)  // Start from bottom
+            .attr("y", innerHeight)
             .attr("width", barWidth)
-            .attr("height", 0)       // Hidden initially
+            .attr("height", 0)
             .attr("fill", d.color)
             .attr("stroke", "black")
             .attr("stroke-width", borderWidth)
-            .attr("data-final", d.value); // Store final value for animation
+            .attr("data-final", d.value);
         });
-        
-        // For the "You" category, the bar will be drawn during animation.
+      }
+
+      /**
+       * Measures total width (including a minimum gap) of legend items 
+       * in the single-line approach, *after* setting the square/text sizes.
+       */
+      function measureSingleLine(items, gap) {
+        let total = 0;
+        items.each(function() {
+          const bbox = this.getBBox();
+          total += bbox.width;
+        });
+        // Add gaps for n-1 intervals if we have n items
+        const itemCount = items.size();
+        if (itemCount > 1) {
+          total += gap * (itemCount - 1);
+        }
+        return total;
       }
 
       function drawLegend(g, innerWidth, innerHeight) {
-  // Detect mobile viewport
-  const isMobile = window.innerWidth < 768;
-  const legendPadding = isMobile ? 0 : 50;
-  const legendTop = isMobile ? -30 : -20; // you can adjust vertical offset as needed
-  const legendAvailableWidth = innerWidth - 2 * legendPadding;
+        // Decide if mobile. (Mobile < 768px => 2x2 grid.)
+        const isMobile = window.innerWidth < 768;
+        
+        // We want to place the legend above the chart, 
+        // so we’ll just shift it up a bit inside the top margin.
+        const legendGroup = g.append("g")
+          .attr("class", "legend")
+          .attr("transform", `translate(0, -25)`); // slight upward shift
 
-  const legendData = [
-    { name: "GPT-4o",         color: "#7bb296e6" },
-    { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
-    { name: "Qwen2-VL 72B",   color: "#695e93e6" },
-    { name: "You",            color: "#1c2e4ae6" }
-  ];
+        const legendData = [
+          { name: "GPT-4o",         color: "#7bb296e6" },
+          { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
+          { name: "Qwen2-VL 72B",   color: "#695e93e6" },
+          { name: "You",            color: "#1c2e4ae6" }
+        ];
+        
+        const items = legendGroup.selectAll(".legend-item")
+          .data(legendData)
+          .enter()
+          .append("g")
+          .attr("class", "legend-item");
 
-  const legendGroup = g.append("g")
-    .attr("class", "legend")
-    .attr("transform", `translate(${legendPadding}, ${legendTop})`);
+        // Append squares + text (initially with some default size).
+        let currentSquareSize = 14;  
+        let currentFontSize   = 16;  
+        // In CSS, .legend-text is 16px by default at desktop. 
+        // We'll override via .attr() if we scale.
 
-  // Create one group per legend item
-  const items = legendGroup.selectAll(".legend-item")
-    .data(legendData)
-    .enter()
-    .append("g")
-    .attr("class", "legend-item");
+        const squares = items.append("rect")
+          .attr("class", "legend-square")
+          .attr("width", currentSquareSize)
+          .attr("height", currentSquareSize)
+          .attr("fill", d => d.color)
+          .attr("stroke", "black")
+          .attr("stroke-width", 1);
 
-  // Add the colored square
-  items.append("rect")
-    .attr("class", "legend-square")
-    .attr("width", 12)
-    .attr("height", 12)
-    .attr("fill", d => d.color)
-    .attr("stroke", "black")
-    .attr("stroke-width", 1);
+        const texts = items.append("text")
+          .attr("class", "legend-text")
+          .attr("x", currentSquareSize + 5)
+          .attr("y", currentSquareSize * 0.8) 
+          .attr("font-size", currentFontSize)
+          .text(d => d.name);
 
-  // Add the text
-  items.append("text")
-    .attr("class", "legend-text")
-    .attr("x", 18)
-    .attr("y", 10) // because rect is 12px high, offset text a bit
-    .text(d => d.name);
+        if (isMobile) {
+          // ------------------
+          //  2×2 GRID LAYOUT
+          // ------------------
+          // Let’s see how big each item is individually.
+          // We arrange them in two rows, two columns.
+          // We'll measure each item (g node) to place them properly.
 
-    if (isMobile) {
-      const columnGap = 25;    // desired gap between left and right columns
-      const rowSpacing = 15;   // vertical spacing between rows
+          let rowSpacing = 8;   
+          let colSpacing = 40;  
+          // The final width is 2 columns => measure the widest in col0 and widest in col1
 
-      // Get the legend items as an array of nodes
-      const nodes = items.nodes();
-      if (nodes.length === 4) {
-        // Assume indices 0 & 2 are the left column; 1 & 3 are the right column.
-        const leftItems = [nodes[0], nodes[2]];
-        const rightItems = [nodes[1], nodes[3]];
+          // We'll measure item bounding boxes after they've rendered.
+          legendGroup.call(() => {
+            const nodes = items.nodes();
+            // Indices: 0,1 => first row, 2,3 => second row
+            // measure each item
+            const bboxes = nodes.map(n => n.getBBox());
 
-        // Measure widths of each item
-        const leftWidths = leftItems.map(n => n.getBBox().width);
-        const rightWidths = rightItems.map(n => n.getBBox().width);
+            // widest in first column (0,2)
+            const maxWidthCol0 = Math.max(bboxes[0].width, bboxes[2].width);
+            // widest in second column (1,3)
+            const maxWidthCol1 = Math.max(bboxes[1].width, bboxes[3].width);
 
-        // Use the maximum widths so that both rows share the same column widths
-        const maxLeftWidth = Math.max(...leftWidths);
-        const maxRightWidth = Math.max(...rightWidths);
+            // Center the entire 2×2 structure in innerWidth
+            const totalGridWidth = maxWidthCol0 + colSpacing + maxWidthCol1;
+            let offsetX = (innerWidth - totalGridWidth) / 2;
+            if (offsetX < 0) offsetX = 0;  // no negative shift
 
-        // Calculate the total grid width
-        const totalGridWidth = maxLeftWidth + columnGap + maxRightWidth;
+            // Place top row
+            d3.select(nodes[0])
+              .attr("transform", `translate(${offsetX},0)`);
+            d3.select(nodes[1])
+              .attr("transform", `translate(${offsetX + maxWidthCol0 + colSpacing},0)`);
 
-        // Compute an offset to center the entire grid within the available legend width
-        const offsetX = (legendAvailableWidth - totalGridWidth) / 2;
+            // Place second row
+            const secondRowY = bboxes[0].height + rowSpacing;
+            d3.select(nodes[2])
+              .attr("transform", `translate(${offsetX},${secondRowY})`);
+            d3.select(nodes[3])
+              .attr("transform", `translate(${offsetX + maxWidthCol0 + colSpacing},${secondRowY})`);
+          });
 
-        // Place the top row:
-        d3.select(nodes[0])
-          .attr("transform", `translate(${offsetX}, 0)`);
-        d3.select(nodes[1])
-          .attr("transform", `translate(${offsetX + maxLeftWidth + columnGap}, 0)`);
+        } else {
+          // --------------------------------
+          //  SINGLE-LINE (Desktop & Tablet)
+          // --------------------------------
+          // We'll attempt to keep the text on one line. 
+          // If it doesn't fit, we scale down font & squares gradually.
+          const minFontSize = 10;  
+          const minSquareSize = 6;  
+          const minGap = 25;        // baseline gap between items
 
-        // Place the bottom row:
-        d3.select(nodes[2])
-          .attr("transform", `translate(${offsetX}, ${rowSpacing})`);
-        d3.select(nodes[3])
-          .attr("transform", `translate(${offsetX + maxLeftWidth + columnGap}, ${rowSpacing})`);
+          let fit = false;
+          while (!fit) {
+            // Measure total width of items with the current sizing
+            // We do a quick "layout" at x=0 in a row, just to measure bounding boxes.
+            let xPos = 0;
+            items.attr("transform", function() {
+              const nodeBbox = this.getBBox();
+              const thisX = xPos;
+              xPos += nodeBbox.width + minGap;
+              return `translate(${thisX},0)`;
+            });
+
+            const totalWidthUsed = xPos - minGap; // after final item, subtract one gap
+            if (totalWidthUsed <= innerWidth) {
+              // Good, it fits
+              fit = true;
+            } else {
+              // We scale down
+              currentFontSize -= 1;
+              currentSquareSize -= 1;
+              if (currentFontSize < minFontSize || currentSquareSize < minSquareSize) {
+                // We won't shrink any further
+                fit = true;
+                break;
+              }
+              // Update squares & text to smaller size
+              squares
+                .attr("width", currentSquareSize)
+                .attr("height", currentSquareSize);
+              texts
+                .attr("x", currentSquareSize + 5)
+                .attr("y", currentSquareSize * 0.8)
+                .attr("font-size", currentFontSize);
+            }
+          }
+
+          // Finally, we center the entire line in the available width
+          legendGroup.call(() => {
+            const groupBbox = legendGroup.node().getBBox();
+            let offsetX = (innerWidth - groupBbox.width) / 2;
+            if (offsetX < 0) offsetX = 0;
+            legendGroup.attr("transform", `translate(${offsetX}, -25)`);
+          });
+        }
       }
-    } else {
-    // --- Single-line layout for wider screens ---
-    // Measure item widths to place them horizontally
-    items.each(function(d) {
-      const bbox = this.getBBox();
-      d.itemWidth = bbox.width;
-    });
 
-    const totalItemsWidth = legendData.reduce((sum, d) => sum + d.itemWidth, 0);
-    const gaps = legendData.length - 1;
-    let itemSpacing = gaps > 0
-      ? Math.max(0, (legendAvailableWidth - totalItemsWidth) / gaps)
-      : 0;
-    const totalWidth = totalItemsWidth + itemSpacing * gaps;
-    let startX = Math.max(0, (legendAvailableWidth - totalWidth) / 2);
-
-    let currentX = startX;
-    items.attr("transform", (d, i) => {
-      const x = currentX;
-      currentX += d.itemWidth + (i < legendData.length - 1 ? itemSpacing : 0);
-      return `translate(${x}, 0)`;
-    });
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-      // Function to animate all bars, including static bars and the "You" bar.
       function animateAllBars(finalYouValue) {
-        // Get dimensions and set up margins and scales (same as in drawChartStructure)
         const svg = d3.select(barChartSvg);
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width + 20;
         const height = bbox.height;
         
-        const margin = { top: 30, right: 30, bottom: 5, left: 35 };
+        const margin = { top: 35, right: 30, bottom: 5, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         
@@ -879,7 +822,7 @@
         
         const g = svg.select("g");
         
-        // Animate static bars by transitioning from hidden (height 0) to final height.
+        // Animate static bars
         g.selectAll(".static-bar")
           .transition()
           .duration(1200)
@@ -892,8 +835,7 @@
             return innerHeight - yScale(finalVal);
           });
         
-        // Animate the "You" bar.
-        // Remove any previous animated "You" bar and its text.
+        // Animate the "You" bar
         g.selectAll(".animated-bar").remove();
         g.selectAll(".bar-text").remove();
         
@@ -915,18 +857,15 @@
           .duration(1200)
           .attr("y", yScale(finalYouValue))
           .attr("height", innerHeight - yScale(finalYouValue));
-        
-
       }
-
 
       
       /*************************************************************
        * updateSlide() - Show/hide elements per slide
        *************************************************************/
-       function updateSlide() {
+      function updateSlide() {
         if (currentIndex < quizImages.length) {
-          // For quiz slides: show image and answer container
+          // Quiz slide
           quizImageEl.style.opacity = '1';
           quizImageEl.style.display = 'block';
           barChartSvg.style.display = 'none';
@@ -934,19 +873,17 @@
           submitBtn.style.display = 'none';
           quizImageEl.src = quizImages[currentIndex];
 
-          // Update the TomSelect value based on the stored answer:
+          // Restore any previous answer
           if (quizSelect) {
-            // If an answer was previously provided (and is not the default '-')
             if (userAnswers[currentIndex] && userAnswers[currentIndex] !== '-') {
               quizSelect.setValue(userAnswers[currentIndex]);
             } else {
-              // Otherwise, clear the selection and set the default '-' option.
               quizSelect.clear();
               quizSelect.setValue('-');
             }
           }
         } else {
-          // For the final slide: hide quiz elements and show the chart.
+          // Final slide: show chart
           quizImageEl.style.opacity = '0';
           quizImageEl.style.display = 'block';
           barChartSvg.style.display = 'block';
@@ -960,9 +897,8 @@
         updateDots();
       }
 
-      
       /*************************************************************
-       * Navigation Buttons
+       * Nav Buttons
        *************************************************************/
       prevBtn.addEventListener('click', () => {
         if (currentIndex < quizImages.length && quizSelect) {
@@ -985,32 +921,33 @@
       });
       
       /*************************************************************
-       * Submit Button – on click, animate the bar (leaving the grid intact)
+       * Submit Button – animate the final bar
        *************************************************************/
       submitBtn.addEventListener('click', () => {
         if (currentIndex < quizImages.length && quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
-        // alert('Your guesses:\n' + JSON.stringify(userAnswers, null, 2));
-        const finalValue = 80; // Example value (calculate based on userAnswers as needed)
+        const finalValue = 80; // example logic
         animateAllBars(finalValue);
       });
       
-      
       /*************************************************************
-       * Initialize – show the first slide
+       * Initialize
        *************************************************************/
       updateSlide();
 
-    // Add responsive chart redrawing on window resize
-    window.addEventListener('resize', () => {
-      d3.select('#bar-chart').selectAll('*').remove();
-      drawChartStructure();
-    });
+      // Redraw chart on window resize
+      window.addEventListener('resize', () => {
+        if (currentIndex >= quizImages.length) {
+          // Clear + redraw
+          d3.select('#bar-chart').selectAll('*').remove();
+          drawChartStructure();
+        }
       });
+    });
   </script>
     
-  <!-- Video Section -->
+  <!-- MovieTection Section -->
   <section>
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
