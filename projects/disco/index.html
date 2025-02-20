@@ -772,20 +772,44 @@
     .attr("y", 10) // because rect is 12px high, offset text a bit
     .text(d => d.name);
 
-  if (isMobile) {
-    // --- 2×2 grid layout on mobile ---
-    // Position items in two columns, two rows
-    items.attr("transform", (d, i) => {
-      // i in [0..3]; 0,1 on first row, 2,3 on second
-      const col = i % 2;            // 0 or 1
-      const row = Math.floor(i / 2); // 0 or 1
-      // You can adjust the x/y offsets based on measured text widths
-      // or just pick enough spacing to avoid overlap:
-      const x = col * 100;
-      const y = row * 25;
-      return `translate(${x}, ${y})`;
-    });
-  } else {
+    if (isMobile) {
+      const columnGap = 10;    // desired gap between left and right columns
+      const rowSpacing = 25;   // vertical spacing between rows
+
+      // Get the legend items as an array of nodes
+      const nodes = items.nodes();
+      if (nodes.length === 4) {
+        // Assume indices 0 & 2 are the left column; 1 & 3 are the right column.
+        const leftItems = [nodes[0], nodes[2]];
+        const rightItems = [nodes[1], nodes[3]];
+
+        // Measure widths of each item
+        const leftWidths = leftItems.map(n => n.getBBox().width);
+        const rightWidths = rightItems.map(n => n.getBBox().width);
+
+        // Use the maximum widths so that both rows share the same column widths
+        const maxLeftWidth = Math.max(...leftWidths);
+        const maxRightWidth = Math.max(...rightWidths);
+
+        // Calculate the total grid width
+        const totalGridWidth = maxLeftWidth + columnGap + maxRightWidth;
+
+        // Compute an offset to center the entire grid within the available legend width
+        const offsetX = (legendAvailableWidth - totalGridWidth) / 2;
+
+        // Place the top row:
+        d3.select(nodes[0])
+          .attr("transform", `translate(${offsetX}, 0)`);
+        d3.select(nodes[1])
+          .attr("transform", `translate(${offsetX + maxLeftWidth + columnGap}, 0)`);
+
+        // Place the bottom row:
+        d3.select(nodes[2])
+          .attr("transform", `translate(${offsetX}, ${rowSpacing})`);
+        d3.select(nodes[3])
+          .attr("transform", `translate(${offsetX + maxLeftWidth + columnGap}, ${rowSpacing})`);
+      }
+    } else {
     // --- Single-line layout for wider screens ---
     // Measure item widths to place them horizontally
     items.each(function(d) {
