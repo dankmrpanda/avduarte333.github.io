@@ -520,7 +520,7 @@
         const height = bbox.height;
         
         // Define margins and inner dimensions
-        const margin = { top: 35, right: 30, bottom: 5, left: 35 };
+        const margin = { top: 45, right: 30, bottom: 5, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         
@@ -751,7 +751,7 @@
             // The widest pair in col0, col1
             // rowSpacing, colSpacing are constants you can tweak
             const colSpacing = 5;
-            const rowSpacing = 1;
+            const rowSpacing = -15;
 
             // We'll measure row0’s items: (0,1)
             // and row1’s items: (2,3).
@@ -762,7 +762,7 @@
             const totalGridWidth = widthCol0 + colSpacing + widthCol1;
 
             // place them
-            let y0 = 0;
+            let y0 = -15;
             // item0 => top-left
             d3.select(items.nodes()[0]).attr("transform", `translate(0, ${y0})`);
             // item1 => top-right
@@ -777,14 +777,6 @@
             // Now measure the bounding box of the entire legendGroup
             // This is effectively 2 rows
             const groupBbox = legendGroup.node().getBBox();
-
-            // center horizontally & move above chart
-            // (innerWidth is the width of your chart area)
-            const offsetX = Math.max(0, (innerWidth - groupBbox.width) / 2);
-            // shift the legend upward by its own height + 5
-            const offsetY = -groupBbox.height - 100;
-            legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
-
             const finalWidth = groupBbox.width;
             return finalWidth; // how wide the grid is
           }
@@ -862,7 +854,7 @@
         const width  = bbox.width + 20;
         const height = bbox.height;
         
-        const margin = { top: 35, right: 30, bottom: 5, left: 35 };
+        const margin = { top: 45, right: 30, bottom: 5, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         
