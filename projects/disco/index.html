@@ -260,7 +260,8 @@
 
   .axis text {
     font-size: 15px;         /* Adjusted for axis ticks */
-    fill: #333;
+    fill: #464646;
+    font-weight: 500;
   }
 
   .bar-text {
@@ -273,45 +274,52 @@
     font-family: 'Roboto', sans-serif;
   }
 
-    /* Legend background styling */
-    .legend-bg {
-      fill: #f9f9f9cc;
-      stroke: #ddd;
-      stroke-width: 1;
-      rx: 10px;
-    }
 
-    /* Legend text styling */
-    .legend-text {
-      font-size: 16px;
-      font-weight: 600;
-      fill: #333;
-      font-family: 'Roboto', sans-serif;
-    }
 
-    /* Legend square styling */
+  /* Base styling for legend text */
+  .legend-text {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    fill: #464646;
+  }
+
+  /* Base styling for legend square */
+  /* For SVG elements, using CSS to set width/height can sometimes be tricky.
+    If the attributes in the D3 code are set, they take precedence. 
+    If you prefer CSS-only control, remove the width/height attributes in D3
+    and define them here using the style property, e.g.: */
+  .legend-square {
+    /* Using vector-effect ensures stroke remains crisp when scaling */
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Optionally, if you want to use CSS to set dimensions (and remove them from D3) */
+  @media screen {
     .legend-square {
-      width: 12px;
+      width: 12px;  /* used in browsers that apply CSS to SVG elements */
       height: 12px;
     }
+  }
 
-    /* Responsive adjustments for mobile devices */
-    @media (max-width: 600px) {
-      .legend-text {
-        font-size: 12px; /* smaller font size on mobile */
-      }
+  /* Responsive adjustments for mobile devices */
+  @media (max-width: 1000) {
+    .legend-text {
+      font-size: 12px; /* smaller font size on mobile */
+    }
+    /* If controlling dimensions via CSS, update them for mobile */
+    @media screen {
       .legend-square {
-        width: 8px;  /* smaller square on mobile */
+        width: 8px;
         height: 8px;
       }
     }
-
-
+  }
 
 
 
   /* Make images larger on mobile devices (screens with a max-width of 768px) */
-  @media only screen and (max-width: 768px) {figure.chart-or-image, #quiz-container {width: 90% !important;}}
+  @media only screen and (max-width: 1000px) {figure.chart-or-image, #quiz-container {width: 90% !important;}}
 
 
 
@@ -569,7 +577,7 @@
         const height = bbox.height;
         
         // Define margins and inner dimensions
-        const margin = { top: 10, right: 30, bottom: 20, left: 35 };
+        const margin = { top: 30, right: 30, bottom: 5, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         
@@ -609,7 +617,7 @@
             .attr("stroke-width", "2");  // Increase stroke width here
         
         // Define x-scale for five categories.
-        const categories = ["GPT-4o", "Gemini-1.5 Pro", "Llama-3.2", "Qwen2-VL 72B", "You"];
+        const categories = ["GPT-4o", "Gemini-1.5 Pro", "Qwen2-VL 72B", "You"];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
@@ -681,11 +689,11 @@
       function drawInitialBars(g, innerWidth, innerHeight, yScale, xScale) {
         // Define the four static model categories with precomputed values.
         const staticData = [
-          { name: "GPT-4o", value: 50, color: "#06402be6"},
-          { name: "Gemini-1.5 Pro", value: 70, color: "#90520ce6" },
-          { name: "Llama-3.2", value: 40, color: "#0c5f90e6" },
-          { name: "Qwen2-VL 72B", value: 60, color: "#624aa1e6" }
+          { name: "GPT-4o", value: 50, color: "#7bb296e6"},
+          { name: "Gemini-1.5 Pro", value: 70, color: "#f6d379e6"},
+          { name: "Qwen2-VL 72B", value: 60, color: "#695e93e6" }
         ];
+
         
         // For each static bar, compute a narrower bar width.
         staticData.forEach(d => {
@@ -710,74 +718,84 @@
       }
 
       function drawLegend(g, innerWidth, innerHeight) {
-        // Legend data includes all models.
-        const legendData = [
-          { name: "GPT-4o", color: "#06402be6" },
-          { name: "Gemini-1.5 Pro", color: "#90520ce6" },
-          { name: "Llama-3.2", color: "#0c5f90e6" },
-          { name: "Qwen2-VL 72B", color: "#624aa1e6" },
-          { name: "You", color: "#69b3a2" }
-        ];
+  // Legend data in the desired order:
+  const legendData = [
+    { name: "GPT-4o",         color: "#7bb296e6" },
+    { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
+    { name: "Qwen2-VL 72B",   color: "#695e93e6" },
+    { name: "You",            color: "#1c2e4ae6" }
+  ];
 
-        const numItems = legendData.length;
-        const containerWidth = innerWidth / numItems;
+  // Basic layout constants:
+  const legendPadding = 50; // left/right padding within the chart
+  const legendAvailableWidth = innerWidth - 2 * legendPadding;
+  const legendTop = -20;    // vertical offset above/below the chart
 
-        // Create the main legend group spanning the full innerWidth.
-        const legend = g.append("g")
-          .attr("class", "legend")
-          // You can position the legend vertically (here at y = 10).
-          .attr("transform", `translate(0, 10)`);
+  // Create a container group for the legend:
+  const legendGroup = g.append("g")
+    .attr("class", "legend")
+    .attr("transform", `translate(${legendPadding}, ${legendTop})`);
 
-        // Optionally, add a background rectangle that spans the entire plot width.
-        legend.insert("rect", ":first-child")
-          .attr("class", "legend-bg")
-          .attr("x", 0)
-          .attr("y", -10)       // extra top padding
-          .attr("width", innerWidth)
-          .attr("height", 40)   // adjust as needed
-          .attr("fill", "#f9f9f9")
-          .attr("stroke", "#ddd")
-          .attr("stroke-width", 1);
+  // Create one <g> per legend item:
+  const items = legendGroup.selectAll(".legend-item")
+    .data(legendData)
+    .enter()
+    .append("g")
+      .attr("class", "legend-item");
 
-        // For each legend item, create a container that spans containerWidth.
-        legendData.forEach((d, i) => {
-          const itemContainer = legend.append("g")
-            .attr("class", "legend-item-container")
-            // Position each container horizontally at multiples of containerWidth.
-            .attr("transform", `translate(${i * containerWidth}, 0)`);
+  // Add the colored square with a class for styling:
+  items.append("rect")
+    .attr("class", "legend-square")
+    .attr("fill", d => d.color)
+    .attr("stroke", "black")
+    .attr("stroke-width", 1);
+  
+  // Add text to the right of the square with a class for styling:
+  items.append("text")
+    .attr("class", "legend-text")
+    .attr("x", 18)   // space between square and text
+    .attr("y", 12)   // align baseline with bottom of square
+    .text(d => d.name);
 
-          // Create an inner group that holds the square and text.
-          const itemGroup = itemContainer.append("g")
-            .attr("class", "legend-item-inner");
+  // Measure each item’s bounding box to get its total width:
+  items.each(function(d) {
+    const bbox = this.getBBox();
+    d.itemWidth = bbox.width; // includes the rect + text
+  });
 
-          // Append the colored square.
-          itemGroup.append("rect")
-            .attr("class", "legend-square")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", 12)
-            .attr("height", 12)
-            .attr("fill", d.color)
-            .attr("stroke", "black")
-            .attr("stroke-width", 1);
+  // Calculate the total width of all items combined:
+  const totalItemsWidth = legendData.reduce((sum, d) => sum + d.itemWidth, 0);
+  // Number of gaps between items:
+  const gaps = legendData.length - 1;
 
-          // Append the text label.
-          itemGroup.append("text")
-            .attr("class", "legend-text")
-            .attr("x", 18)  // position the text to the right of the square
-            .attr("y", 12)
-            .text(d.name);
+  // Compute the spacing between items so they fill the available width:
+  let itemSpacing = 0;
+  if (gaps > 0) {
+    const leftoverSpace = legendAvailableWidth - totalItemsWidth;
+    itemSpacing = leftoverSpace / gaps;
+    if (itemSpacing < 0) itemSpacing = 0;
+  }
 
-          // Center the inner group within its container.
-          // Get the bounding box of the itemGroup.
-          const bbox = itemGroup.node().getBBox();
-          // Calculate the needed horizontal translation:
-          // (containerWidth - group width) / 2 minus bbox.x (in case the group's x isn’t 0)
-          const dx = (containerWidth - bbox.width) / 2 - bbox.x;
-          // Apply the translation to center the itemGroup.
-          itemGroup.attr("transform", `translate(${dx}, 0)`);
-        });
-      }
+  // Total legend width after including the gaps:
+  const totalWidth = totalItemsWidth + itemSpacing * gaps;
+
+  // Center the items horizontally:
+  let startX = (legendAvailableWidth - totalWidth) / 2;
+  if (startX < 0) startX = 0;
+
+  // Position each legend item horizontally:
+  let currentX = startX;
+  items.attr("transform", (d, i) => {
+    const x = currentX;
+    currentX += d.itemWidth + (i < legendData.length - 1 ? itemSpacing : 0);
+    return `translate(${x}, 0)`;
+  });
+}
+
+
+
+
+
 
 
 
@@ -790,7 +808,7 @@
         const width  = bbox.width + 20;
         const height = bbox.height;
         
-        const margin = { top: 10, right: 30, bottom: 20, left: 35 };
+        const margin = { top: 30, right: 30, bottom: 5, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         
@@ -798,7 +816,7 @@
           .domain([0, 105])
           .range([innerHeight, 0]);
         
-        const categories = ["GPT-4o", "Gemini-1.5 Pro", "Llama-3.2", "Qwen2-VL 72B", "You"];
+        const categories = ["GPT-4o", "Gemini-1.5 Pro", "Qwen2-VL 72B", "You"];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
@@ -834,7 +852,7 @@
           .attr("y", innerHeight)
           .attr("width", barWidth)
           .attr("height", 0)
-          .attr("fill", "#69b3a2")
+          .attr("fill", "#1c2e4ae6")
           .attr("stroke", "black")
           .attr("stroke-width", borderWidth);
         
@@ -843,24 +861,7 @@
           .attr("y", yScale(finalYouValue))
           .attr("height", innerHeight - yScale(finalYouValue));
         
-        // Animate the percentage text above the "You" bar.
-        const text = g.append("text")
-          .attr("class", "bar-text")
-          .attr("x", xScale("You") + xScale.bandwidth()/2)
-          .attr("y", yScale(finalYouValue) - 10)
-          .attr("fill", "black")
-          .attr("text-anchor", "middle")
-          .text("0%");
-        
-        text.transition()
-          .duration(1200)
-          .tween("text", function() {
-            const node = this;
-            const i = d3.interpolateNumber(0, finalYouValue);
-            return function(t) {
-              d3.select(node).text(i(t).toFixed(0) + '%');
-            };
-          });
+
       }
 
 
@@ -935,7 +936,7 @@
         if (currentIndex < quizImages.length && quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
-        alert('Your guesses:\n' + JSON.stringify(userAnswers, null, 2));
+        // alert('Your guesses:\n' + JSON.stringify(userAnswers, null, 2));
         const finalValue = 80; // Example value (calculate based on userAnswers as needed)
         animateAllBars(finalValue);
       });
