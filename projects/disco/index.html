@@ -75,6 +75,15 @@
 
 
   <style>
+
+    .title.is-3 {
+      color: #4f5f5a;
+      font-weight: bold;
+      /* Add any additional styles you want here */
+    }
+
+
+
     /* Navigation controls: buttons and dot indicators */
     .navigation-controls {
       display: flex; /* Makes container only as wide as its children */
@@ -412,19 +421,26 @@
     </div>
   </section>
 
-  <section class="section" id="intuition-section">
-    <div class="container">
-      <!-- Red Title -->
-      <h2 class="title is-3 has-text-danger">Intuition</h2>
-      <div class="content">
-        <ul>
-          <li>There is suspicion that VLMs train on copyright-protected data.</li>
-          <li>Companies do not disclose training data for competitive reasons.</li>
-          <li>Therefore, when creating a Training Data Detector, we need to devise a sufficiently hard task.</li>
-        </ul>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Intuition</h2>
+          <div class="content has-text-justified">
+            <div class="content">
+              <ul>
+                <li>There is suspicion that VLMs train on copyright-protected data.</li>
+                <li>Companies do not disclose training data for competitive reasons.</li>
+                <li>Therefore, when creating a Training Data Detector, we need to devise a sufficiently hard task.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
+
 
   <!-- Quiz Section with manual "carousel" (Prev/Next) -->
   <div class="has-background-light">
@@ -953,11 +969,7 @@
   <section>
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Video</h2>
-        <div class="publication-video">
-          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
-                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
+        <h2 class="title is-3">MovieTection</h2>
       </div>
     </div>
   </section>
