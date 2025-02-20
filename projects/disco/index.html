@@ -987,6 +987,16 @@
           
           updateSlide();
 
+          // Add these lines to ensure mobile buttons lose focus after tap:
+          document.querySelectorAll('.round-button').forEach(btn => {
+            btn.addEventListener('pointerup', function() {
+              this.blur();
+            });
+            btn.addEventListener('touchend', function() {
+              this.blur();
+            });
+          });
+
           window.addEventListener('resize', () => {
             if (currentIndex >= quizImages.length) {
               d3.select('#bar-chart').selectAll('*').remove();
