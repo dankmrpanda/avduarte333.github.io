@@ -77,7 +77,7 @@
   <style>
 
     .title.is-3 {
-      color: #4f5f5a;
+      color: #5d5d5d;
       font-weight: bold;
       /* Add any additional styles you want here */
     }
@@ -312,7 +312,7 @@
   }
 
   /* Responsive adjustments for mobile devices */
-  @media (max-width: 1000) {
+  @media (max-width: 768) {
     .legend-text {
       font-size: 12px; /* smaller font size on mobile */
     }
@@ -734,72 +734,55 @@
       }
 
       function drawLegend(g, innerWidth, innerHeight) {
-  // Legend data in the desired order:
-  const legendData = [
-    { name: "GPT-4o",         color: "#7bb296e6" },
-    { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
-    { name: "Qwen2-VL 72B",   color: "#695e93e6" },
-    { name: "You",            color: "#1c2e4ae6" }
-  ];
-
-  // Basic layout constants:
-  const legendPadding = 50; // left/right padding within the chart
+  // Detect mobile viewport
+  const isMobile = window.innerWidth < 768;
+  const legendPadding = isMobile ? 20 : 50;
+  const legendTop = isMobile ? 0 : -20;
   const legendAvailableWidth = innerWidth - 2 * legendPadding;
-  const legendTop = -20;    // vertical offset above/below the chart
 
-  // Create a container group for the legend:
   const legendGroup = g.append("g")
     .attr("class", "legend")
     .attr("transform", `translate(${legendPadding}, ${legendTop})`);
 
-  // Create one <g> per legend item:
+  const legendData = [
+    { name: "GPT-4o",         color: "#7bb296e6" },
+    { name: "Gemini-1.5 Pro",  color: "#f6d379e6" },
+    { name: "Qwen2-VL 72B",    color: "#695e93e6" },
+    { name: "You",           color: "#1c2e4ae6" }
+  ];
+
+  // Create one group per legend item
   const items = legendGroup.selectAll(".legend-item")
     .data(legendData)
     .enter()
     .append("g")
-      .attr("class", "legend-item");
+    .attr("class", "legend-item");
 
-  // Add the colored square with a class for styling:
+  // Add colored square and text
   items.append("rect")
     .attr("class", "legend-square")
     .attr("fill", d => d.color)
     .attr("stroke", "black")
     .attr("stroke-width", 1);
-  
-  // Add text to the right of the square with a class for styling:
+
   items.append("text")
     .attr("class", "legend-text")
-    .attr("x", 18)   // space between square and text
-    .attr("y", 12)   // align baseline with bottom of square
+    .attr("x", 18)
+    .attr("y", 12)
     .text(d => d.name);
 
-  // Measure each item’s bounding box to get its total width:
+  // Measure each item’s bounding box to calculate spacing
   items.each(function(d) {
     const bbox = this.getBBox();
-    d.itemWidth = bbox.width; // includes the rect + text
+    d.itemWidth = bbox.width;
   });
 
-  // Calculate the total width of all items combined:
   const totalItemsWidth = legendData.reduce((sum, d) => sum + d.itemWidth, 0);
-  // Number of gaps between items:
   const gaps = legendData.length - 1;
-
-  // Compute the spacing between items so they fill the available width:
-  let itemSpacing = 0;
-  if (gaps > 0) {
-    const leftoverSpace = legendAvailableWidth - totalItemsWidth;
-    itemSpacing = leftoverSpace / gaps;
-    if (itemSpacing < 0) itemSpacing = 0;
-  }
-
-  // Total legend width after including the gaps:
+  let itemSpacing = gaps > 0 ? Math.max(0, (legendAvailableWidth - totalItemsWidth) / gaps) : 0;
   const totalWidth = totalItemsWidth + itemSpacing * gaps;
+  let startX = Math.max(0, (legendAvailableWidth - totalWidth) / 2);
 
-  // Center the items horizontally:
-  let startX = (legendAvailableWidth - totalWidth) / 2;
-  if (startX < 0) startX = 0;
-
-  // Position each legend item horizontally:
   let currentX = startX;
   items.attr("transform", (d, i) => {
     const x = currentX;
@@ -807,6 +790,7 @@
     return `translate(${x}, 0)`;
   });
 }
+
 
 
 
@@ -962,7 +946,13 @@
        * Initialize – show the first slide
        *************************************************************/
       updateSlide();
-    });
+
+      // Add responsive chart redrawing on window resize
+      window.addEventListener('resize', () => {
+        d3.select('#bar-chart').selectAll('*').remove();
+        drawChartStructure();
+      });
+        });
   </script>
     
   <!-- Video Section -->
