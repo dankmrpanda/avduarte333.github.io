@@ -723,69 +723,129 @@
             return totalWidth;
           }
 
+          // For a 2×2 layout, we do similar logic
           function attemptGrid(fontSize, squareSize) {
-  // Clear out any old squares/text from previous calls
-  items.selectAll("*").remove();
+            items.selectAll("*").remove();
 
-  // Append squares (colored boxes)
-  const squares = items.append("rect")
-    .attr("fill", d => d.color)
-    .attr("stroke", "black")
-    .attr("stroke-width", 1)
-    .attr("width", squareSize)
-    .attr("height", squareSize);
+            const squares = items.append("rect")
+              .attr("fill", d => d.color)
+              .attr("stroke", "black")
+              .attr("stroke-width", 1)
+              .attr("width", squareSize)
+              .attr("height", squareSize);
 
-  // Append text
-  const texts = items.append("text")
-    .text(d => d.name)
-    .attr("font-family", "Roboto, sans-serif")
-    .attr("font-size", fontSize)
-    .attr("x", squareSize + 5)
-    // anchor near the square's vertical center
-    .attr("y", squareSize * 0.8);
+            const texts = items.append("text")
+              .text(d => d.name)
+              .attr("font-family", "Roboto, sans-serif")
+              .attr("font-size", fontSize)
+              .attr("x", squareSize + 5)
+              .attr("y", squareSize * 0.8);
 
-  // Measure each item’s bounding box for manual placement
-  const nodeBboxes = [];
-  items.each(function() {
-    nodeBboxes.push(this.getBBox());
-  });
+            // 2x2 means item0,1 in row0; item2,3 in row1
+            // We measure each item’s bbox:
+            const nodeBboxes = [];
+            items.each(function() {
+              nodeBboxes.push(this.getBBox());
+            });
 
-  // Choose spacing that’s less likely to cause big gaps
-  const colSpacing = 5;
-  const rowSpacing = 4;
+            // The widest pair in col0, col1
+            // rowSpacing, colSpacing are constants you can tweak
+            const colSpacing = 5;
+            const rowSpacing = 1;
 
-  // Find the widest items in each column
-  // (we assume item0,2 in col0 and item1,3 in col1).
-  const widthCol0 = Math.max(nodeBboxes[0].width, nodeBboxes[2]?.width ?? 0);
-  const widthCol1 = Math.max(nodeBboxes[1].width, nodeBboxes[3]?.width ?? 0);
+            // We'll measure row0’s items: (0,1)
+            // and row1’s items: (2,3).
+            // We assume col0 is item0,2 and col1 is item1,3.
 
-  // total grid width = sum of col widths + colSpacing
-  const totalGridWidth = widthCol0 + colSpacing + widthCol1;
+            const widthCol0 = Math.max(nodeBboxes[0].width, nodeBboxes[2]?.width || 0);
+            const widthCol1 = Math.max(nodeBboxes[1].width, nodeBboxes[3]?.width || 0);
+            const totalGridWidth = widthCol0 + colSpacing + widthCol1;
 
-  // Place top row
-  // Start at y0=0 (so it won't get chopped off)
-  const y0 = 0;
-  d3.select(items.nodes()[0]).attr("transform", `translate(0, ${y0})`);
-  d3.select(items.nodes()[1]).attr("transform", 
-    `translate(${widthCol0 + colSpacing}, ${y0})`
-  );
+            // place them
+            let y0 = -10;
+            // item0 => top-left
+            d3.select(items.nodes()[0]).attr("transform", `translate(0, ${y0})`);
+            // item1 => top-right
+            d3.select(items.nodes()[1]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y0})`);
 
-  // Place second row
-  // Put row 2 below row 1 by the bounding box height plus rowSpacing
-  const y1 = nodeBboxes[0].height + rowSpacing;
-  d3.select(items.nodes()[2]).attr("transform", `translate(0, ${y1})`);
-  d3.select(items.nodes()[3]).attr("transform", 
-    `translate(${widthCol0 + colSpacing}, ${y1})`
-  );
+            // item2 => bottom-left
+            const y1 = nodeBboxes[0].height + rowSpacing;
+            d3.select(items.nodes()[2]).attr("transform", `translate(0, ${y1})`);
+            // item3 => bottom-right
+            d3.select(items.nodes()[3]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y1})`);
 
-  // measure the bounding box of the entire legend group
-  const groupBbox = legendGroup.node().getBBox();
+            // Now measure the bounding box of the entire legendGroup
+            // This is effectively 2 rows
+            const groupBbox = legendGroup.node().getBBox();
+            const finalWidth = groupBbox.width;
+            return finalWidth; // how wide the grid is
+          }
 
-  // Return the overall width we used (the caller might use this to decide if we need more shrinking)
-  return groupBbox.width;
-}
-      }
+          // We define some config for how we shrink
+          const maxFontSize   = 16;
+          const minFontSize   = 8;
+          const maxSquareSize = 14;
+          const minSquareSize = 6;
+          const shrinkStep    = 1;  // how many px we reduce each iteration
 
+          // 1) Try single-line at largest size, down to min
+          let fontSize   = maxFontSize;
+          let squareSize = maxSquareSize;
+          let fitsSingleLine = false;
+          
+          while (true) {
+            const totalWidth = attemptSingleLine(fontSize, squareSize);
+
+            if (totalWidth <= innerWidth) {
+              // Great, it fits in single line
+              fitsSingleLine = true;
+              break;
+            } else {
+              // shrink
+              fontSize   -= shrinkStep;
+              squareSize -= shrinkStep;
+              if (fontSize < minFontSize || squareSize < minSquareSize) {
+                // not feasible to keep single-line
+                break;
+              }
+            }
+          }
+
+          if (fitsSingleLine) {
+            // We have a final single-line layout placed 
+            // but it’s left-aligned at (0,0). Let's center it:
+
+            const bbox = legendGroup.node().getBBox();
+            const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
+            legendGroup.attr("transform", `translate(${offsetX}, -25)`);
+
+          } else {
+            // 2) We fallback to a 2x2 grid approach
+            //    Start from largest, shrink until it fits
+            fontSize   = maxFontSize;
+            squareSize = maxSquareSize;
+            let fitsGrid = false;
+
+            while (true) {
+              const finalWidth = attemptGrid(fontSize, squareSize);
+              if (finalWidth <= innerWidth) {
+                fitsGrid = true;
+                break;
+              } else {
+                fontSize   -= shrinkStep;
+                squareSize -= shrinkStep;
+                if (fontSize < minFontSize || squareSize < minSquareSize) {
+                  break; // can't shrink further
+                }
+              }
+            }
+
+            // Finally center the grid in the horizontal direction
+            const bbox = legendGroup.node().getBBox();
+            const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
+            legendGroup.attr("transform", `translate(${offsetX}, -25)`);
+          }
+        }
 
 
       function animateAllBars(finalYouValue) {
