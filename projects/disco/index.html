@@ -777,6 +777,16 @@
             // Now measure the bounding box of the entire legendGroup
             // This is effectively 2 rows
             const groupBbox = legendGroup.node().getBBox();
+
+            // center horizontally & move above chart
+            // (innerWidth is the width of your chart area)
+            const offsetX = Math.max(0, (innerWidth - groupBbox.width) / 2);
+            // shift the legend upward by its own height + 5
+            const offsetY = -groupBbox.height - 5;
+
+            legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
+
+
             const finalWidth = groupBbox.width;
             return finalWidth; // how wide the grid is
           }
