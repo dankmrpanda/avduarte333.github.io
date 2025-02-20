@@ -736,7 +736,7 @@
       function drawLegend(g, innerWidth, innerHeight) {
   // Detect mobile viewport
   const isMobile = window.innerWidth < 768;
-  const legendPadding = isMobile ? 20 : 50;
+  const legendPadding = isMobile ? 0 : 50;
   const legendTop = isMobile ? 0 : -20;
   const legendAvailableWidth = innerWidth - 2 * legendPadding;
 
