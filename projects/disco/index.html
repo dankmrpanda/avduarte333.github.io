@@ -73,12 +73,10 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
   <style>
-
     .title.is-3 {
       color: #5d5d5d;
       font-weight: bold;
     }
-
     .navigation-controls {
       display: flex;
       justify-content: center;
@@ -91,7 +89,6 @@
       width: 5%;
       margin: 0;
     }
-
     .round-button {
       width: 3rem !important;
       height: 3rem !important;
@@ -128,19 +125,12 @@
       transform: scale(0.95);
     }
     @keyframes ripple {
-      0% {
-        transform: translate(-50%, -50%) scale(0);
-        opacity: 0.5;
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(4);
-        opacity: 0;
-      }}
-
-      .round-button:active {
-        transform: scale(0.9);
-      }
-
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 0.5; }
+      100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+    }
+    .round-button:active {
+      transform: scale(0.9);
+    }
     #dot-indicators {
       display: flex;
       flex-wrap: wrap;
@@ -160,16 +150,37 @@
       background-color: #626161;
       transform: scale(1.2);
     }
-
     .answer-container {
       background-color: #fff;
       border: 1px solid #ccc;
       padding: 1.5rem;
       border-radius: 10px;
+      width: 100%;
+    }
+    /* New wrapper for TomSelect and submit button */
+    #quiz-answer-wrapper {
+      position: relative;
       width: 60%;
       margin: 2rem auto 0;
+      /* Height is set dynamically by JS based on the TomSelect container */
     }
-
+    /* Both inner containers are absolutely positioned to overlap */
+    #quiz-container,
+    #submit-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+    /* Initially show the TomSelect container, hide submit button */
+    #submit-container { display: none; }
+    /* When the wrapper has the .show-submit class, toggle displays */
+    #quiz-answer-wrapper.show-submit #quiz-container {
+      display: none;
+    }
+    #quiz-answer-wrapper.show-submit #submit-container {
+      display: block;
+    }
     .ts-wrapper .ts-control {
       background: #F0F3F7;
       border: 1px solid #ccc;
@@ -203,10 +214,7 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-    select#quiz-answer {
-      display: none !important;
-    }
-
+    select#quiz-answer { display: none !important; }
     #submit-all {
       border-radius: 10px;
       background-color: #ffffff;
@@ -219,13 +227,11 @@
       box-shadow: 0 4px 0 #cccccc;
       cursor: pointer;
       transition: all 0.1s ease-in-out;
-      display: none; 
     }
     #submit-all:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 0 #cccccc;
     }
-
     .text-label {
       font-size: 16px;
       font-weight: 600;
@@ -241,36 +247,21 @@
       font-weight: bold;
       fill: #333;
     }
-    .text-label, .axis text, .bar-text {
-      font-family: 'Roboto', sans-serif;
-    }
-
+    .text-label, .axis text, .bar-text { font-family: 'Roboto', sans-serif; }
     .legend-text {
       font-family: 'Roboto', sans-serif;
       font-size: 16px;
       font-weight: 600;
       fill: #464646;
     }
-    .legend-square {
-      vector-effect: non-scaling-stroke;
-    }
-
-    /* For smaller screens, we can set some baseline smaller sizes; 
-       but we'll also programmatically scale them. */
+    .legend-square { vector-effect: non-scaling-stroke; }
     @media screen and (max-width: 768px) {
-      .legend-text {
-        font-size: 12px !important;
-      }
-      .legend-square {
-        width: 8px !important;
-        height: 8px !important;
-      }
+      .legend-text { font-size: 12px !important; }
+      .legend-square { width: 8px !important; height: 8px !important; }
     }
-
     @media screen and (max-width: 768px) {
-      figure.chart-or-image, #quiz-container {
-        width: 90% !important;
-      }
+      figure.chart-or-image, #quiz-container { width: 90% !important; }
+      #quiz-answer-wrapper { width: 90% !important; }
     }
   </style>
 </head>
@@ -336,7 +327,6 @@
     </div>
   </section>
   
-
   <!-- Abstract Section -->
   <section class="section">
     <div class="container is-max-desktop">
@@ -359,7 +349,6 @@
     </div>
   </section>
 
-
   <!-- Intuition Section -->
   <section class="section">
     <div class="container is-max-desktop">
@@ -379,7 +368,6 @@
       </div>
     </div>
   </section>
-
 
   <!-- Quiz Section with manual "carousel" (Prev/Next) -->
   <div class="has-background-light">
@@ -410,151 +398,141 @@
           </button>
         </div>
         
-        
-        <!-- Answer Container -->
-        <div id="quiz-container" class="answer-container" style="width: 60%;">
-          <label class="label">What movie is present in this frame?</label>
-          <!-- Plain <select> for TomSelect to transform -->
-          <select id="quiz-answer" name="quiz-answer" placeholder="Select a movie...">
-            <option value="-" selected>-</option>
-          </select>
-        </div>
-        
-        <!-- Final submission button (hidden until the last dot) -->
-        <div class="field" style="margin-top: 1.5rem; text-align: center;">
-          <button id="submit-all">Submit All Guesses</button>
+        <!-- New wrapper containing both the quiz (TomSelect) and the submit button -->
+        <div id="quiz-answer-wrapper">
+          <!-- Quiz container: holds the TomSelect form -->
+          <div id="quiz-container" class="answer-container">
+            <label class="label">What movie is present in this frame?</label>
+            <!-- Plain <select> for TomSelect to transform -->
+            <select id="quiz-answer" name="quiz-answer" placeholder="Select a movie...">
+              <option value="-" selected>-</option>
+            </select>
+          </div>
+          <!-- Submit container: holds the final submission button -->
+          <div id="submit-container" class="field" style="margin-top: 1.5rem; text-align: center;">
+            <button id="submit-all">Submit All Guesses</button>
+          </div>
         </div>
       </div>
     </section>
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', function() {
-
-    /*************************************************************
-     * Global Setup
-     *************************************************************/
-    const quizImages = [
-      './static/images/quiz_images/quiz1.png',
-      './static/images/quiz_images/quiz2.png',
-      './static/images/quiz_images/quiz3.png',
-      './static/images/quiz_images/quiz4.png',
-      './static/images/quiz_images/quiz5.png',
-      './static/images/quiz_images/quiz6.png',
-      './static/images/quiz_images/quiz7.png',
-      './static/images/quiz_images/quiz8.png'
-    ];
-    const totalSlides = quizImages.length + 1;
-    let currentIndex = 0;
-    let userAnswers = new Array(8).fill('-');
-
-    let chartStructureDrawn = false;
-
-    const quizImageEl   = document.getElementById('quiz-image');
-    const quizContainer = document.getElementById('quiz-container');
-    const prevBtn       = document.getElementById('prev-btn');
-    const nextBtn       = document.getElementById('next-btn');
-    const submitBtn     = document.getElementById('submit-all');
-    const barChartSvg   = document.getElementById('bar-chart');
-
-    // Dot indicators creation
-    const dotContainer = document.getElementById('dot-indicators');
-    for (let i = 0; i < totalSlides; i++) {
-      const dot = document.createElement('span');
-      dot.classList.add('dot');
-      if (i === 0) dot.classList.add('active');
-      dotContainer.appendChild(dot);
-    }
-
-    // --- NEW: Attach click events to each dot for navigation ---
-    const dots = document.querySelectorAll('#dot-indicators .dot');
-    dots.forEach((dot, index) => {
-      dot.addEventListener('click', () => {
-        currentIndex = index;
-        updateSlide();
-      });
-    });
-
-    function updateDots() {
-      const dots = dotContainer.querySelectorAll('.dot');
-      dots.forEach((dot, idx) => {
-        dot.classList.toggle('active', idx === currentIndex);
-      });
-    }
-
-    /*************************************************************
-     * Load TomSelect Options
-     *************************************************************/
-    let quizSelect;
-    fetch('./static/data/movies.txt')
-      .then(res => res.text())
-      .then(data => {
-        const lines = data.split('\n').map(x => x.trim()).filter(x => x.length > 0);
-        const selectEl = document.getElementById('quiz-answer');
-        for (const movie of lines) {
-          const option = document.createElement('option');
-          option.value = movie;
-          option.textContent = movie;
-          selectEl.appendChild(option);
-        }
-
-        quizSelect = new TomSelect('#quiz-answer', {
-          create: false,
-          maxItems: 1,
-          allowEmptyOption: true,
-          placeholder: 'Select a movie...',
-          maxOptions: 7000,
-          onItemAdd: function() { this.blur(); },
-          onType: function() { if (this.getValue()) this.clear(); }
-        });
-
-        quizSelect.setValue('-');
-      })
-      .catch(err => console.error('Error loading movies.txt:', err));
-
+    document.addEventListener('DOMContentLoaded', function() {
 
       /*************************************************************
-       * Chart + Legend Functions
+       * Global Setup
+       *************************************************************/
+      const quizImages = [
+        './static/images/quiz_images/quiz1.png',
+        './static/images/quiz_images/quiz2.png',
+        './static/images/quiz_images/quiz3.png',
+        './static/images/quiz_images/quiz4.png',
+        './static/images/quiz_images/quiz5.png',
+        './static/images/quiz_images/quiz6.png',
+        './static/images/quiz_images/quiz7.png',
+        './static/images/quiz_images/quiz8.png'
+      ];
+      const totalSlides = quizImages.length + 1;
+      let currentIndex = 0;
+      let userAnswers = new Array(8).fill('-');
+
+      let chartStructureDrawn = false;
+
+      const quizImageEl   = document.getElementById('quiz-image');
+      const quizContainer = document.getElementById('quiz-container');
+      const prevBtn       = document.getElementById('prev-btn');
+      const nextBtn       = document.getElementById('next-btn');
+      const submitBtn     = document.getElementById('submit-all');
+      const barChartSvg   = document.getElementById('bar-chart');
+      const quizWrapper   = document.getElementById('quiz-answer-wrapper');
+
+      // Dot indicators creation
+      const dotContainer = document.getElementById('dot-indicators');
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('span');
+        dot.classList.add('dot');
+        if (i === 0) dot.classList.add('active');
+        dotContainer.appendChild(dot);
+      }
+
+      // --- NEW: Attach click events to each dot for navigation ---
+      const dots = document.querySelectorAll('#dot-indicators .dot');
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          currentIndex = index;
+          updateSlide();
+        });
+      });
+
+      function updateDots() {
+        const dots = dotContainer.querySelectorAll('.dot');
+        dots.forEach((dot, idx) => {
+          dot.classList.toggle('active', idx === currentIndex);
+        });
+      }
+
+      /*************************************************************
+       * Load TomSelect Options & Set Wrapper Height
+       *************************************************************/
+      let quizSelect;
+      fetch('./static/data/movies.txt')
+        .then(res => res.text())
+        .then(data => {
+          const lines = data.split('\n').map(x => x.trim()).filter(x => x.length > 0);
+          const selectEl = document.getElementById('quiz-answer');
+          for (const movie of lines) {
+            const option = document.createElement('option');
+            option.value = movie;
+            option.textContent = movie;
+            selectEl.appendChild(option);
+          }
+
+          quizSelect = new TomSelect('#quiz-answer', {
+            create: false,
+            maxItems: 1,
+            allowEmptyOption: true,
+            placeholder: 'Select a movie...',
+            maxOptions: 7000,
+            onItemAdd: function() { this.blur(); },
+            onType: function() { if (this.getValue()) this.clear(); }
+          });
+
+          quizSelect.setValue('-');
+
+          // Set the wrapper height based on the TomSelect container’s height
+          quizWrapper.style.height = quizContainer.offsetHeight + 'px';
+        })
+        .catch(err => console.error('Error loading movies.txt:', err));
+
+      /*************************************************************
+       * Chart + Legend Functions (unchanged)
        *************************************************************/
       const borderWidth = 2;              
       const barWidthFraction = 0.8;       
 
       function drawChartStructure() {
-        // Clear any existing content
         const svg = d3.select(barChartSvg);
         svg.selectAll('*').remove();
-        
-        // Get current dimensions
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width + 20;
         const height = bbox.height;
-        
-        // Define margins and inner dimensions
         const margin = { top: 45, right: 30, bottom: 5, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
-        
-        // Append a group to account for margins
         const g = svg.append("g")
           .attr("transform", `translate(${margin.left},${margin.top})`);
-        
-        // Create a y-scale from 0 to 105
         const yScale = d3.scaleLinear()
           .domain([0, 105])
           .range([innerHeight, 0]);
-        
-        // Draw y-axis
         const yAxis = d3.axisLeft(yScale)
           .ticks(5)
           .tickSizeInner(0)
           .tickSizeOuter(0)
           .tickPadding(7);
-        
         g.append("g")
           .attr("class", "y-axis axis")
           .call(yAxis);
-        
-        // Exclude 0 for horizontal grid lines
         const yTicks = yScale.ticks(5).filter(tickValue => tickValue !== 0);
         g.append("g")
           .attr("class", "grid horizontal-grid")
@@ -566,15 +544,11 @@
             .attr("stroke", "lightgray")
             .attr("stroke-dasharray", "5")
             .attr("stroke-width", "2");
-        
-        // x-scale for categories
         const categories = ["You", "Qwen2-VL 72B", "GPT-4o", "Gemini-1.5 Pro"];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
           .padding(0.2);
-        
-        // Vertical grid lines
         categories.forEach(cat => {
           const xPos = xScale(cat) + xScale.bandwidth() / 2;
           g.append("line")
@@ -587,40 +561,31 @@
             .attr("stroke-dasharray", "5")
             .attr("stroke-width", "2");
         });
-        
-        // Borders (top + right in light gray; left + bottom in darker shade)
         g.append("line")
           .attr("class", "border")
           .attr("x1", 0).attr("y1", 0)
           .attr("x2", innerWidth).attr("y2", 0)
           .attr("stroke", "lightgray")
           .attr("stroke-width", borderWidth);
-
         g.append("line")
           .attr("class", "border")
           .attr("x1", innerWidth).attr("y1", 0)
           .attr("x2", innerWidth).attr("y2", innerHeight)
           .attr("stroke", "lightgray")
           .attr("stroke-width", borderWidth);
-
         g.append("line")
           .attr("class", "border")
           .attr("x1", 0).attr("y1", -1)
           .attr("x2", 0).attr("y2", innerHeight+1)
           .attr("stroke", "#36454F")
           .attr("stroke-width", borderWidth);
-
         g.append("line")
           .attr("class", "border")
           .attr("x1", -1).attr("y1", innerHeight)
           .attr("x2", innerWidth).attr("y2", innerHeight)
           .attr("stroke", "#36454F")
           .attr("stroke-width", borderWidth);
-        
-        // Draw static bars in hidden state
         drawInitialBars(g, innerWidth, innerHeight, yScale, xScale);
-
-        // Draw legend
         drawLegend(g, innerWidth, innerHeight);
       }
 
@@ -630,12 +595,10 @@
           { name: "GPT-4o",         value: 50, color: "#7bb296e6"},
           { name: "Gemini-1.5 Pro", value: 70, color: "#f6d379e6"}
         ];
-        
         staticData.forEach(d => {
           const fullBandWidth = xScale.bandwidth();
           const barWidth = fullBandWidth * barWidthFraction;
           const xPos = xScale(d.name) + (fullBandWidth - barWidth) / 2;
-          
           g.append("rect")
             .attr("class", "static-bar")
             .attr("x", xPos)
@@ -649,193 +612,109 @@
         });
       }
 
-      /**
-       * Measures total width (including a minimum gap) of legend items 
-       * in the single-line approach, *after* setting the square/text sizes.
-       */
       function measureSingleLine(items, gap) {
         let total = 0;
         items.each(function() {
           const bbox = this.getBBox();
           total += bbox.width;
         });
-        // Add gaps for n-1 intervals if we have n items
         const itemCount = items.size();
-        if (itemCount > 1) {
-          total += gap * (itemCount - 1);
-        }
+        if (itemCount > 1) { total += gap * (itemCount - 1); }
         return total;
       }
 
       function drawLegend(g, innerWidth, innerHeight) {
-          // 1) Remove any old legend so we can redraw from scratch
           g.selectAll(".legend").remove();
-
-          // 2) Basic config
           const legendData = [
             { name: "You",            color: "#1c2e4ae6" },  
             { name: "Qwen2-VL 72B",   color: "#695e93e6" },
             { name: "GPT-4o",         color: "#7bb296e6" },
             { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
           ];
-
-          // We’ll place the legend in a group near the top
           const legendGroup = g.append("g")
             .attr("class", "legend")
-            // shift upward by ~25px so it's "above" the chart interior
             .attr("transform", `translate(0, -25)`);
-
-          // Create groups for each item
           const items = legendGroup.selectAll(".legend-item")
             .data(legendData)
             .enter()
             .append("g")
             .attr("class", "legend-item");
-
-          // Decide whether to try single-line or 2x2.
-          // We'll do a small helper function for single-line attempt.
           function attemptSingleLine(fontSize, squareSize) {
-            // Clear old squares/text if any
             items.selectAll("*").remove();
-
-            // Append squares/text with the specified size
-            const squares = items.append("rect")
+            items.append("rect")
               .attr("fill", d => d.color)
               .attr("stroke", "black")
               .attr("stroke-width", 1)
               .attr("width", squareSize)
               .attr("height", squareSize);
-
-            const texts = items.append("text")
+            items.append("text")
               .text(d => d.name)
               .attr("font-family", "Roboto, sans-serif")
               .attr("font-size", fontSize)
               .attr("x", squareSize + 5)
               .attr("y", squareSize * 0.9);
-
-            // measure total width
-            let xPos = 0;
-            let totalWidth = 0;
+            let xPos = 0, totalWidth = 0;
             const itemGap = 25;
-            
             items.each(function(d, i) {
-              // place item temporarily
               d3.select(this).attr("transform", `translate(${xPos}, 0)`);
               const bbox = this.getBBox(); 
               totalWidth += bbox.width;
-              if (i < legendData.length - 1) {
-                totalWidth += itemGap;
-              }
+              if (i < legendData.length - 1) { totalWidth += itemGap; }
               xPos += bbox.width + itemGap;
             });
-
-            // Return the measured total width
             return totalWidth;
           }
-
-          // For a 2×2 layout, we do similar logic
           function attemptGrid(fontSize, squareSize) {
             items.selectAll("*").remove();
-
-            const squares = items.append("rect")
+            items.append("rect")
               .attr("fill", d => d.color)
               .attr("stroke", "black")
               .attr("stroke-width", 1)
               .attr("width", squareSize)
               .attr("height", squareSize);
-
-            const texts = items.append("text")
+            items.append("text")
               .text(d => d.name)
               .attr("font-family", "Roboto, sans-serif")
               .attr("font-size", fontSize)
               .attr("x", squareSize + 5)
               .attr("y", squareSize * 0.8);
-
-            // 2x2 means item0,1 in row0; item2,3 in row1
-            // We measure each item’s bbox:
             const nodeBboxes = [];
-            items.each(function() {
-              nodeBboxes.push(this.getBBox());
-            });
-
-            // The widest pair in col0, col1
-            // rowSpacing, colSpacing are constants you can tweak
-            const colSpacing = 5;
-            const rowSpacing = -15;
-
-            // We'll measure row0’s items: (0,1)
-            // and row1’s items: (2,3).
-            // We assume col0 is item0,2 and col1 is item1,3.
-
+            items.each(function() { nodeBboxes.push(this.getBBox()); });
+            const colSpacing = 5, rowSpacing = -15;
             const widthCol0 = Math.max(nodeBboxes[0].width, nodeBboxes[2]?.width || 0);
             const widthCol1 = Math.max(nodeBboxes[1].width, nodeBboxes[3]?.width || 0);
             const totalGridWidth = widthCol0 + colSpacing + widthCol1;
-
-            // place them
             let y0 = -15;
-            // item0 => top-left
             d3.select(items.nodes()[0]).attr("transform", `translate(0, ${y0})`);
-            // item1 => top-right
             d3.select(items.nodes()[1]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y0})`);
-
-            // item2 => bottom-left
             const y1 = nodeBboxes[0].height + rowSpacing;
             d3.select(items.nodes()[2]).attr("transform", `translate(0, ${y1})`);
-            // item3 => bottom-right
             d3.select(items.nodes()[3]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y1})`);
-
-            // Now measure the bounding box of the entire legendGroup
-            // This is effectively 2 rows
             const groupBbox = legendGroup.node().getBBox();
             const finalWidth = groupBbox.width;
-            return finalWidth; // how wide the grid is
+            return finalWidth;
           }
-
-          // We define some config for how we shrink
-          const maxFontSize   = 16;
-          const minFontSize   = 8;
-          const maxSquareSize = 14;
-          const minSquareSize = 6;
-          const shrinkStep    = 1;  // how many px we reduce each iteration
-
-          // 1) Try single-line at largest size, down to min
-          let fontSize   = maxFontSize;
-          let squareSize = maxSquareSize;
-          let fitsSingleLine = false;
-          
+          const maxFontSize = 16, minFontSize = 8, maxSquareSize = 14, minSquareSize = 6, shrinkStep = 1;
+          let fontSize = maxFontSize, squareSize = maxSquareSize, fitsSingleLine = false;
           while (true) {
             const totalWidth = attemptSingleLine(fontSize, squareSize);
-
             if (totalWidth <= innerWidth) {
-              // Great, it fits in single line
               fitsSingleLine = true;
               break;
             } else {
-              // shrink
               fontSize   -= shrinkStep;
               squareSize -= shrinkStep;
-              if (fontSize < minFontSize || squareSize < minSquareSize) {
-                // not feasible to keep single-line
-                break;
-              }
+              if (fontSize < minFontSize || squareSize < minSquareSize) { break; }
             }
           }
-
           if (fitsSingleLine) {
-            // We have a final single-line layout placed 
-            // but it’s left-aligned at (0,0). Let's center it:
-
             const bbox = legendGroup.node().getBBox();
             const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
             legendGroup.attr("transform", `translate(${offsetX}, -25)`);
-
           } else {
-            // 2) We fallback to a 2x2 grid approach
-            //    Start from largest, shrink until it fits
-            fontSize   = maxFontSize;
+            fontSize = maxFontSize;
             squareSize = maxSquareSize;
             let fitsGrid = false;
-
             while (true) {
               const finalWidth = attemptGrid(fontSize, squareSize);
               if (finalWidth <= innerWidth) {
@@ -844,43 +723,32 @@
               } else {
                 fontSize   -= shrinkStep;
                 squareSize -= shrinkStep;
-                if (fontSize < minFontSize || squareSize < minSquareSize) {
-                  break; // can't shrink further
-                }
+                if (fontSize < minFontSize || squareSize < minSquareSize) { break; }
               }
             }
-
-            // Finally center the grid in the horizontal direction
             const bbox = legendGroup.node().getBBox();
             const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
             legendGroup.attr("transform", `translate(${offsetX}, -25)`);
           }
-        }
-
+      }
 
       function animateAllBars(finalYouValue) {
         const svg = d3.select(barChartSvg);
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width + 20;
         const height = bbox.height;
-        
         const margin = { top: 45, right: 30, bottom: 5, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
-        
         const yScale = d3.scaleLinear()
           .domain([0, 105])
           .range([innerHeight, 0]);
-        
-        const categories = ["You", "Qwen2-VL 72B", "GPT-4o", "Gemini-1.5 Pro",];
+        const categories = ["You", "Qwen2-VL 72B", "GPT-4o", "Gemini-1.5 Pro"];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
           .padding(0.2);
-        
         const g = svg.select("g");
-        
-        // Animate static bars
         g.selectAll(".static-bar")
           .transition()
           .duration(1200)
@@ -892,15 +760,11 @@
             const finalVal = +d3.select(this).attr("data-final");
             return innerHeight - yScale(finalVal);
           });
-        
-        // Animate the "You" bar
         g.selectAll(".animated-bar").remove();
         g.selectAll(".bar-text").remove();
-        
         const fullBandWidth = xScale.bandwidth();
         const barWidth = fullBandWidth * barWidthFraction;
         const xPos = xScale("You") + (fullBandWidth - barWidth) / 2;
-        
         const youBar = g.append("rect")
           .attr("class", "animated-bar")
           .attr("x", xPos)
@@ -910,100 +774,112 @@
           .attr("fill", "#1c2e4ae6")
           .attr("stroke", "black")
           .attr("stroke-width", borderWidth);
-        
         youBar.transition()
           .duration(1200)
           .attr("y", yScale(finalYouValue))
           .attr("height", innerHeight - yScale(finalYouValue));
       }
 
-      
       /*************************************************************
-           * updateSlide() - Show/hide elements per slide
-           *************************************************************/
-          function updateSlide() {
-            if (currentIndex < quizImages.length) {
-              quizImageEl.style.opacity = '1';
-              quizImageEl.style.display = 'block';
-              barChartSvg.style.display = 'none';
-              quizContainer.style.display = 'block';
-              submitBtn.style.display = 'none';
-              quizImageEl.src = quizImages[currentIndex];
-
-              if (quizSelect) {
-                if (userAnswers[currentIndex] && userAnswers[currentIndex] !== '-') {
-                  quizSelect.setValue(userAnswers[currentIndex]);
-                } else {
-                  quizSelect.clear();
-                  quizSelect.setValue('-');
-                }
-              }
+       * updateSlide() - Show/hide elements per slide
+       *************************************************************/
+      function updateSlide() {
+        if (currentIndex < quizImages.length) {
+          quizImageEl.style.opacity = '1';
+          quizImageEl.style.display = 'block';
+          barChartSvg.style.display = 'none';
+          // Show TomSelect and hide the submit button:
+          quizWrapper.classList.remove('show-submit');
+          quizImageEl.src = quizImages[currentIndex];
+          if (quizSelect) {
+            if (userAnswers[currentIndex] && userAnswers[currentIndex] !== '-') {
+              quizSelect.setValue(userAnswers[currentIndex]);
             } else {
-              quizImageEl.style.opacity = '0';
-              quizImageEl.style.display = 'block';
-              barChartSvg.style.display = 'block';
-              quizContainer.style.display = 'none';
-              submitBtn.style.display = 'inline-block';
-              if (!chartStructureDrawn) {
-                drawChartStructure();
-                chartStructureDrawn = true;
-              }
+              quizSelect.clear();
+              quizSelect.setValue('-');
             }
-            updateDots();
           }
+        } else {
+          quizImageEl.style.opacity = '0';
+          quizImageEl.style.display = 'block';
+          barChartSvg.style.display = 'block';
+          // Switch to showing the submit button:
+          quizWrapper.classList.add('show-submit');
+          if (!chartStructureDrawn) {
+            drawChartStructure();
+            chartStructureDrawn = true;
+          }
+        }
+        updateDots();
 
-          /*************************************************************
-           * Nav Buttons with blur for mobile
-           *************************************************************/
-          prevBtn.addEventListener('click', () => {
-            if (currentIndex < quizImages.length && quizSelect) {
-              userAnswers[currentIndex] = quizSelect.getValue();
-            }
-            if (currentIndex > 0) {
-              currentIndex--;
-              updateSlide();
-            }
-            prevBtn.blur();  // Unselect button after click
-          });
-          
-          nextBtn.addEventListener('click', () => {
-            if (currentIndex < quizImages.length && quizSelect) {
-              userAnswers[currentIndex] = quizSelect.getValue();
-            }
-            if (currentIndex < totalSlides - 1) {
-              currentIndex++;
-              updateSlide();
-            }
-            nextBtn.blur();  // Unselect button after click
-          });
-          
-          submitBtn.addEventListener('click', () => {
-            if (currentIndex < quizImages.length && quizSelect) {
-              userAnswers[currentIndex] = quizSelect.getValue();
-            }
-            const finalValue = 80; // example logic for animation
-            animateAllBars(finalValue);
-          });
-          
+        // Update navigation button styles
+        if (currentIndex === 0) {
+          prevBtn.style.setProperty('background-color', '#d3d3d3', 'important');
+          prevBtn.style.setProperty('cursor', 'not-allowed', 'important');
+          prevBtn.style.setProperty('opacity', '0.6', 'important');
+        } else {
+          prevBtn.style.setProperty('background-color', '#626161', 'important');
+          prevBtn.style.setProperty('cursor', 'pointer', 'important');
+          prevBtn.style.setProperty('opacity', '1', 'important');
+        }
+        if (currentIndex === totalSlides - 1) {
+          nextBtn.style.setProperty('background-color', '#d3d3d3', 'important');
+          nextBtn.style.setProperty('cursor', 'not-allowed', 'important');
+          nextBtn.style.setProperty('opacity', '0.6', 'important');
+        } else {
+          nextBtn.style.setProperty('background-color', '#626161', 'important');
+          nextBtn.style.setProperty('cursor', 'pointer', 'important');
+          nextBtn.style.setProperty('opacity', '1', 'important');
+        }
+      }
+
+      /*************************************************************
+       * Nav Buttons with blur for mobile
+       *************************************************************/
+      prevBtn.addEventListener('click', () => {
+        if (currentIndex < quizImages.length && quizSelect) {
+          userAnswers[currentIndex] = quizSelect.getValue();
+        }
+        if (currentIndex > 0) {
+          currentIndex--;
           updateSlide();
+        }
+        prevBtn.blur();
+      });
+      
+      nextBtn.addEventListener('click', () => {
+        if (currentIndex < quizImages.length && quizSelect) {
+          userAnswers[currentIndex] = quizSelect.getValue();
+        }
+        if (currentIndex < totalSlides - 1) {
+          currentIndex++;
+          updateSlide();
+        }
+        nextBtn.blur();
+      });
+      
+      submitBtn.addEventListener('click', () => {
+        if (currentIndex < quizImages.length && quizSelect) {
+          userAnswers[currentIndex] = quizSelect.getValue();
+        }
+        const finalValue = 80; // Example logic for animation
+        animateAllBars(finalValue);
+      });
+      
+      updateSlide();
 
-          // Add these lines to ensure mobile buttons lose focus after tap:
-          document.querySelectorAll('.round-button').forEach(btn => {
-            btn.addEventListener('pointerup', function() {
-              this.blur();
-            });
-            btn.addEventListener('touchend', function() {
-              this.blur();
-            });
-          });
+      document.querySelectorAll('.round-button').forEach(btn => {
+        btn.addEventListener('pointerup', function() { this.blur(); });
+        btn.addEventListener('touchend', function() { this.blur(); });
+      });
 
-          window.addEventListener('resize', () => {
-            if (currentIndex >= quizImages.length) {
-              d3.select('#bar-chart').selectAll('*').remove();
-              drawChartStructure();
-            }
-          });
-        });
+      window.addEventListener('resize', () => {
+        if (currentIndex >= quizImages.length) {
+          d3.select('#bar-chart').selectAll('*').remove();
+          drawChartStructure();
+        }
+      });
+    });
   </script>
     
   <!-- MovieTection Section -->
