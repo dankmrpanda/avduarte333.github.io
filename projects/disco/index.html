@@ -312,23 +312,21 @@
   }
 
   /* Responsive adjustments for mobile devices */
-  @media (max-width: 768) {
+    @media screen and (max-width: 768px) {
     .legend-text {
-      font-size: 40px !important; /* smaller font size on mobile */
+      font-size: 8px !important;
     }
-    /* If controlling dimensions via CSS, update them for mobile */
-    @media screen {
-      .legend-square {
-        width: 40px !important;
-        height: 40px !important;
-      }
+    .legend-square {
+      width: 4px !important;
+      height: 4px !important;
     }
   }
 
 
 
+
   /* Make images larger on mobile devices (screens with a max-width of 768px) */
-  @media only screen and (max-width: 768) {figure.chart-or-image, #quiz-container {width: 90% !important;}}
+  @media only screen and (max-width: 768px) {figure.chart-or-image, #quiz-container {width: 90% !important;}}
 
 
 
