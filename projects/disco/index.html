@@ -328,7 +328,7 @@
 
 
   /* Make images larger on mobile devices (screens with a max-width of 768px) */
-  @media only screen and (max-width: 768) {figure.chart-or-image, #quiz-container {width: 18% !important;}}
+  @media only screen and (max-width: 768) {figure.chart-or-image, #quiz-container {width: 100% !important;}}
 
 
 
@@ -578,6 +578,24 @@
        * Chart Functions
        *************************************************************/
 
+       function adjustLegendFontSize(legendGroup, availableWidth, minFontSize = 10) {
+        // Get the current font size from one of the legend text elements.
+        let currentFontSize = parseFloat(legendGroup.select(".legend-text").style("font-size"));
+        // Get the bounding box of the entire legend group.
+        let bbox = legendGroup.node().getBBox();
+        
+        // While the legend's width exceeds the available width and we haven't reached the minimum font size, reduce the font size.
+        while (bbox.width > availableWidth && currentFontSize > minFontSize) {
+          currentFontSize -= 1; // reduce by 1px
+          legendGroup.selectAll(".legend-text").style("font-size", currentFontSize + "px");
+          // Update the bounding box after font size change.
+          bbox = legendGroup.node().getBBox();
+        }
+      }
+
+
+
+
       // User-defined parameters:
       const borderWidth = 2;              // Width for all outline borders.
       const barWidthFraction = 0.8;       // Each bar uses 80% of its allocated x-scale band.
@@ -734,12 +752,13 @@
       }
 
       function drawLegend(g, innerWidth, innerHeight) {
-  // Detect mobile viewport
+  // Detect mobile viewport and adjust legend parameters
   const isMobile = window.innerWidth < 768;
   const legendPadding = isMobile ? 0 : 50;
   const legendTop = isMobile ? 0 : -20;
   const legendAvailableWidth = innerWidth - 2 * legendPadding;
 
+  // Create a container group for the legend.
   const legendGroup = g.append("g")
     .attr("class", "legend")
     .attr("transform", `translate(${legendPadding}, ${legendTop})`);
@@ -751,27 +770,28 @@
     { name: "You",           color: "#1c2e4ae6" }
   ];
 
-  // Create one group per legend item
+  // Create one group per legend item.
   const items = legendGroup.selectAll(".legend-item")
     .data(legendData)
     .enter()
     .append("g")
     .attr("class", "legend-item");
 
-  // Add colored square and text
+  // Append the colored square.
   items.append("rect")
     .attr("class", "legend-square")
     .attr("fill", d => d.color)
     .attr("stroke", "black")
     .attr("stroke-width", 1);
 
+  // Append the text.
   items.append("text")
     .attr("class", "legend-text")
     .attr("x", 18)
     .attr("y", 12)
     .text(d => d.name);
 
-  // Measure each item’s bounding box to calculate spacing
+  // Measure each item's bounding box to calculate spacing.
   items.each(function(d) {
     const bbox = this.getBBox();
     d.itemWidth = bbox.width;
@@ -779,7 +799,7 @@
 
   const totalItemsWidth = legendData.reduce((sum, d) => sum + d.itemWidth, 0);
   const gaps = legendData.length - 1;
-  let itemSpacing = gaps > 0 ? Math.max(0, (legendAvailableWidth - totalItemsWidth) / gaps) : 0;
+  const itemSpacing = gaps > 0 ? Math.max(0, (legendAvailableWidth - totalItemsWidth) / gaps) : 0;
   const totalWidth = totalItemsWidth + itemSpacing * gaps;
   let startX = Math.max(0, (legendAvailableWidth - totalWidth) / 2);
 
@@ -789,7 +809,11 @@
     currentX += d.itemWidth + (i < legendData.length - 1 ? itemSpacing : 0);
     return `translate(${x}, 0)`;
   });
+
+  // Automatically adjust the font size so the legend fits within the available width.
+  adjustLegendFontSize(legendGroup, legendAvailableWidth);
 }
+
 
 
 
