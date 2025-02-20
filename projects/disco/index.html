@@ -782,7 +782,7 @@
             // (innerWidth is the width of your chart area)
             const offsetX = Math.max(0, (innerWidth - groupBbox.width) / 2);
             // shift the legend upward by its own height + 5
-            const offsetY = -groupBbox.height - 10;
+            const offsetY = -groupBbox.height - 100;
             legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
 
             const finalWidth = groupBbox.width;
