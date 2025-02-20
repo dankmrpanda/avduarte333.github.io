@@ -750,7 +750,7 @@
 
             // The widest pair in col0, col1
             // rowSpacing, colSpacing are constants you can tweak
-            const colSpacing = 30;
+            const colSpacing = 10;
             const rowSpacing = 4;
 
             // We'll measure row0’s items: (0,1)
@@ -762,7 +762,7 @@
             const totalGridWidth = widthCol0 + colSpacing + widthCol1;
 
             // place them
-            let y0 = -10;
+            let y0 = -5;
             // item0 => top-left
             d3.select(items.nodes()[0]).attr("transform", `translate(0, ${y0})`);
             // item1 => top-right
