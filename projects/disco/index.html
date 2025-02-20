@@ -558,7 +558,7 @@
             .attr("stroke-width", "2");
         
         // x-scale for categories
-        const categories = ["Gemini-1.5 Pro", "GPT-4o", "Qwen2-VL 72B", "You"];
+        const categories = ["You", "Qwen2-VL 72B", "GPT-4o", "Gemini-1.5 Pro"];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
@@ -616,9 +616,9 @@
 
       function drawInitialBars(g, innerWidth, innerHeight, yScale, xScale) {
         const staticData = [
-          { name: "Gemini-1.5 Pro", value: 70, color: "#f6d379e6"},
+          { name: "Qwen2-VL 72B",   value: 60, color: "#695e93e6"},  
           { name: "GPT-4o",         value: 50, color: "#7bb296e6"},
-          { name: "Qwen2-VL 72B",   value: 60, color: "#695e93e6" }
+          { name: "Gemini-1.5 Pro", value: 70, color: "#f6d379e6"}
         ];
         
         staticData.forEach(d => {
@@ -663,10 +663,10 @@
 
           // 2) Basic config
           const legendData = [
-            { name: "Gemini-1.5 Pro", color: "#f6d379e6" },  
-            { name: "GPT-4o",         color: "#7bb296e6" },
+            { name: "You",            color: "#1c2e4ae6" },  
             { name: "Qwen2-VL 72B",   color: "#695e93e6" },
-            { name: "You",            color: "#1c2e4ae6" }
+            { name: "GPT-4o",         color: "#7bb296e6" },
+            { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
           ];
 
           // We’ll place the legend in a group near the top
@@ -862,7 +862,7 @@
           .domain([0, 105])
           .range([innerHeight, 0]);
         
-        const categories = ["Gemini-1.5 Pro", "GPT-4o", "Qwen2-VL 72B", "You"];
+        const categories = ["You", "Qwen2-VL 72B", "GPT-4o", "Gemini-1.5 Pro",];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
