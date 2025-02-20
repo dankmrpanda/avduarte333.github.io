@@ -135,8 +135,11 @@
       100% {
         transform: translate(-50%, -50%) scale(4);
         opacity: 0;
+      }}
+
+      .round-button:active {
+        transform: scale(0.9);
       }
-    }
 
     #dot-indicators {
       display: flex;
@@ -426,81 +429,88 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
 
-      /*************************************************************
-       * Global Setup
-       *************************************************************/
-      const quizImages = [
-        './static/images/quiz_images/quiz1.png',
-        './static/images/quiz_images/quiz2.png',
-        './static/images/quiz_images/quiz3.png',
-        './static/images/quiz_images/quiz4.png',
-        './static/images/quiz_images/quiz5.png',
-        './static/images/quiz_images/quiz6.png',
-        './static/images/quiz_images/quiz7.png',
-        './static/images/quiz_images/quiz8.png'
-      ];
-      const totalSlides = quizImages.length + 1; // 9 total slides (0..8)
-      let currentIndex = 0;  // start at slide 0
-      let userAnswers = new Array(8).fill('-');
+    /*************************************************************
+     * Global Setup
+     *************************************************************/
+    const quizImages = [
+      './static/images/quiz_images/quiz1.png',
+      './static/images/quiz_images/quiz2.png',
+      './static/images/quiz_images/quiz3.png',
+      './static/images/quiz_images/quiz4.png',
+      './static/images/quiz_images/quiz5.png',
+      './static/images/quiz_images/quiz6.png',
+      './static/images/quiz_images/quiz7.png',
+      './static/images/quiz_images/quiz8.png'
+    ];
+    const totalSlides = quizImages.length + 1;
+    let currentIndex = 0;
+    let userAnswers = new Array(8).fill('-');
 
-      // A flag to avoid redrawing the chart structure repeatedly.
-      let chartStructureDrawn = false;
-      
-      // References to DOM elements
-      const quizImageEl   = document.getElementById('quiz-image');
-      const quizContainer = document.getElementById('quiz-container');
-      const prevBtn       = document.getElementById('prev-btn');
-      const nextBtn       = document.getElementById('next-btn');
-      const submitBtn     = document.getElementById('submit-all');
-      const barChartSvg   = document.getElementById('bar-chart');
-      
-      // Dot indicators
-      const dotContainer = document.getElementById('dot-indicators');
-      for (let i = 0; i < totalSlides; i++) {
-        const dot = document.createElement('span');
-        dot.classList.add('dot');
-        if (i === 0) dot.classList.add('active');
-        dotContainer.appendChild(dot);
-      }
-      function updateDots() {
-        const dots = dotContainer.querySelectorAll('.dot');
-        dots.forEach((dot, idx) => {
-          dot.classList.toggle('active', idx === currentIndex);
+    let chartStructureDrawn = false;
+
+    const quizImageEl   = document.getElementById('quiz-image');
+    const quizContainer = document.getElementById('quiz-container');
+    const prevBtn       = document.getElementById('prev-btn');
+    const nextBtn       = document.getElementById('next-btn');
+    const submitBtn     = document.getElementById('submit-all');
+    const barChartSvg   = document.getElementById('bar-chart');
+
+    // Dot indicators creation
+    const dotContainer = document.getElementById('dot-indicators');
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement('span');
+      dot.classList.add('dot');
+      if (i === 0) dot.classList.add('active');
+      dotContainer.appendChild(dot);
+    }
+
+    // --- NEW: Attach click events to each dot for navigation ---
+    const dots = document.querySelectorAll('#dot-indicators .dot');
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        currentIndex = index;
+        updateSlide();
+      });
+    });
+
+    function updateDots() {
+      const dots = dotContainer.querySelectorAll('.dot');
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentIndex);
+      });
+    }
+
+    /*************************************************************
+     * Load TomSelect Options
+     *************************************************************/
+    let quizSelect;
+    fetch('./static/data/movies.txt')
+      .then(res => res.text())
+      .then(data => {
+        const lines = data.split('\n').map(x => x.trim()).filter(x => x.length > 0);
+        const selectEl = document.getElementById('quiz-answer');
+        for (const movie of lines) {
+          const option = document.createElement('option');
+          option.value = movie;
+          option.textContent = movie;
+          selectEl.appendChild(option);
+        }
+
+        quizSelect = new TomSelect('#quiz-answer', {
+          create: false,
+          maxItems: 1,
+          allowEmptyOption: true,
+          placeholder: 'Select a movie...',
+          maxOptions: 7000,
+          onItemAdd: function() { this.blur(); },
+          onType: function() { if (this.getValue()) this.clear(); }
         });
-      }
 
-      /*************************************************************
-       * Load TomSelect Options
-       *************************************************************/
-       let quizSelect;
-      fetch('./static/data/movies.txt')
-        .then(res => res.text())
-        .then(data => {
-          const lines = data.split('\n').map(x => x.trim()).filter(x => x.length > 0);
-          const selectEl = document.getElementById('quiz-answer');
-          for (const movie of lines) {
-            const option = document.createElement('option');
-            option.value = movie;
-            option.textContent = movie;
-            selectEl.appendChild(option);
-          }
-
-          quizSelect = new TomSelect('#quiz-answer', {
-            create: false,
-            maxItems: 1,
-            allowEmptyOption: true,
-            placeholder: 'Select a movie...',
-            maxOptions: 7000,
-
-            onItemAdd: function() { this.blur(); },
-            onType: function() { if (this.getValue()) this.clear(); }
-          });
-
-          quizSelect.setValue('-');
-        })
-        .catch(err => console.error('Error loading movies.txt:', err));
+        quizSelect.setValue('-');
+      })
+      .catch(err => console.error('Error loading movies.txt:', err));
 
 
       /*************************************************************
@@ -701,7 +711,7 @@
               .attr("font-family", "Roboto, sans-serif")
               .attr("font-size", fontSize)
               .attr("x", squareSize + 5)
-              .attr("y", squareSize * 0.8);
+              .attr("y", squareSize * 0.9);
 
             // measure total width
             let xPos = 0;
@@ -909,90 +919,81 @@
 
       
       /*************************************************************
-       * updateSlide() - Show/hide elements per slide
-       *************************************************************/
-      function updateSlide() {
-        if (currentIndex < quizImages.length) {
-          // Quiz slide
-          quizImageEl.style.opacity = '1';
-          quizImageEl.style.display = 'block';
-          barChartSvg.style.display = 'none';
-          quizContainer.style.display = 'block';
-          submitBtn.style.display = 'none';
-          quizImageEl.src = quizImages[currentIndex];
+           * updateSlide() - Show/hide elements per slide
+           *************************************************************/
+          function updateSlide() {
+            if (currentIndex < quizImages.length) {
+              quizImageEl.style.opacity = '1';
+              quizImageEl.style.display = 'block';
+              barChartSvg.style.display = 'none';
+              quizContainer.style.display = 'block';
+              submitBtn.style.display = 'none';
+              quizImageEl.src = quizImages[currentIndex];
 
-          // Restore any previous answer
-          if (quizSelect) {
-            if (userAnswers[currentIndex] && userAnswers[currentIndex] !== '-') {
-              quizSelect.setValue(userAnswers[currentIndex]);
+              if (quizSelect) {
+                if (userAnswers[currentIndex] && userAnswers[currentIndex] !== '-') {
+                  quizSelect.setValue(userAnswers[currentIndex]);
+                } else {
+                  quizSelect.clear();
+                  quizSelect.setValue('-');
+                }
+              }
             } else {
-              quizSelect.clear();
-              quizSelect.setValue('-');
+              quizImageEl.style.opacity = '0';
+              quizImageEl.style.display = 'block';
+              barChartSvg.style.display = 'block';
+              quizContainer.style.display = 'none';
+              submitBtn.style.display = 'inline-block';
+              if (!chartStructureDrawn) {
+                drawChartStructure();
+                chartStructureDrawn = true;
+              }
             }
+            updateDots();
           }
-        } else {
-          // Final slide: show chart
-          quizImageEl.style.opacity = '0';
-          quizImageEl.style.display = 'block';
-          barChartSvg.style.display = 'block';
-          quizContainer.style.display = 'none';
-          submitBtn.style.display = 'inline-block';
-          if (!chartStructureDrawn) {
-            drawChartStructure();
-            chartStructureDrawn = true;
-          }
-        }
-        updateDots();
-      }
 
-      /*************************************************************
-       * Nav Buttons
-       *************************************************************/
-      prevBtn.addEventListener('click', () => {
-        if (currentIndex < quizImages.length && quizSelect) {
-          userAnswers[currentIndex] = quizSelect.getValue();
-        }
-        if (currentIndex > 0) {
-          currentIndex--;
+          /*************************************************************
+           * Nav Buttons with blur for mobile
+           *************************************************************/
+          prevBtn.addEventListener('click', () => {
+            if (currentIndex < quizImages.length && quizSelect) {
+              userAnswers[currentIndex] = quizSelect.getValue();
+            }
+            if (currentIndex > 0) {
+              currentIndex--;
+              updateSlide();
+            }
+            prevBtn.blur();  // Unselect button after click
+          });
+          
+          nextBtn.addEventListener('click', () => {
+            if (currentIndex < quizImages.length && quizSelect) {
+              userAnswers[currentIndex] = quizSelect.getValue();
+            }
+            if (currentIndex < totalSlides - 1) {
+              currentIndex++;
+              updateSlide();
+            }
+            nextBtn.blur();  // Unselect button after click
+          });
+          
+          submitBtn.addEventListener('click', () => {
+            if (currentIndex < quizImages.length && quizSelect) {
+              userAnswers[currentIndex] = quizSelect.getValue();
+            }
+            const finalValue = 80; // example logic for animation
+            animateAllBars(finalValue);
+          });
+          
           updateSlide();
-        }
-      });
-      
-      nextBtn.addEventListener('click', () => {
-        if (currentIndex < quizImages.length && quizSelect) {
-          userAnswers[currentIndex] = quizSelect.getValue();
-        }
-        if (currentIndex < totalSlides - 1) {
-          currentIndex++;
-          updateSlide();
-        }
-      });
-      
-      /*************************************************************
-       * Submit Button – animate the final bar
-       *************************************************************/
-      submitBtn.addEventListener('click', () => {
-        if (currentIndex < quizImages.length && quizSelect) {
-          userAnswers[currentIndex] = quizSelect.getValue();
-        }
-        const finalValue = 80; // example logic
-        animateAllBars(finalValue);
-      });
-      
-      /*************************************************************
-       * Initialize
-       *************************************************************/
-      updateSlide();
 
-      // Redraw chart on window resize
-      window.addEventListener('resize', () => {
-        if (currentIndex >= quizImages.length) {
-          // Clear + redraw
-          d3.select('#bar-chart').selectAll('*').remove();
-          drawChartStructure();
-        }
-      });
-    });
+          window.addEventListener('resize', () => {
+            if (currentIndex >= quizImages.length) {
+              d3.select('#bar-chart').selectAll('*').remove();
+              drawChartStructure();
+            }
+          });
+        });
   </script>
     
   <!-- MovieTection Section -->
