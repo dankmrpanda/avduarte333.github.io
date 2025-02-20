@@ -658,147 +658,195 @@
       }
 
       function drawLegend(g, innerWidth, innerHeight) {
-        // Decide if mobile. (Mobile < 768px => 2x2 grid.)
-        const isMobile = window.innerWidth < 768;
-        
-        // We want to place the legend above the chart, 
-        // so we’ll just shift it up a bit inside the top margin.
-        const legendGroup = g.append("g")
-          .attr("class", "legend")
-          .attr("transform", `translate(0, -25)`); // slight upward shift
+          // 1) Remove any old legend so we can redraw from scratch
+          g.selectAll(".legend").remove();
 
-        const legendData = [
-          { name: "GPT-4o",         color: "#7bb296e6" },
-          { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
-          { name: "Qwen2-VL 72B",   color: "#695e93e6" },
-          { name: "You",            color: "#1c2e4ae6" }
-        ];
-        
-        const items = legendGroup.selectAll(".legend-item")
-          .data(legendData)
-          .enter()
-          .append("g")
-          .attr("class", "legend-item");
+          // 2) Basic config
+          const legendData = [
+            { name: "GPT-4o",         color: "#7bb296e6" },
+            { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
+            { name: "Qwen2-VL 72B",   color: "#695e93e6" },
+            { name: "You",            color: "#1c2e4ae6" }
+          ];
 
-        // Append squares + text (initially with some default size).
-        let currentSquareSize = 14;  
-        let currentFontSize   = 16;  
-        // In CSS, .legend-text is 16px by default at desktop. 
-        // We'll override via .attr() if we scale.
+          // We’ll place the legend in a group near the top
+          const legendGroup = g.append("g")
+            .attr("class", "legend")
+            // shift upward by ~25px so it's "above" the chart interior
+            .attr("transform", `translate(0, -25)`);
 
-        const squares = items.append("rect")
-          .attr("class", "legend-square")
-          .attr("width", currentSquareSize)
-          .attr("height", currentSquareSize)
-          .attr("fill", d => d.color)
-          .attr("stroke", "black")
-          .attr("stroke-width", 1);
+          // Create groups for each item
+          const items = legendGroup.selectAll(".legend-item")
+            .data(legendData)
+            .enter()
+            .append("g")
+            .attr("class", "legend-item");
 
-        const texts = items.append("text")
-          .attr("class", "legend-text")
-          .attr("x", currentSquareSize + 5)
-          .attr("y", currentSquareSize * 0.8) 
-          .attr("font-size", currentFontSize)
-          .text(d => d.name);
+          // Decide whether to try single-line or 2x2.
+          // We'll do a small helper function for single-line attempt.
+          function attemptSingleLine(fontSize, squareSize) {
+            // Clear old squares/text if any
+            items.selectAll("*").remove();
 
-        if (isMobile) {
-          // ------------------
-          //  2×2 GRID LAYOUT
-          // ------------------
-          // Let’s see how big each item is individually.
-          // We arrange them in two rows, two columns.
-          // We'll measure each item (g node) to place them properly.
+            // Append squares/text with the specified size
+            const squares = items.append("rect")
+              .attr("fill", d => d.color)
+              .attr("stroke", "black")
+              .attr("stroke-width", 1)
+              .attr("width", squareSize)
+              .attr("height", squareSize);
 
-          let rowSpacing = 8;   
-          let colSpacing = 40;  
-          // The final width is 2 columns => measure the widest in col0 and widest in col1
+            const texts = items.append("text")
+              .text(d => d.name)
+              .attr("font-family", "Roboto, sans-serif")
+              .attr("font-size", fontSize)
+              .attr("x", squareSize + 5)
+              .attr("y", squareSize * 0.8);
 
-          // We'll measure item bounding boxes after they've rendered.
-          legendGroup.call(() => {
-            const nodes = items.nodes();
-            // Indices: 0,1 => first row, 2,3 => second row
-            // measure each item
-            const bboxes = nodes.map(n => n.getBBox());
-
-            // widest in first column (0,2)
-            const maxWidthCol0 = Math.max(bboxes[0].width, bboxes[2].width);
-            // widest in second column (1,3)
-            const maxWidthCol1 = Math.max(bboxes[1].width, bboxes[3].width);
-
-            // Center the entire 2×2 structure in innerWidth
-            const totalGridWidth = maxWidthCol0 + colSpacing + maxWidthCol1;
-            let offsetX = (innerWidth - totalGridWidth) / 2;
-            if (offsetX < 0) offsetX = 0;  // no negative shift
-
-            // Place top row
-            d3.select(nodes[0])
-              .attr("transform", `translate(${offsetX},0)`);
-            d3.select(nodes[1])
-              .attr("transform", `translate(${offsetX + maxWidthCol0 + colSpacing},0)`);
-
-            // Place second row
-            const secondRowY = bboxes[0].height + rowSpacing;
-            d3.select(nodes[2])
-              .attr("transform", `translate(${offsetX},${secondRowY})`);
-            d3.select(nodes[3])
-              .attr("transform", `translate(${offsetX + maxWidthCol0 + colSpacing},${secondRowY})`);
-          });
-
-        } else {
-          // --------------------------------
-          //  SINGLE-LINE (Desktop & Tablet)
-          // --------------------------------
-          // We'll attempt to keep the text on one line. 
-          // If it doesn't fit, we scale down font & squares gradually.
-          const minFontSize = 10;  
-          const minSquareSize = 6;  
-          const minGap = 25;        // baseline gap between items
-
-          let fit = false;
-          while (!fit) {
-            // Measure total width of items with the current sizing
-            // We do a quick "layout" at x=0 in a row, just to measure bounding boxes.
+            // measure total width
             let xPos = 0;
-            items.attr("transform", function() {
-              const nodeBbox = this.getBBox();
-              const thisX = xPos;
-              xPos += nodeBbox.width + minGap;
-              return `translate(${thisX},0)`;
+            let totalWidth = 0;
+            const itemGap = 25;
+            
+            items.each(function(d, i) {
+              // place item temporarily
+              d3.select(this).attr("transform", `translate(${xPos}, 0)`);
+              const bbox = this.getBBox(); 
+              totalWidth += bbox.width;
+              if (i < legendData.length - 1) {
+                totalWidth += itemGap;
+              }
+              xPos += bbox.width + itemGap;
             });
 
-            const totalWidthUsed = xPos - minGap; // after final item, subtract one gap
-            if (totalWidthUsed <= innerWidth) {
-              // Good, it fits
-              fit = true;
+            // Return the measured total width
+            return totalWidth;
+          }
+
+          // For a 2×2 layout, we do similar logic
+          function attemptGrid(fontSize, squareSize) {
+            items.selectAll("*").remove();
+
+            const squares = items.append("rect")
+              .attr("fill", d => d.color)
+              .attr("stroke", "black")
+              .attr("stroke-width", 1)
+              .attr("width", squareSize)
+              .attr("height", squareSize);
+
+            const texts = items.append("text")
+              .text(d => d.name)
+              .attr("font-family", "Roboto, sans-serif")
+              .attr("font-size", fontSize)
+              .attr("x", squareSize + 5)
+              .attr("y", squareSize * 0.8);
+
+            // 2x2 means item0,1 in row0; item2,3 in row1
+            // We measure each item’s bbox:
+            const nodeBboxes = [];
+            items.each(function() {
+              nodeBboxes.push(this.getBBox());
+            });
+
+            // The widest pair in col0, col1
+            // rowSpacing, colSpacing are constants you can tweak
+            const colSpacing = 30;
+            const rowSpacing = 12;
+
+            // We'll measure row0’s items: (0,1)
+            // and row1’s items: (2,3).
+            // We assume col0 is item0,2 and col1 is item1,3.
+
+            const widthCol0 = Math.max(nodeBboxes[0].width, nodeBboxes[2]?.width || 0);
+            const widthCol1 = Math.max(nodeBboxes[1].width, nodeBboxes[3]?.width || 0);
+            const totalGridWidth = widthCol0 + colSpacing + widthCol1;
+
+            // place them
+            let y0 = 0;
+            // item0 => top-left
+            d3.select(items.nodes()[0]).attr("transform", `translate(0, ${y0})`);
+            // item1 => top-right
+            d3.select(items.nodes()[1]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y0})`);
+
+            // item2 => bottom-left
+            const y1 = nodeBboxes[0].height + rowSpacing;
+            d3.select(items.nodes()[2]).attr("transform", `translate(0, ${y1})`);
+            // item3 => bottom-right
+            d3.select(items.nodes()[3]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y1})`);
+
+            // Now measure the bounding box of the entire legendGroup
+            // This is effectively 2 rows
+            const groupBbox = legendGroup.node().getBBox();
+            const finalWidth = groupBbox.width;
+            return finalWidth; // how wide the grid is
+          }
+
+          // We define some config for how we shrink
+          const maxFontSize   = 16;
+          const minFontSize   = 8;
+          const maxSquareSize = 14;
+          const minSquareSize = 6;
+          const shrinkStep    = 1;  // how many px we reduce each iteration
+
+          // 1) Try single-line at largest size, down to min
+          let fontSize   = maxFontSize;
+          let squareSize = maxSquareSize;
+          let fitsSingleLine = false;
+          
+          while (true) {
+            const totalWidth = attemptSingleLine(fontSize, squareSize);
+
+            if (totalWidth <= innerWidth) {
+              // Great, it fits in single line
+              fitsSingleLine = true;
+              break;
             } else {
-              // We scale down
-              currentFontSize -= 1;
-              currentSquareSize -= 1;
-              if (currentFontSize < minFontSize || currentSquareSize < minSquareSize) {
-                // We won't shrink any further
-                fit = true;
+              // shrink
+              fontSize   -= shrinkStep;
+              squareSize -= shrinkStep;
+              if (fontSize < minFontSize || squareSize < minSquareSize) {
+                // not feasible to keep single-line
                 break;
               }
-              // Update squares & text to smaller size
-              squares
-                .attr("width", currentSquareSize)
-                .attr("height", currentSquareSize);
-              texts
-                .attr("x", currentSquareSize + 5)
-                .attr("y", currentSquareSize * 0.8)
-                .attr("font-size", currentFontSize);
             }
           }
 
-          // Finally, we center the entire line in the available width
-          legendGroup.call(() => {
-            const groupBbox = legendGroup.node().getBBox();
-            let offsetX = (innerWidth - groupBbox.width) / 2;
-            if (offsetX < 0) offsetX = 0;
+          if (fitsSingleLine) {
+            // We have a final single-line layout placed 
+            // but it’s left-aligned at (0,0). Let's center it:
+
+            const bbox = legendGroup.node().getBBox();
+            const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
             legendGroup.attr("transform", `translate(${offsetX}, -25)`);
-          });
+
+          } else {
+            // 2) We fallback to a 2x2 grid approach
+            //    Start from largest, shrink until it fits
+            fontSize   = maxFontSize;
+            squareSize = maxSquareSize;
+            let fitsGrid = false;
+
+            while (true) {
+              const finalWidth = attemptGrid(fontSize, squareSize);
+              if (finalWidth <= innerWidth) {
+                fitsGrid = true;
+                break;
+              } else {
+                fontSize   -= shrinkStep;
+                squareSize -= shrinkStep;
+                if (fontSize < minFontSize || squareSize < minSquareSize) {
+                  break; // can't shrink further
+                }
+              }
+            }
+
+            // Finally center the grid in the horizontal direction
+            const bbox = legendGroup.node().getBBox();
+            const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
+            legendGroup.attr("transform", `translate(${offsetX}, -25)`);
+          }
         }
-      }
+
 
       function animateAllBars(finalYouValue) {
         const svg = d3.select(barChartSvg);
