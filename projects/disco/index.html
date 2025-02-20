@@ -558,7 +558,7 @@
             .attr("stroke-width", "2");
         
         // x-scale for categories
-        const categories = ["GPT-4o", "Gemini-1.5 Pro", "Qwen2-VL 72B", "You"];
+        const categories = ["Gemini-1.5 Pro", "GPT-4o", "Qwen2-VL 72B", "You"];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
@@ -616,8 +616,8 @@
 
       function drawInitialBars(g, innerWidth, innerHeight, yScale, xScale) {
         const staticData = [
-          { name: "GPT-4o",         value: 50, color: "#7bb296e6"},
           { name: "Gemini-1.5 Pro", value: 70, color: "#f6d379e6"},
+          { name: "GPT-4o",         value: 50, color: "#7bb296e6"},
           { name: "Qwen2-VL 72B",   value: 60, color: "#695e93e6" }
         ];
         
@@ -663,8 +663,8 @@
 
           // 2) Basic config
           const legendData = [
+            { name: "Gemini-1.5 Pro", color: "#f6d379e6" },  
             { name: "GPT-4o",         color: "#7bb296e6" },
-            { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
             { name: "Qwen2-VL 72B",   color: "#695e93e6" },
             { name: "You",            color: "#1c2e4ae6" }
           ];
@@ -786,7 +786,7 @@
           const minFontSize   = 8;
           const maxSquareSize = 14;
           const minSquareSize = 6;
-          const shrinkStep    = 2;  // how many px we reduce each iteration
+          const shrinkStep    = 1;  // how many px we reduce each iteration
 
           // 1) Try single-line at largest size, down to min
           let fontSize   = maxFontSize;
@@ -862,7 +862,7 @@
           .domain([0, 105])
           .range([innerHeight, 0]);
         
-        const categories = ["GPT-4o", "Gemini-1.5 Pro", "Qwen2-VL 72B", "You"];
+        const categories = ["Gemini-1.5 Pro", "GPT-4o", "Qwen2-VL 72B", "You"];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
