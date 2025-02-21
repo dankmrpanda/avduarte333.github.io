@@ -73,10 +73,19 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
   <style>
+
+    /* Slightly increase the base font size */
+    body {
+        font-size: 22px; /* Default is 16px, increase it slightly */
+        color: #424242 !important; /* Change default text color */
+    }
+
+
     .title.is-3 {
-      color: #5d5d5d;
+      color: #3e3e3e;
       font-weight: bold;
     }
+
     .navigation-controls {
       display: flex;
       justify-content: center;
@@ -325,6 +334,22 @@
       </div>
     </div>
   </section>
+
+
+  <!-- Teaser Section -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+            <p>
+              Motivated by the hypothesis that a VLM is able to recognize images from its training data, we propose <b>DIS-CO</b>, a novel approach to infer the inclusion of copyrighted content during the model's development.
+            </p>
+          <img src="./static/images/crown_figure.png" style="width: 70%; height: auto; display: block; margin: 0 auto;">
+        </div>
+      </div>
+    </div>
+  </section>
+
   
   <!-- Abstract Section -->
   <section class="section">
