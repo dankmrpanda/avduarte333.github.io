@@ -471,7 +471,7 @@
     document.addEventListener('DOMContentLoaded', function() {
   
       /*************************************************************
-       * Global Setup
+       * GLOBAL SETUP
        *************************************************************/
       const quizImages = [
         './static/images/quiz_images/quiz1.png',
@@ -494,22 +494,24 @@
         'Pride & Prejudice'
       ];
   
-      const totalSlides = quizImages.length + 1;
-      let currentIndex = 0;
-      let userAnswers = new Array(8).fill('-');
+      const totalSlides = quizImages.length + 1;  
+      let currentIndex = 0;  
+      let userAnswers = new Array(quizImages.length).fill('-');
   
+      // Just a flag to know if we've at least drawn the chart structure once
       let chartStructureDrawn = false;
   
-      const quizImageEl   = document.getElementById('quiz-image');
+      // DOM references
+      const quizImageEl = document.getElementById('quiz-image');
       const quizContainer = document.getElementById('quiz-container');
-      const prevBtn       = document.getElementById('prev-btn');
-      const nextBtn       = document.getElementById('next-btn');
-      const submitBtn     = document.getElementById('submit-all');
-      const barChartSvg   = document.getElementById('bar-chart');
-      const quizWrapper   = document.getElementById('quiz-answer-wrapper');
-  
-      // Dot indicators creation
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const submitBtn = document.getElementById('submit-all');
+      const barChartSvg = document.getElementById('bar-chart');
+      const quizWrapper = document.getElementById('quiz-answer-wrapper');
       const dotContainer = document.getElementById('dot-indicators');
+  
+      // Create dot indicators
       for (let i = 0; i < totalSlides; i++) {
         const dot = document.createElement('span');
         dot.classList.add('dot');
@@ -517,15 +519,16 @@
         dotContainer.appendChild(dot);
       }
   
-      // We'll define quizSelect below, after loading movie titles.
-      let quizSelect;
+      let quizSelect; // We'll define it after loading the movie titles
   
-      // Attach click events to each dot for navigation
+      /*************************************************************
+       * DOTS: Jump to a specific slide
+       *************************************************************/
       const dots = document.querySelectorAll('#dot-indicators .dot');
       dots.forEach((dot, index) => {
         dot.addEventListener('click', () => {
+          // Save current slide’s answer before navigation
           if (currentIndex < quizImages.length && quizSelect) {
-            // Save current slide’s answer
             userAnswers[currentIndex] = quizSelect.getValue();
           }
           currentIndex = index;
@@ -534,22 +537,21 @@
       });
   
       function updateDots() {
-        const dots = dotContainer.querySelectorAll('.dot');
-        dots.forEach((dot, idx) => {
+        const allDots = dotContainer.querySelectorAll('.dot');
+        allDots.forEach((dot, idx) => {
           dot.classList.toggle('active', idx === currentIndex);
         });
       }
   
       /*************************************************************
-       * Load TomSelect Options & Set Wrapper Height
+       * 1) Load TomSelect Options
        *************************************************************/
       fetch('./static/data/movie_titles_mini.txt')
         .then(res => res.text())
         .then(data => {
-          const lines = data
-            .split('\n')
-            .map(x => x.trim())
-            .filter(x => x.length > 0);
+          const lines = data.split('\n')
+                            .map(x => x.trim())
+                            .filter(x => x.length > 0);
   
           const selectEl = document.getElementById('quiz-answer');
           for (const movie of lines) {
@@ -566,17 +568,20 @@
             placeholder: 'Select a movie...',
             maxOptions: 7000,
             onItemAdd: function() { this.blur(); },
-            onType: function() { if (this.getValue()) this.clear(); }
+            onType: function() {
+              if (this.getValue()) this.clear();
+            }
           });
   
           quizSelect.setValue('-');
-          // Set the wrapper height based on TomSelect's container height
+  
+          // Set the wrapper height based on TomSelect container’s height
           quizWrapper.style.height = quizContainer.offsetHeight + 'px';
         })
-        .catch(err => console.error('Error loading movies.txt:', err));
+        .catch(err => console.error('Error loading movie_titles_mini.txt:', err));
   
       /*************************************************************
-       * Chart + Legend Functions
+       * 2) Chart + Legend Functions
        *************************************************************/
       const borderWidth = 2;
       const barWidthFraction = 0.8;
@@ -584,10 +589,10 @@
       function drawChartStructure() {
         const svg = d3.select(barChartSvg);
   
-        // Clear out any old drawing
+        // Clear old content
         svg.selectAll('*').remove();
   
-        // Measure the bounding box AFTER ensuring it's displayed
+        // Measure bounding box AFTER ensuring it's visible
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width + 20;
         const height = bbox.height;
@@ -600,23 +605,23 @@
         const g = svg.append("g")
           .attr("transform", `translate(${margin.left},${margin.top})`);
   
-        // Y scale and axis
+        // Y scale
         const yScale = d3.scaleLinear()
-          .domain([0, 105]) // 0 to 105%
+          .domain([0, 105]) // up to 105% for some padding
           .range([innerHeight, 0]);
   
+        // Y axis
         const yAxis = d3.axisLeft(yScale)
           .ticks(5)
           .tickSizeInner(0)
           .tickSizeOuter(0)
           .tickPadding(7);
-  
         g.append("g")
           .attr("class", "y-axis axis")
           .call(yAxis);
   
-        // Horizontal grid lines (except at y=0)
-        const yTicks = yScale.ticks(5).filter(tickValue => tickValue !== 0);
+        // Horizontal grid lines (excluding y=0 line)
+        const yTicks = yScale.ticks(5).filter(t => t !== 0);
         g.append("g")
           .attr("class", "grid horizontal-grid")
           .call(
@@ -637,7 +642,7 @@
           .range([0, innerWidth])
           .padding(0.2);
   
-        // Vertical grid lines (one line at each category center)
+        // Vertical grid lines
         categories.forEach(cat => {
           const xPos = xScale(cat) + xScale.bandwidth() / 2;
           g.append("line")
@@ -651,7 +656,7 @@
             .attr("stroke-width", "2");
         });
   
-        // Top border
+        // Borders (top, right, left, bottom)
         g.append("line")
           .attr("class", "border")
           .attr("x1", 0).attr("y1", 0)
@@ -659,7 +664,6 @@
           .attr("stroke", "lightgray")
           .attr("stroke-width", borderWidth);
   
-        // Right border
         g.append("line")
           .attr("class", "border")
           .attr("x1", innerWidth).attr("y1", 0)
@@ -667,15 +671,13 @@
           .attr("stroke", "lightgray")
           .attr("stroke-width", borderWidth);
   
-        // Left border
         g.append("line")
           .attr("class", "border")
           .attr("x1", 0).attr("y1", -1)
-          .attr("x2", 0).attr("y2", innerHeight+1)
+          .attr("x2", 0).attr("y2", innerHeight + 1)
           .attr("stroke", "#36454F")
           .attr("stroke-width", borderWidth);
   
-        // Bottom border
         g.append("line")
           .attr("class", "border")
           .attr("x1", -1).attr("y1", innerHeight)
@@ -683,15 +685,15 @@
           .attr("stroke", "#36454F")
           .attr("stroke-width", borderWidth);
   
+        // Draw the static bars for other models
         drawInitialBars(g, innerWidth, innerHeight, yScale, xScale);
         drawLegend(g, innerWidth, innerHeight);
       }
   
       function drawInitialBars(g, innerWidth, innerHeight, yScale, xScale) {
-        // Static data for the other models
         const staticData = [
           { name: "Qwen2-VL 72B",   value: 75,   color: "#695e93e6" },  
-          { name: "GPT-4o",         value: 88, color: "#7bb296e6" },
+          { name: "GPT-4o",         value: 87.5, color: "#7bb296e6" },
           { name: "Gemini-1.5 Pro", value: 75,   color: "#f6d379e6" }
         ];
   
@@ -699,6 +701,8 @@
           const fullBandWidth = xScale.bandwidth();
           const barWidth = fullBandWidth * barWidthFraction;
           const xPos = xScale(d.name) + (fullBandWidth - barWidth) / 2;
+  
+          // Place them at y=innerHeight initially (height=0), to animate up if desired
           g.append("rect")
             .attr("class", "static-bar")
             .attr("x", xPos)
@@ -724,7 +728,7 @@
   
         const legendGroup = g.append("g")
           .attr("class", "legend")
-          .attr("transform", `translate(0, -25)`);
+          .attr("transform", "translate(0, -25)");
   
         const items = legendGroup.selectAll(".legend-item")
           .data(legendData)
@@ -732,7 +736,7 @@
           .append("g")
           .attr("class", "legend-item");
   
-        // We'll try first to place items in one line, and if it doesn't fit, place them in two columns
+        // We'll try single-line first; if it doesn't fit, do grid
         function attemptSingleLine(fontSize, squareSize) {
           items.selectAll("*").remove();
           items.append("rect")
@@ -773,6 +777,7 @@
             .attr("stroke-width", 1)
             .attr("width", squareSize)
             .attr("height", squareSize);
+  
           items.append("text")
             .text(d => d.name)
             .attr("font-family", "Roboto, sans-serif")
@@ -783,14 +788,16 @@
           // measure bounding boxes
           const nodeBboxes = [];
           items.each(function() { nodeBboxes.push(this.getBBox()); });
+  
           const colSpacing = 5, rowSpacing = -15;
           const widthCol0 = Math.max(nodeBboxes[0].width, nodeBboxes[2]?.width || 0);
           const widthCol1 = Math.max(nodeBboxes[1].width, nodeBboxes[3]?.width || 0);
-          const totalGridWidth = widthCol0 + colSpacing + widthCol1;
   
-          let y0 = -15;
+          // place them in two columns
+          const y0 = -15;
           d3.select(items.nodes()[0]).attr("transform", `translate(0, ${y0})`);
           d3.select(items.nodes()[1]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y0})`);
+  
           const y1 = nodeBboxes[0].height + rowSpacing;
           d3.select(items.nodes()[2]).attr("transform", `translate(0, ${y1})`);
           d3.select(items.nodes()[3]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y1})`);
@@ -802,17 +809,18 @@
         const maxFontSize = 16, minFontSize = 8;
         const maxSquareSize = 14, minSquareSize = 6;
         const shrinkStep = 1;
-        let fontSize = maxFontSize, squareSize = maxSquareSize;
+  
+        let fontSize = maxFontSize,
+            squareSize = maxSquareSize;
         let fitsSingleLine = false;
   
-        // Try single line
         while (true) {
           const totalWidth = attemptSingleLine(fontSize, squareSize);
           if (totalWidth <= innerWidth) {
             fitsSingleLine = true;
             break;
           } else {
-            fontSize -= shrinkStep;
+            fontSize   -= shrinkStep;
             squareSize -= shrinkStep;
             if (fontSize < minFontSize || squareSize < minSquareSize) {
               break;
@@ -820,7 +828,6 @@
           }
         }
   
-        // If single line didn't fit, try grid
         if (fitsSingleLine) {
           const bbox = legendGroup.node().getBBox();
           const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
@@ -828,11 +835,9 @@
         } else {
           fontSize = maxFontSize;
           squareSize = maxSquareSize;
-          let fitsGrid = false;
           while (true) {
             const finalWidth = attemptGrid(fontSize, squareSize);
             if (finalWidth <= innerWidth) {
-              fitsGrid = true;
               break;
             } else {
               fontSize   -= shrinkStep;
@@ -848,8 +853,8 @@
         }
       }
   
+      // Animate user bar + static bars
       function animateAllBars(finalYouValue) {
-        // measure bounding box AFTER ensuring it is displayed
         const svg = d3.select(barChartSvg);
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width + 20;
@@ -871,7 +876,7 @@
   
         const g = svg.select("g");
   
-        // Animate static bars upward
+        // Animate the static bars
         g.selectAll(".static-bar")
           .transition()
           .duration(1200)
@@ -884,11 +889,10 @@
             return innerHeight - yScale(finalVal);
           });
   
-        // Remove old "You" bars
+        // Remove old “You” bar if any
         g.selectAll(".animated-bar").remove();
-        g.selectAll(".bar-text").remove();
   
-        // Draw "You" bar
+        // Draw new “You” bar
         const fullBandWidth = xScale.bandwidth();
         const barWidth = fullBandWidth * barWidthFraction;
         const xPos = xScale("You") + (fullBandWidth - barWidth) / 2;
@@ -903,6 +907,7 @@
           .attr("stroke", "black")
           .attr("stroke-width", borderWidth);
   
+        // Transition “You” bar upward
         youBar.transition()
           .duration(1200)
           .attr("y", yScale(finalYouValue))
@@ -910,21 +915,42 @@
       }
   
       /*************************************************************
-       * updateSlide() - Show/hide elements per slide
+       * SHOW CHART (structure only, no “You” bar)
+       * Called whenever the final slide is shown, or upon window resize
+       *************************************************************/
+      function showChart() {
+        // Make sure the chart is visible
+        barChartSvg.style.display = 'block';
+  
+        // Wait one animation frame to ensure layout is final
+        window.requestAnimationFrame(() => {
+          // Clear any old chart
+          d3.select('#bar-chart').selectAll('*').remove();
+  
+          // Draw the base chart structure (only static bars)
+          drawChartStructure();
+  
+          // Mark that we've drawn it at least once
+          chartStructureDrawn = true;
+        });
+      }
+  
+      /*************************************************************
+       * UPDATE SLIDE
        *************************************************************/
       function updateSlide() {
         if (currentIndex < quizImages.length) {
-          // Not the final slide: show the quiz image
+          // Not the final slide
           quizImageEl.style.opacity = '1';
           quizImageEl.style.display = 'block';
-          barChartSvg.style.display = 'none';
+          barChartSvg.style.display = 'none';  // hide chart
   
-          // Show TomSelect, hide "Submit All" button
+          // Show TomSelect, hide submit button
           quizWrapper.classList.remove('show-submit');
   
           quizImageEl.src = quizImages[currentIndex];
   
-          // Restore the user’s answer if we have one
+          // Restore user’s old choice if any
           if (quizSelect) {
             if (userAnswers[currentIndex] && userAnswers[currentIndex] !== '-') {
               quizSelect.setValue(userAnswers[currentIndex]);
@@ -935,27 +961,18 @@
           }
   
         } else {
-          // The final "slide" where we show the chart
+          // Final slide
           quizImageEl.style.opacity = '0';
-          quizImageEl.style.display = 'block';
-          barChartSvg.style.display = 'block';
-  
-          // Show "Submit All" button
+          quizImageEl.style.display = 'block'; 
           quizWrapper.classList.add('show-submit');
   
-          // Defer the chart drawing until the next animation frame,
-          // so the browser has time to reflow with the new display styles
-          window.requestAnimationFrame(() => {
-            if (!chartStructureDrawn) {
-              drawChartStructure();
-              chartStructureDrawn = true;
-            }
-          });
+          // Redraw the chart for the new layout
+          showChart();
         }
   
         updateDots();
   
-        // Update navigation button styles
+        // Update nav button styles
         if (currentIndex === 0) {
           prevBtn.style.setProperty('background-color', '#d3d3d3', 'important');
           prevBtn.style.setProperty('cursor', 'not-allowed', 'important');
@@ -978,9 +995,10 @@
       }
   
       /*************************************************************
-       * Nav Buttons with blur for mobile
+       * PREV / NEXT Buttons
        *************************************************************/
       prevBtn.addEventListener('click', () => {
+        // Save current answer
         if (currentIndex < quizImages.length && quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
@@ -990,8 +1008,9 @@
         }
         prevBtn.blur();
       });
-      
+  
       nextBtn.addEventListener('click', () => {
+        // Save current answer
         if (currentIndex < quizImages.length && quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
@@ -1001,12 +1020,16 @@
         }
         nextBtn.blur();
       });
-      
-      // Submit All button (show user's accuracy)
+  
+      /*************************************************************
+       * SUBMIT ALL: ONLY THEN DO WE DRAW THE “YOU” BAR
+       *************************************************************/
       submitBtn.addEventListener('click', () => {
+        // If we're still on an image slide, save the user answer
         if (currentIndex < quizImages.length && quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
+  
         // Calculate accuracy
         let correctCount = 0;
         for (let i = 0; i < correctAnswers.length; i++) {
@@ -1016,34 +1039,36 @@
         }
         const accuracy = (correctCount / correctAnswers.length) * 100;
   
-        // Animate your bar in a rAF so bounding box is stable
+        // Animate the user bar in the next animation frame
         window.requestAnimationFrame(() => {
           animateAllBars(accuracy);
         });
       });
   
-      // Initial render
+      /*************************************************************
+       * INIT: Start at Slide 0
+       *************************************************************/
       updateSlide();
   
       // Remove focus on mobile after pointer/touch
       document.querySelectorAll('.round-button').forEach(btn => {
-        btn.addEventListener('pointerup', () => btn.blur());
-        btn.addEventListener('touchend', () => btn.blur());
+        btn.addEventListener('pointerup', function() { this.blur(); });
+        btn.addEventListener('touchend', function() { this.blur(); });
       });
   
-      // On resize, redraw if we are on the final slide
+      /*************************************************************
+       * ON RESIZE: If final slide is showing, re-draw the chart
+       *************************************************************/
       window.addEventListener('resize', () => {
+        // If user is currently on the final slide (chart is visible)
         if (currentIndex >= quizImages.length) {
-          // Clear old chart and re-draw in next animation frame
-          window.requestAnimationFrame(() => {
-            d3.select('#bar-chart').selectAll('*').remove();
-            drawChartStructure();
-          });
+          showChart(); // re-measure & re-draw from scratch
         }
       });
   
     });
   </script>
+  
   
     
 
