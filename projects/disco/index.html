@@ -957,36 +957,17 @@
 
 
           <p>
-            We begin by assembling our MovieTection benchmark, where we collect 14,000 movie frames, categorized into main and neutral types to introduce varying levels of difficulty. For each frame, we also generate a corresponding caption using the Qwen2-VL 7B model.
+            We begin by assembling our <b>MovieTection</b> benchmark, where we collect 14,000 movie frames, categorized into main and neutral types to introduce varying levels of difficulty. For each frame, we also generate a corresponding caption using the Qwen2-VL 7B model.
           </p>
           <p>
-            Models are then queried with image frames and their corresponding captions, producing predictions for both modalities with free-form text generation. Predictions from image frames that overlap with caption-based predictions are excluded, isolating cases where image-based memorization is inferred.
+            Models are then queried with both the image frames and their corresponding captions, generating free-form predictions for each. We can then refine our detection of suspect content by excluding cases where the image-based predictions overlap with caption-based ones.
           </p>
           <p>
-            Performance on the suspect movie is compared against the expected baseline performance, with discrepancies indicating potential training exposure.
-          </p>  
-          
-
-
-
-
-            <b>Dataset Structure</b>🚧 The dataset consists of <strong>14,000 frames</strong> extracted from <strong>100 movies</strong>, categorized into:
+              Our rationale is that when a model correctly identifies a movie based solely on its caption, it suggests that the frame could be highly representative of the movie. So much so that even a textual description provides enough clues for the model to make an accurate guess using its general knowledge acquired from public data (i.e. 
+              <a href="https://aclanthology.org/L16-1147.pdf" target="_blank" rel="noopener noreferrer" style="color: #2C497F;">OpenSubtitles</a>), rather than relying on memorization.
           </p>
-          <ul>
-            <li><strong>Suspect movies:</strong> Released <em>before</em> September 2023, <strong>potentially included in training</strong>.</li>
-            <li><strong>Clean movies:</strong> Released <em>after</em> September 2023, <strong>outside the models' training</strong>.</li>
-          </ul>
-
           <p>
-            Each movie contains <strong>140 frames</strong>, further classified into:
-          </p>
-          <ul>
-            <li><strong>Main Frames:</strong> Featuring key characters from the plot.</li>
-            <li><strong>Neutral Frames:</strong> Backgrounds, objects, or minor characters.</li>
-          </ul>
-
-          <p>
-            This dataset serves as a benchmark to analyze model performance on known versus unseen movie data, helping assess memorization and generalization in vision-language models.
+            Finally, when deciding whether a suspect movie was part of a model’s training data, we compare its task performance against a baseline value reflecting general movie knowledge. If a movie’s recognition rate is significantly higher than expected - especially after removing cases where captions alone were sufficient for identification - it strongly suggests the model may have been exposed to that content during training.
           </p>
         </div>
       </div>
