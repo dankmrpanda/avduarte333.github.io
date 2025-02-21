@@ -80,10 +80,18 @@
         color: #424242 !important; /* Change default text color */
     }
 
+    p {
+    margin-bottom: 12px !important; /* Slightly increase spacing between paragraphs */
+    }
 
-    .title.is-3 {
-      color: #3e3e3e;
+
+    .title.is-3, .title.is-4{
+      color: #3e3e3e !important;
       font-weight: bold;
+    }
+
+    .title.is-4 {
+      margin-bottom: 0.5rem;
     }
 
     .navigation-controls {
@@ -352,7 +360,7 @@
   <section class="section">
     <div class="container is-max-desktop">
       <div class="columns is-centered">
-        <div class="column is-four-fifths">
+        <div class="column is-four-fifths has-text-centered">
           <p>
             Motivated by the hypothesis that a VLM is able to recognize images from its training data, we propose <b>DIS-CO</b>, a novel approach to infer the inclusion of copyrighted content during the model's development.
           </p>
@@ -369,18 +377,29 @@
   <!-- Abstract Section -->
   <section class="section">
     <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
+      <div class="columns is-centered has-text-left">
         <div class="column is-four-fifths">
           <h2 class="title is-3">Abstract</h2>
           <div class="content has-text-justified">
             <p>
-              <em>How can we verify whether copyrighted content was used to train a large vision-language model (VLM) without direct access to its training data?</em><br><br>
-              Motivated by the hypothesis that a VLM is able to recognize images from its training corpus, we propose DIS-CO, a novel
-              approach to infer the inclusion of copyrighted content during the model's development. 
-              By repeatedly querying a VLM with specific frames from targeted copyrighted material, DIS-CO extracts the content's identity through free-form text completions. 
-              To assess its effectiveness, we introduce MovieTection, a benchmark comprising 14,000 frames paired with detailed captions, drawn from films released both before and after a model’s training cutoff. 
-              Our results show that DIS-CO significantly improves detection performance, nearly doubling the average AUC of the best prior method on models with logits available. 
-              Our findings also highlight a broader concern: all tested models appear to have been exposed to some extent to copyrighted content.
+              Large Vision-Language Models (VLMs) are trained on vast datasets scraped from the web, often with little transparency regarding data sources. This raises ethical and legal concerns, particularly when copyrighted content is suspected of having been used.
+            </p>
+            <p>
+                <span style="font-weight: 600;">So how can we verify whether a VLM has seen a specific copyrighted work without access to its training data?</span>
+            </p>
+          
+          <h2 class="title is-4">The Key Idea:</h2>
+            <p>
+              In a black-box setting - where model attributes like token probabilities are inaccessible - the most reliable way to detect that a model has seen certain content is to make it reveal that it has knowledge about the content that goes beyond general knowledge.<br>
+              In other words, we need to design a task where: 
+              <ul>
+                <li>
+                  <span style="font-weight: 600;">The success rate is LOW if the target content was not in training.</span> This helps reduce false positives and ensures that models are not merely guessing correctly by chance.
+                </li>
+                <li>
+                  <span style="font-weight: 600;">If the success is HIGH, then the target content was in training.</span> If a model frequently provides correct answers, it strongly suggests exposure to that content.
+                </li>
+              </ul>
             </p>
           </div>
         </div>
@@ -555,7 +574,7 @@
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width + 20;
         const height = bbox.height;
-        const margin = { top: 45, right: 30, bottom: 5, left: 35 };
+        const margin = { top: 45, right: 30, bottom: 10, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         const g = svg.append("g")
@@ -775,7 +794,7 @@
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width + 20;
         const height = bbox.height;
-        const margin = { top: 45, right: 30, bottom: 5, left: 35 };
+        const margin = { top: 45, right: 30, bottom: 10, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
         const yScale = d3.scaleLinear()
@@ -926,11 +945,17 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">MovieTection</h2>
         <div class="content has-text-justified">
           <p>
-            Whether you completed the full quiz or just explored a few examples, we hope it made one thing clear - the task is far from easy! What we found particularly intriguing is that even with these highly neutral images, the models still manage to recognize most of them. This led us to investigate the phenomenon more systematically, resulting in MovieTection.
+            Whether you completed the full quiz or just explored a few examples, we hope it made one thing clear - the task is far from easy!
           </p>
+          <p>
+            What we found particularly intriguing is that even with these highly neutral images, the models still manage to recognize most of them.
+          </p>
+          <p>
+            This led us to investigate the phenomenon more systematically, resulting in our dataset MovieTection which we use in DIS-CO.
+          </p>
+          <h2 class="title is-3">MovieTection and DIS-CO</h2>
           <p>
             <b>Dataset Structure</b>🚧 The dataset consists of <strong>14,000 frames</strong> extracted from <strong>100 movies</strong>, categorized into:
           </p>
