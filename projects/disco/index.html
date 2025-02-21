@@ -469,7 +469,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-
+  
       /*************************************************************
        * Global Setup
        *************************************************************/
@@ -485,22 +485,21 @@
       ];
       const correctAnswers = [
         'Notting Hill',
-        '1917',
+        'The Da Vinci Code',
         'Jurassic Park',
         'Baywatch',
         'La La Land',
         'Life of Pi',
         'The Greatest Showman',
-        'Moana'
+        'Pride & Prejudice'
       ];
-
-
+  
       const totalSlides = quizImages.length + 1;
       let currentIndex = 0;
       let userAnswers = new Array(8).fill('-');
-
+  
       let chartStructureDrawn = false;
-
+  
       const quizImageEl   = document.getElementById('quiz-image');
       const quizContainer = document.getElementById('quiz-container');
       const prevBtn       = document.getElementById('prev-btn');
@@ -508,7 +507,7 @@
       const submitBtn     = document.getElementById('submit-all');
       const barChartSvg   = document.getElementById('bar-chart');
       const quizWrapper   = document.getElementById('quiz-answer-wrapper');
-
+  
       // Dot indicators creation
       const dotContainer = document.getElementById('dot-indicators');
       for (let i = 0; i < totalSlides; i++) {
@@ -517,36 +516,41 @@
         if (i === 0) dot.classList.add('active');
         dotContainer.appendChild(dot);
       }
-
-      // --- NEW: Attach click events to each dot for navigation ---
+  
+      // We'll define quizSelect below, after loading movie titles.
+      let quizSelect;
+  
+      // Attach click events to each dot for navigation
       const dots = document.querySelectorAll('#dot-indicators .dot');
       dots.forEach((dot, index) => {
         dot.addEventListener('click', () => {
           if (currentIndex < quizImages.length && quizSelect) {
-            // Save the current slide’s answer before navigating away
+            // Save current slide’s answer
             userAnswers[currentIndex] = quizSelect.getValue();
           }
           currentIndex = index;
           updateSlide();
         });
       });
-
-
+  
       function updateDots() {
         const dots = dotContainer.querySelectorAll('.dot');
         dots.forEach((dot, idx) => {
           dot.classList.toggle('active', idx === currentIndex);
         });
       }
-
+  
       /*************************************************************
        * Load TomSelect Options & Set Wrapper Height
        *************************************************************/
-      let quizSelect;
       fetch('./static/data/movie_titles_mini.txt')
         .then(res => res.text())
         .then(data => {
-          const lines = data.split('\n').map(x => x.trim()).filter(x => x.length > 0);
+          const lines = data
+            .split('\n')
+            .map(x => x.trim())
+            .filter(x => x.length > 0);
+  
           const selectEl = document.getElementById('quiz-answer');
           for (const movie of lines) {
             const option = document.createElement('option');
@@ -554,7 +558,7 @@
             option.textContent = movie;
             selectEl.appendChild(option);
           }
-
+  
           quizSelect = new TomSelect('#quiz-answer', {
             create: false,
             maxItems: 1,
@@ -564,58 +568,76 @@
             onItemAdd: function() { this.blur(); },
             onType: function() { if (this.getValue()) this.clear(); }
           });
-
+  
           quizSelect.setValue('-');
-
-          // Set the wrapper height based on the TomSelect container’s height
+          // Set the wrapper height based on TomSelect's container height
           quizWrapper.style.height = quizContainer.offsetHeight + 'px';
         })
         .catch(err => console.error('Error loading movies.txt:', err));
-
+  
       /*************************************************************
-       * Chart + Legend Functions (unchanged)
+       * Chart + Legend Functions
        *************************************************************/
-      const borderWidth = 2;              
-      const barWidthFraction = 0.8;       
-
+      const borderWidth = 2;
+      const barWidthFraction = 0.8;
+  
       function drawChartStructure() {
         const svg = d3.select(barChartSvg);
+  
+        // Clear out any old drawing
         svg.selectAll('*').remove();
+  
+        // Measure the bounding box AFTER ensuring it's displayed
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width + 20;
         const height = bbox.height;
+  
         const margin = { top: 45, right: 30, bottom: 10, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
+  
+        // Main group
         const g = svg.append("g")
           .attr("transform", `translate(${margin.left},${margin.top})`);
+  
+        // Y scale and axis
         const yScale = d3.scaleLinear()
-          .domain([0, 105])
+          .domain([0, 105]) // 0 to 105%
           .range([innerHeight, 0]);
+  
         const yAxis = d3.axisLeft(yScale)
           .ticks(5)
           .tickSizeInner(0)
           .tickSizeOuter(0)
           .tickPadding(7);
+  
         g.append("g")
           .attr("class", "y-axis axis")
           .call(yAxis);
+  
+        // Horizontal grid lines (except at y=0)
         const yTicks = yScale.ticks(5).filter(tickValue => tickValue !== 0);
         g.append("g")
           .attr("class", "grid horizontal-grid")
-          .call(d3.axisLeft(yScale)
-            .tickValues(yTicks)
-            .tickSize(-innerWidth)
-            .tickFormat(""))
+          .call(
+            d3.axisLeft(yScale)
+              .tickValues(yTicks)
+              .tickSize(-innerWidth)
+              .tickFormat("")
+          )
           .selectAll("line")
             .attr("stroke", "lightgray")
             .attr("stroke-dasharray", "5")
             .attr("stroke-width", "2");
+  
+        // X scale
         const categories = ["You", "Qwen2-VL 72B", "GPT-4o", "Gemini-1.5 Pro"];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
           .padding(0.2);
+  
+        // Vertical grid lines (one line at each category center)
         categories.forEach(cat => {
           const xPos = xScale(cat) + xScale.bandwidth() / 2;
           g.append("line")
@@ -628,40 +650,51 @@
             .attr("stroke-dasharray", "5")
             .attr("stroke-width", "2");
         });
+  
+        // Top border
         g.append("line")
           .attr("class", "border")
           .attr("x1", 0).attr("y1", 0)
           .attr("x2", innerWidth).attr("y2", 0)
           .attr("stroke", "lightgray")
           .attr("stroke-width", borderWidth);
+  
+        // Right border
         g.append("line")
           .attr("class", "border")
           .attr("x1", innerWidth).attr("y1", 0)
           .attr("x2", innerWidth).attr("y2", innerHeight)
           .attr("stroke", "lightgray")
           .attr("stroke-width", borderWidth);
+  
+        // Left border
         g.append("line")
           .attr("class", "border")
           .attr("x1", 0).attr("y1", -1)
           .attr("x2", 0).attr("y2", innerHeight+1)
           .attr("stroke", "#36454F")
           .attr("stroke-width", borderWidth);
+  
+        // Bottom border
         g.append("line")
           .attr("class", "border")
           .attr("x1", -1).attr("y1", innerHeight)
           .attr("x2", innerWidth).attr("y2", innerHeight)
           .attr("stroke", "#36454F")
           .attr("stroke-width", borderWidth);
+  
         drawInitialBars(g, innerWidth, innerHeight, yScale, xScale);
         drawLegend(g, innerWidth, innerHeight);
       }
-
+  
       function drawInitialBars(g, innerWidth, innerHeight, yScale, xScale) {
+        // Static data for the other models
         const staticData = [
-          { name: "Qwen2-VL 72B",   value: 60, color: "#695e93e6"},  
-          { name: "GPT-4o",         value: 50, color: "#7bb296e6"},
-          { name: "Gemini-1.5 Pro", value: 70, color: "#f6d379e6"}
+          { name: "Qwen2-VL 72B",   value: 75,   color: "#695e93e6" },  
+          { name: "GPT-4o",         value: 88, color: "#7bb296e6" },
+          { name: "Gemini-1.5 Pro", value: 75,   color: "#f6d379e6" }
         ];
+  
         staticData.forEach(d => {
           const fullBandWidth = xScale.bandwidth();
           const barWidth = fullBandWidth * barWidthFraction;
@@ -678,144 +711,167 @@
             .attr("data-final", d.value);
         });
       }
-
-      function measureSingleLine(items, gap) {
-        let total = 0;
-        items.each(function() {
-          const bbox = this.getBBox();
-          total += bbox.width;
-        });
-        const itemCount = items.size();
-        if (itemCount > 1) { total += gap * (itemCount - 1); }
-        return total;
-      }
-
+  
       function drawLegend(g, innerWidth, innerHeight) {
-          g.selectAll(".legend").remove();
-          const legendData = [
-            { name: "You",            color: "#1c2e4ae6" },  
-            { name: "Qwen2-VL 72B",   color: "#695e93e6" },
-            { name: "GPT-4o",         color: "#7bb296e6" },
-            { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
-          ];
-          const legendGroup = g.append("g")
-            .attr("class", "legend")
-            .attr("transform", `translate(0, -25)`);
-          const items = legendGroup.selectAll(".legend-item")
-            .data(legendData)
-            .enter()
-            .append("g")
-            .attr("class", "legend-item");
-          function attemptSingleLine(fontSize, squareSize) {
-            items.selectAll("*").remove();
-            items.append("rect")
-              .attr("fill", d => d.color)
-              .attr("stroke", "black")
-              .attr("stroke-width", 1)
-              .attr("width", squareSize)
-              .attr("height", squareSize);
-            items.append("text")
-              .text(d => d.name)
-              .attr("font-family", "Roboto, sans-serif")
-              .attr("font-size", fontSize)
-              .attr("x", squareSize + 5)
-              .attr("y", squareSize * 0.9);
-            let xPos = 0, totalWidth = 0;
-            const itemGap = 25;
-            items.each(function(d, i) {
-              d3.select(this).attr("transform", `translate(${xPos}, 0)`);
-              const bbox = this.getBBox(); 
-              totalWidth += bbox.width;
-              if (i < legendData.length - 1) { totalWidth += itemGap; }
-              xPos += bbox.width + itemGap;
-            });
-            return totalWidth;
+        g.selectAll(".legend").remove();
+  
+        const legendData = [
+          { name: "You",            color: "#1c2e4ae6" },
+          { name: "Qwen2-VL 72B",   color: "#695e93e6" },
+          { name: "GPT-4o",         color: "#7bb296e6" },
+          { name: "Gemini-1.5 Pro", color: "#f6d379e6" },
+        ];
+  
+        const legendGroup = g.append("g")
+          .attr("class", "legend")
+          .attr("transform", `translate(0, -25)`);
+  
+        const items = legendGroup.selectAll(".legend-item")
+          .data(legendData)
+          .enter()
+          .append("g")
+          .attr("class", "legend-item");
+  
+        // We'll try first to place items in one line, and if it doesn't fit, place them in two columns
+        function attemptSingleLine(fontSize, squareSize) {
+          items.selectAll("*").remove();
+          items.append("rect")
+            .attr("fill", d => d.color)
+            .attr("stroke", "black")
+            .attr("stroke-width", 1)
+            .attr("width", squareSize)
+            .attr("height", squareSize);
+  
+          items.append("text")
+            .text(d => d.name)
+            .attr("font-family", "Roboto, sans-serif")
+            .attr("font-size", fontSize)
+            .attr("x", squareSize + 5)
+            .attr("y", squareSize * 0.9);
+  
+          let xPos = 0;
+          let totalWidth = 0;
+          const itemGap = 25;
+  
+          items.each(function(d, i) {
+            d3.select(this).attr("transform", `translate(${xPos}, 0)`);
+            const bbox = this.getBBox();
+            totalWidth += bbox.width;
+            if (i < legendData.length - 1) {
+              totalWidth += itemGap;
+            }
+            xPos += bbox.width + itemGap;
+          });
+          return totalWidth;
+        }
+  
+        function attemptGrid(fontSize, squareSize) {
+          items.selectAll("*").remove();
+          items.append("rect")
+            .attr("fill", d => d.color)
+            .attr("stroke", "black")
+            .attr("stroke-width", 1)
+            .attr("width", squareSize)
+            .attr("height", squareSize);
+          items.append("text")
+            .text(d => d.name)
+            .attr("font-family", "Roboto, sans-serif")
+            .attr("font-size", fontSize)
+            .attr("x", squareSize + 5)
+            .attr("y", squareSize * 0.8);
+  
+          // measure bounding boxes
+          const nodeBboxes = [];
+          items.each(function() { nodeBboxes.push(this.getBBox()); });
+          const colSpacing = 5, rowSpacing = -15;
+          const widthCol0 = Math.max(nodeBboxes[0].width, nodeBboxes[2]?.width || 0);
+          const widthCol1 = Math.max(nodeBboxes[1].width, nodeBboxes[3]?.width || 0);
+          const totalGridWidth = widthCol0 + colSpacing + widthCol1;
+  
+          let y0 = -15;
+          d3.select(items.nodes()[0]).attr("transform", `translate(0, ${y0})`);
+          d3.select(items.nodes()[1]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y0})`);
+          const y1 = nodeBboxes[0].height + rowSpacing;
+          d3.select(items.nodes()[2]).attr("transform", `translate(0, ${y1})`);
+          d3.select(items.nodes()[3]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y1})`);
+  
+          const groupBbox = legendGroup.node().getBBox();
+          return groupBbox.width;
+        }
+  
+        const maxFontSize = 16, minFontSize = 8;
+        const maxSquareSize = 14, minSquareSize = 6;
+        const shrinkStep = 1;
+        let fontSize = maxFontSize, squareSize = maxSquareSize;
+        let fitsSingleLine = false;
+  
+        // Try single line
+        while (true) {
+          const totalWidth = attemptSingleLine(fontSize, squareSize);
+          if (totalWidth <= innerWidth) {
+            fitsSingleLine = true;
+            break;
+          } else {
+            fontSize -= shrinkStep;
+            squareSize -= shrinkStep;
+            if (fontSize < minFontSize || squareSize < minSquareSize) {
+              break;
+            }
           }
-          function attemptGrid(fontSize, squareSize) {
-            items.selectAll("*").remove();
-            items.append("rect")
-              .attr("fill", d => d.color)
-              .attr("stroke", "black")
-              .attr("stroke-width", 1)
-              .attr("width", squareSize)
-              .attr("height", squareSize);
-            items.append("text")
-              .text(d => d.name)
-              .attr("font-family", "Roboto, sans-serif")
-              .attr("font-size", fontSize)
-              .attr("x", squareSize + 5)
-              .attr("y", squareSize * 0.8);
-            const nodeBboxes = [];
-            items.each(function() { nodeBboxes.push(this.getBBox()); });
-            const colSpacing = 5, rowSpacing = -15;
-            const widthCol0 = Math.max(nodeBboxes[0].width, nodeBboxes[2]?.width || 0);
-            const widthCol1 = Math.max(nodeBboxes[1].width, nodeBboxes[3]?.width || 0);
-            const totalGridWidth = widthCol0 + colSpacing + widthCol1;
-            let y0 = -15;
-            d3.select(items.nodes()[0]).attr("transform", `translate(0, ${y0})`);
-            d3.select(items.nodes()[1]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y0})`);
-            const y1 = nodeBboxes[0].height + rowSpacing;
-            d3.select(items.nodes()[2]).attr("transform", `translate(0, ${y1})`);
-            d3.select(items.nodes()[3]).attr("transform", `translate(${widthCol0 + colSpacing}, ${y1})`);
-            const groupBbox = legendGroup.node().getBBox();
-            const finalWidth = groupBbox.width;
-            return finalWidth;
-          }
-          const maxFontSize = 16, minFontSize = 8, maxSquareSize = 14, minSquareSize = 6, shrinkStep = 1;
-          let fontSize = maxFontSize, squareSize = maxSquareSize, fitsSingleLine = false;
+        }
+  
+        // If single line didn't fit, try grid
+        if (fitsSingleLine) {
+          const bbox = legendGroup.node().getBBox();
+          const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
+          legendGroup.attr("transform", `translate(${offsetX}, -25)`);
+        } else {
+          fontSize = maxFontSize;
+          squareSize = maxSquareSize;
+          let fitsGrid = false;
           while (true) {
-            const totalWidth = attemptSingleLine(fontSize, squareSize);
-            if (totalWidth <= innerWidth) {
-              fitsSingleLine = true;
+            const finalWidth = attemptGrid(fontSize, squareSize);
+            if (finalWidth <= innerWidth) {
+              fitsGrid = true;
               break;
             } else {
               fontSize   -= shrinkStep;
               squareSize -= shrinkStep;
-              if (fontSize < minFontSize || squareSize < minSquareSize) { break; }
-            }
-          }
-          if (fitsSingleLine) {
-            const bbox = legendGroup.node().getBBox();
-            const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
-            legendGroup.attr("transform", `translate(${offsetX}, -25)`);
-          } else {
-            fontSize = maxFontSize;
-            squareSize = maxSquareSize;
-            let fitsGrid = false;
-            while (true) {
-              const finalWidth = attemptGrid(fontSize, squareSize);
-              if (finalWidth <= innerWidth) {
-                fitsGrid = true;
+              if (fontSize < minFontSize || squareSize < minSquareSize) {
                 break;
-              } else {
-                fontSize   -= shrinkStep;
-                squareSize -= shrinkStep;
-                if (fontSize < minFontSize || squareSize < minSquareSize) { break; }
               }
             }
-            const bbox = legendGroup.node().getBBox();
-            const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
-            legendGroup.attr("transform", `translate(${offsetX}, -25)`);
           }
+          const bbox = legendGroup.node().getBBox();
+          const offsetX = Math.max(0, (innerWidth - bbox.width) / 2);
+          legendGroup.attr("transform", `translate(${offsetX}, -25)`);
+        }
       }
-
+  
       function animateAllBars(finalYouValue) {
+        // measure bounding box AFTER ensuring it is displayed
         const svg = d3.select(barChartSvg);
         const bbox = barChartSvg.getBoundingClientRect();
         const width  = bbox.width + 20;
         const height = bbox.height;
+  
         const margin = { top: 45, right: 30, bottom: 10, left: 35 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
+  
         const yScale = d3.scaleLinear()
           .domain([0, 105])
           .range([innerHeight, 0]);
+  
         const categories = ["You", "Qwen2-VL 72B", "GPT-4o", "Gemini-1.5 Pro"];
         const xScale = d3.scaleBand()
           .domain(categories)
           .range([0, innerWidth])
           .padding(0.2);
+  
         const g = svg.select("g");
+  
+        // Animate static bars upward
         g.selectAll(".static-bar")
           .transition()
           .duration(1200)
@@ -827,11 +883,16 @@
             const finalVal = +d3.select(this).attr("data-final");
             return innerHeight - yScale(finalVal);
           });
+  
+        // Remove old "You" bars
         g.selectAll(".animated-bar").remove();
         g.selectAll(".bar-text").remove();
+  
+        // Draw "You" bar
         const fullBandWidth = xScale.bandwidth();
         const barWidth = fullBandWidth * barWidthFraction;
         const xPos = xScale("You") + (fullBandWidth - barWidth) / 2;
+  
         const youBar = g.append("rect")
           .attr("class", "animated-bar")
           .attr("x", xPos)
@@ -841,23 +902,29 @@
           .attr("fill", "#1c2e4ae6")
           .attr("stroke", "black")
           .attr("stroke-width", borderWidth);
+  
         youBar.transition()
           .duration(1200)
           .attr("y", yScale(finalYouValue))
           .attr("height", innerHeight - yScale(finalYouValue));
       }
-
+  
       /*************************************************************
        * updateSlide() - Show/hide elements per slide
        *************************************************************/
       function updateSlide() {
         if (currentIndex < quizImages.length) {
+          // Not the final slide: show the quiz image
           quizImageEl.style.opacity = '1';
           quizImageEl.style.display = 'block';
           barChartSvg.style.display = 'none';
-          // Show TomSelect and hide the submit button:
+  
+          // Show TomSelect, hide "Submit All" button
           quizWrapper.classList.remove('show-submit');
+  
           quizImageEl.src = quizImages[currentIndex];
+  
+          // Restore the user’s answer if we have one
           if (quizSelect) {
             if (userAnswers[currentIndex] && userAnswers[currentIndex] !== '-') {
               quizSelect.setValue(userAnswers[currentIndex]);
@@ -866,19 +933,28 @@
               quizSelect.setValue('-');
             }
           }
+  
         } else {
+          // The final "slide" where we show the chart
           quizImageEl.style.opacity = '0';
           quizImageEl.style.display = 'block';
           barChartSvg.style.display = 'block';
-          // Switch to showing the submit button:
+  
+          // Show "Submit All" button
           quizWrapper.classList.add('show-submit');
-          if (!chartStructureDrawn) {
-            drawChartStructure();
-            chartStructureDrawn = true;
-          }
+  
+          // Defer the chart drawing until the next animation frame,
+          // so the browser has time to reflow with the new display styles
+          window.requestAnimationFrame(() => {
+            if (!chartStructureDrawn) {
+              drawChartStructure();
+              chartStructureDrawn = true;
+            }
+          });
         }
+  
         updateDots();
-
+  
         // Update navigation button styles
         if (currentIndex === 0) {
           prevBtn.style.setProperty('background-color', '#d3d3d3', 'important');
@@ -889,6 +965,7 @@
           prevBtn.style.setProperty('cursor', 'pointer', 'important');
           prevBtn.style.setProperty('opacity', '1', 'important');
         }
+  
         if (currentIndex === totalSlides - 1) {
           nextBtn.style.setProperty('background-color', '#d3d3d3', 'important');
           nextBtn.style.setProperty('cursor', 'not-allowed', 'important');
@@ -899,7 +976,7 @@
           nextBtn.style.setProperty('opacity', '1', 'important');
         }
       }
-
+  
       /*************************************************************
        * Nav Buttons with blur for mobile
        *************************************************************/
@@ -925,38 +1002,49 @@
         nextBtn.blur();
       });
       
+      // Submit All button (show user's accuracy)
       submitBtn.addEventListener('click', () => {
         if (currentIndex < quizImages.length && quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
-        // Calculate accuracy: compare userAnswers to correctAnswers
+        // Calculate accuracy
         let correctCount = 0;
         for (let i = 0; i < correctAnswers.length; i++) {
-          // Optionally trim and convert to lower case to ensure case-insensitive matching
           if (userAnswers[i].trim().toLowerCase() === correctAnswers[i].trim().toLowerCase()) {
             correctCount++;
-          }}
-        // Compute accuracy percentage
+          }
+        }
         const accuracy = (correctCount / correctAnswers.length) * 100;
-        animateAllBars(accuracy);
+  
+        // Animate your bar in a rAF so bounding box is stable
+        window.requestAnimationFrame(() => {
+          animateAllBars(accuracy);
+        });
       });
-
-      
+  
+      // Initial render
       updateSlide();
-
+  
+      // Remove focus on mobile after pointer/touch
       document.querySelectorAll('.round-button').forEach(btn => {
-        btn.addEventListener('pointerup', function() { this.blur(); });
-        btn.addEventListener('touchend', function() { this.blur(); });
+        btn.addEventListener('pointerup', () => btn.blur());
+        btn.addEventListener('touchend', () => btn.blur());
       });
-
+  
+      // On resize, redraw if we are on the final slide
       window.addEventListener('resize', () => {
         if (currentIndex >= quizImages.length) {
-          d3.select('#bar-chart').selectAll('*').remove();
-          drawChartStructure();
+          // Clear old chart and re-draw in next animation frame
+          window.requestAnimationFrame(() => {
+            d3.select('#bar-chart').selectAll('*').remove();
+            drawChartStructure();
+          });
         }
       });
+  
     });
   </script>
+  
     
 
 <!-- MovieTection Section -->
