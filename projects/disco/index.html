@@ -271,6 +271,18 @@
     @media screen and (max-width: 768px) {
       figure.chart-or-image, #quiz-answer-wrapper { width: 90% !important; }
     }
+
+    @media screen and (max-width: 768px) {
+    .image-wrapper {
+      width: 90% !important;
+    }
+    .image-wrapper img {
+      width: 100%; /* Makes the image fill the div */
+    }
+  }
+
+
+
   </style>
 </head>
 <body>
@@ -341,14 +353,17 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
-            <p>
-              Motivated by the hypothesis that a VLM is able to recognize images from its training data, we propose <b>DIS-CO</b>, a novel approach to infer the inclusion of copyrighted content during the model's development.
-            </p>
-          <img src="./static/images/crown_figure.png" style="width: 70%; height: auto; display: block; margin: 0 auto;">
+          <p>
+            Motivated by the hypothesis that a VLM is able to recognize images from its training data, we propose <b>DIS-CO</b>, a novel approach to infer the inclusion of copyrighted content during the model's development.
+          </p>
+          <div class="image-wrapper">
+            <img src="./static/images/crown_figure.png" style="width: 70%; height: auto; display: block; margin: 0 auto;">
+          </div>
         </div>
       </div>
     </div>
   </section>
+
 
   
   <!-- Abstract Section -->
