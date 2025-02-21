@@ -483,6 +483,18 @@
         './static/images/quiz_images/quiz7.png',
         './static/images/quiz_images/quiz8.png'
       ];
+      const correctAnswers = [
+        'Notting Hill',
+        '1917',
+        'Jurassic Park',
+        'Baywatch',
+        'La La Land',
+        'Life of Pi',
+        'The Greatest Showman',
+        'Moana'
+      ];
+
+
       const totalSlides = quizImages.length + 1;
       let currentIndex = 0;
       let userAnswers = new Array(8).fill('-');
@@ -917,9 +929,18 @@
         if (currentIndex < quizImages.length && quizSelect) {
           userAnswers[currentIndex] = quizSelect.getValue();
         }
-        const finalValue = 80; // Example logic for animation
-        animateAllBars(finalValue);
+        // Calculate accuracy: compare userAnswers to correctAnswers
+        let correctCount = 0;
+        for (let i = 0; i < correctAnswers.length; i++) {
+          // Optionally trim and convert to lower case to ensure case-insensitive matching
+          if (userAnswers[i].trim().toLowerCase() === correctAnswers[i].trim().toLowerCase()) {
+            correctCount++;
+          }}
+        // Compute accuracy percentage
+        const accuracy = (correctCount / correctAnswers.length) * 100;
+        animateAllBars(accuracy);
       });
+
       
       updateSlide();
 
