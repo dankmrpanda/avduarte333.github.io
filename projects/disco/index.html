@@ -76,7 +76,7 @@
 
     /* Slightly increase the base font size */
     body {
-        font-size: 22px; /* Default is 16px, increase it slightly */
+        font-size: 20px; /* Default is 16px, increase it slightly */
         color: #424242 !important; /* Change default text color */
     }
 
@@ -234,9 +234,9 @@
     select#quiz-answer { display: none !important; }
     #submit-all {
       border-radius: 10px;
-      background-color: #ffffff;
+      background-color: #F0F3F7;
       border: none;
-      color: #595ddf;
+      color: #515151;
       text-transform: uppercase;
       font-weight: bold;
       font-size: 1rem;
@@ -390,16 +390,20 @@
           
           <h2 class="title is-4">The Key Idea:</h2>
             <p>
-              In a black-box setting - where model attributes like token probabilities are inaccessible - the most reliable way to detect that a model has seen certain content is to make it reveal that it has knowledge about the content that goes beyond general knowledge.<br>
-              In other words, we need to design a task where: 
+              In a black-box setting — where model attributes like token probabilities are inaccessible — the most reliable way to determine whether a model has seen specific content is to make it reveal knowledge that goes beyond general understanding.<br>
+              To achieve this, we need a task designed with two key properties:
               <ul>
                 <li>
-                  <span style="font-weight: 600;">The success rate is LOW if the target content was not in training.</span> This helps reduce false positives and ensures that models are not merely guessing correctly by chance.
+                  <span style="font-weight: 600;">The success rate is low if the target content was not in training.</span> This helps reduce false positives and ensures that models are not merely guessing correctly by chance.
                 </li>
                 <li>
-                  <span style="font-weight: 600;">If the success is HIGH, then the target content was in training.</span> If a model frequently provides correct answers, it strongly suggests exposure to that content.
+                  <span style="font-weight: 600;">A high success rate indicates the target content was in training.</span> If a model consistently provides correct responses, it strongly suggests prior exposure to that content.
                 </li>
               </ul>
+              We propose a <em>Frame-to-Title Prediction</em> task. Simply put, if a model was trained on a particular movie, it should be able to recognize frames from that movie. If it wasn’t, it should have a much harder time identifying them.
+            </p>
+            <p>
+              If you are still unsure about this idea, below, you'll find an interactive challenge where you can try to perform the same task the models did. Can you score better than GPT-4o? 👀
             </p>
           </div>
         </div>
@@ -407,28 +411,9 @@
     </div>
   </section>
 
-  <!-- Intuition Section -->
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">Intuition</h2>
-          <div class="content has-text-justified">
-            <div class="content">
-              <ul>
-                <li>There is suspicion that VLMs train on copyright-protected data.</li>
-                <li>Companies do not disclose training data for competitive reasons.</li>
-                <li>Therefore, when creating a Training Data Detector, we need to devise a sufficiently hard task.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- Quiz Section with manual "carousel" (Prev/Next) -->
-  <div class="has-background-light">
+  <!-- <div class="has-background-light"> -->
     <section class="section" id="quiz">
       <div class="container is-max-desktop">
         <h2 class="title is-3 has-text-centered">
@@ -472,7 +457,7 @@
         </div>
       </div>
     </section>
-  </div>
+  <!-- </div> -->
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -947,14 +932,23 @@
       <div class="column is-four-fifths">
         <div class="content has-text-justified">
           <p>
-            Whether you completed the full quiz or just explored a few examples, we hope it made one thing clear - the task is far from easy!
+            Whether you completed the full quiz or just explored a few examples, one thing should be clear: the task is far from easy! And for the cases you got right, ask yourself: had you seen those movies before? 🤔
           </p>
           <p>
             What we found particularly intriguing is that even with these highly neutral images, the models still manage to recognize most of them.
           </p>
           <p>
-            This led us to investigate the phenomenon more systematically, resulting in our dataset MovieTection which we use in DIS-CO.
+            This surprising ability led us to investigate the phenomenon more systematically, ultimately shaping our approach and leading to the development of <b>DIS-CO</b>.
           </p>
+
+          <h2 class="title is-4">Introducing DIS-CO:</h2>
+          <p>
+            
+            Our method <b>DIS-CO</b> systematically evaluates whether a model has been trained on copyrighted movies by querying it with frames and analyzing free-form text completions. Unlike previous methods, which rely on token probability distributions, DIS-CO works for both white-box and black-box models.
+          </p>
+
+
+
           <h2 class="title is-3">MovieTection and DIS-CO</h2>
           <p>
             <b>Dataset Structure</b>🚧 The dataset consists of <strong>14,000 frames</strong> extracted from <strong>100 movies</strong>, categorized into:
