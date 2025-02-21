@@ -526,7 +526,7 @@
        * Load TomSelect Options & Set Wrapper Height
        *************************************************************/
       let quizSelect;
-      fetch('./static/data/movies.txt')
+      fetch('./static/data/movie_titles_mini.txt')
         .then(res => res.text())
         .then(data => {
           const lines = data.split('\n').map(x => x.trim()).filter(x => x.length > 0);
