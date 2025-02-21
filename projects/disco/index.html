@@ -415,10 +415,9 @@
         <h2 class="title is-3 has-text-centered">
           Movie Guessing Quiz - Try it out!
         </h2>
-
         <!-- Quiz image container -->
         <div id="quiz-frame" style="background: none; display: flex; justify-content: center;">
-          <figure class="image chart-or-image" style="margin: 2rem auto 0; width: 60%; position: relative;">
+          <figure class="image chart-or-image" style="margin: auto 0; width: 60%; position: relative;">
             <!-- The quiz image -->
             <img id="quiz-image" src="./static/images/quiz_images/quiz1.png" alt="Movie Frame" style="width: 100%; height: auto; display: block;">
             <!-- The SVG chart (initially hidden) -->
@@ -921,23 +920,42 @@
     });
   </script>
     
-  <!-- Intuition Section -->
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">MovieTection</h2>
-          <div class="content has-text-justified">
-            <div class="content">
-            <p>
-              Whether you completed the full quiz or just explored a few examples, we hope it made one thing clear - the task is far from easy! What we found particularly intriguing is that even with these highly neutral images, the models still manage to recognize most of them. This led us to investigate the phenomenon more systematically, resulting in MovieTection.
-            </p>
-            </div>
-          </div>
+
+<!-- MovieTection Section -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">MovieTection</h2>
+        <div class="content has-text-justified">
+          <p>
+            Whether you completed the full quiz or just explored a few examples, we hope it made one thing clear - the task is far from easy! What we found particularly intriguing is that even with these highly neutral images, the models still manage to recognize most of them. This led us to investigate the phenomenon more systematically, resulting in MovieTection.
+          </p>
+          <p>
+            <b>Dataset Structure</b>🚧 The dataset consists of <strong>14,000 frames</strong> extracted from <strong>100 movies</strong>, categorized into:
+          </p>
+          <ul>
+            <li><strong>Suspect movies:</strong> Released <em>before</em> September 2023, <strong>potentially included in training</strong>.</li>
+            <li><strong>Clean movies:</strong> Released <em>after</em> September 2023, <strong>outside the models' training</strong>.</li>
+          </ul>
+
+          <p>
+            Each movie contains <strong>140 frames</strong>, further classified into:
+          </p>
+          <ul>
+            <li><strong>Main Frames:</strong> Featuring key characters from the plot.</li>
+            <li><strong>Neutral Frames:</strong> Backgrounds, objects, or minor characters.</li>
+          </ul>
+
+          <p>
+            This dataset serves as a benchmark to analyze model performance on known versus unseen movie data, helping assess memorization and generalization in vision-language models.
+          </p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
+
 
   <!-- BibTeX Section -->
   <section class="section" id="BibTeX">
