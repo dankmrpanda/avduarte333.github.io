@@ -85,12 +85,15 @@
     }
 
 
-    .title.is-3, .title.is-4{
+    .title.is-3{
       color: #3e3e3e !important;
       font-weight: bold;
+      margin-top: -2rem;
     }
 
     .title.is-4 {
+      color: #686868 !important;
+      font-weight: bold;
       margin-bottom: 0.5rem;
     }
 
@@ -288,6 +291,11 @@
       width: 90% !important; /* Makes the image fill the div */
     }
   }
+    .image-wrapper{
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px; /* Adjust margin-bottom as needed */
+    }
 
 
 
@@ -379,7 +387,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-left">
         <div class="column is-four-fifths">
-          <h2 class="title is-3">Abstract</h2>
+          <h2 class="title is-3">Introduction</h2>
           <div class="content has-text-justified">
             <p>
               Large Vision-Language Models (VLMs) are trained on vast datasets scraped from the web, often with little transparency regarding data sources. This raises ethical and legal concerns, particularly when copyrighted content is suspected of having been used.
@@ -932,7 +940,7 @@
       <div class="column is-four-fifths">
         <div class="content has-text-justified">
           <p>
-            Whether you completed the full quiz or just explored a few examples, one thing should be clear: the task is far from easy! And for the cases you got right, ask yourself: had you seen those movies before? 🤔
+            Whether you completed the full quiz or just explored a few examples, we hope the key idea came accross: this task isn't easy! And for the cases you got right, think about it: had you seen those movies before? 🤔
           </p>
           <p>
             What we found particularly intriguing is that even with these highly neutral images, the models still manage to recognize most of them.
@@ -941,16 +949,27 @@
             This surprising ability led us to investigate the phenomenon more systematically, ultimately shaping our approach and leading to the development of <b>DIS-CO</b>.
           </p>
 
-          <h2 class="title is-4">Introducing DIS-CO:</h2>
+
+          <h2 class="title is-3">DIS-CO</h2>
+          <div class="image-wrapper">
+            <img src="./static/images/disco_pipeline.png" style="width: 100%; height: auto; display: block; margin: 0 auto;">
+          </div>
+
+
           <p>
-            
-            Our method <b>DIS-CO</b> systematically evaluates whether a model has been trained on copyrighted movies by querying it with frames and analyzing free-form text completions. Unlike previous methods, which rely on token probability distributions, DIS-CO works for both white-box and black-box models.
+            We begin by assembling our MovieTection benchmark, where we collect 14,000 movie frames, categorized into main and neutral types to introduce varying levels of difficulty. For each frame, we also generate a corresponding caption using the Qwen2-VL 7B model.
           </p>
-
-
-
-          <h2 class="title is-3">MovieTection and DIS-CO</h2>
           <p>
+            Models are then queried with image frames and their corresponding captions, producing predictions for both modalities with free-form text generation. Predictions from image frames that overlap with caption-based predictions are excluded, isolating cases where image-based memorization is inferred.
+          </p>
+          <p>
+            Performance on the suspect movie is compared against the expected baseline performance, with discrepancies indicating potential training exposure.
+          </p>  
+          
+
+
+
+
             <b>Dataset Structure</b>🚧 The dataset consists of <strong>14,000 frames</strong> extracted from <strong>100 movies</strong>, categorized into:
           </p>
           <ul>
