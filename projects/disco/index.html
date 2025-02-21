@@ -422,7 +422,7 @@
 
   <!-- Quiz Section with manual "carousel" (Prev/Next) -->
   <!-- <div class="has-background-light"> -->
-    <section class="section" id="quiz">
+    <section class="section" id="quiz" style="margin-top: -2rem; margin-bottom: -2.5rem;">
       <div class="container is-max-desktop">
         <h2 class="title is-3 has-text-centered">
           Movie Guessing Quiz
@@ -510,10 +510,15 @@
       const dots = document.querySelectorAll('#dot-indicators .dot');
       dots.forEach((dot, index) => {
         dot.addEventListener('click', () => {
+          if (currentIndex < quizImages.length && quizSelect) {
+            // Save the current slide’s answer before navigating away
+            userAnswers[currentIndex] = quizSelect.getValue();
+          }
           currentIndex = index;
           updateSlide();
         });
       });
+
 
       function updateDots() {
         const dots = dotContainer.querySelectorAll('.dot');
