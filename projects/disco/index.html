@@ -299,6 +299,122 @@
 
 
 
+/* --- Modern Tab Styling --- */
+.custom-tabs {
+  margin-bottom: 1.5rem !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.custom-tabs ul {
+  display: flex !important;
+  justify-content: center !important;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.custom-tabs ul li {
+  padding: 0.75rem 1.5rem !important;
+  margin: 0 0.5rem !important;
+  cursor: pointer !important;
+  position: relative !important;
+  font-size: 1.1rem !important;
+  color: #9e9e9e !important;
+  transition: color 0.25s ease !important;
+}
+
+.custom-tabs ul li:not(.is-active):hover {
+  color: rgb(47, 47, 47) !important;
+}
+
+.custom-tabs ul li.is-active {
+  color: #464646 !important;
+  font-weight: 600 !important;
+}
+
+.custom-tabs ul li.is-active::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -1px !important;
+  height: 3px !important;
+  background-color: #464646 !important;
+  border-radius: 2px !important;
+}
+
+/* --- Card-like Table Container --- */
+.table-card {
+  margin: 0 auto !important;
+  max-width: 100% !important;
+}
+
+/* Responsive table styling using Bulma */
+table.table {
+  width: 100% !important;
+  font-family: 'Roboto', sans-serif !important;
+  border-collapse: collapse !important;
+
+}
+
+/* Make Colums take always the same width */
+table.table th:nth-child(n+2),
+table.table td:nth-child(n+2) {
+  width: 20% !important;
+}
+
+/* Centered, refined caption styling */
+table.table caption {
+  caption-side: bottom !important;
+  text-align: center !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.75rem !important;
+  font-size: 1.15rem !important;
+  color: #464646 !important;
+}
+
+/* Optional: subtle table cell styling */
+table.table th,
+table.table td {
+  padding: 0.75rem !important;
+  border: 1px solid #f0f0f0 !important;
+  text-align: center !important;
+  font-size: 0.95rem !important;
+  color: #464646 !important;
+}
+
+table.table th {
+  background: #fafafa !important;
+  vertical-align: middle !important;
+}
+
+.table-card table.table th:first-child,
+.table-card table.table td:first-child {
+  white-space: nowrap !important;
+}
+
+.table-card table.table thead th:nth-child(2) {
+  white-space: nowrap !important;
+}
+
+.table-card table.table thead th:first-child {
+  background: transparent !important;
+  border-top: none !important;
+  border-left: none !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
   </style>
 </head>
 <body>
@@ -484,11 +600,11 @@
         './static/images/quiz_images/quiz8.png'
       ];
       const correctAnswers = [
-        'Notting Hill',
+        'La La Land',
         'The Da Vinci Code',
         'Jurassic Park',
         'Baywatch',
-        'La La Land',
+        'Notting Hill',
         'Life of Pi',
         'The Greatest Showman',
         'Pride & Prejudice'
@@ -1072,7 +1188,7 @@
   
     
 
-<!-- MovieTection Section -->
+<!-- DIS-CO Section -->
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
@@ -1113,6 +1229,162 @@
     </div>
   </div>
 </section>
+
+
+<!-- MovieTection Section -->
+<section class="section" style="margin-top: -2rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified">
+          <h2 class="title is-3">Key Findings</h2>
+          <p>
+            We 
+          </p>
+
+        <!-- Custom Tab Interface -->
+        <div class="custom-tabs">
+          <ul>
+            <li class="is-active" data-view="suspect">Suspect</li>
+            <li data-view="clean">Clean</li>
+          </ul>
+        </div>
+
+        <!-- Table Card for Suspect Data -->
+        <div id="table-container-suspect" class="table-card">
+          <table class="table is-bordered is-hoverable">
+            <caption>Accuracy scores for MovieTection (Suspect Split)</caption>
+            <thead>
+              <tr>
+                <th></th>
+                <th>GPT-4o</th>
+                <th>Gemini-1.5 Pro</th>
+                <th>LLaMA-3.2 90B</th>
+                <th>Qwen2-VL 72B</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Captions</th>
+                <td>0.128</td>
+                <td>0.079</td>
+                <td>0.078</td>
+                <td>0.075</td>
+              </tr>
+              <tr>
+                <th>MCQA</th>
+                <td>0.721</td>
+                <td>0.550</td>
+                <td>0.540</td>
+                <td>0.617</td>
+              </tr>
+              <tr>
+                <th>⌊DIS-CO⌋</th>
+                <td>0.226</td>
+                <td>0.152</td>
+                <td>0.134</td>
+                <td>0.122</td>
+              </tr>
+              <tr>
+                <th>DIS-CO</th>
+                <td>0.338</td>
+                <td>0.209</td>
+                <td>0.176</td>
+                <td>0.176</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Card for Clean Data (initially hidden) -->
+        <div id="table-container-clean" class="table-card" style="display: none;">
+          <table class="table is-bordered is-hoverable">
+            <caption>Accuracy scores for MovieTection (Clean Split)</caption>
+            <thead>
+              <tr>
+                <th></th>
+                <th>GPT-4o</th>
+                <th>Gemini-1.5 Pro</th>
+                <th>LLaMA-3.2 90B</th>
+                <th>Qwen2-VL 72B</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Captions</th>
+                <td>0.001</td>
+                <td>0.000</td>
+                <td>0.000</td>
+                <td>0.001</td>
+              </tr>
+              <tr>
+                <th>MCQA</th>
+                <td>0.410</td>
+                <td>0.295</td>
+                <td>0.295</td>
+                <td>0.149</td>
+              </tr>
+              <tr>
+                <th>⌊DIS-CO⌋</th>
+                <td>0.002</td>
+                <td>0.004</td>
+                <td>0.005</td>
+                <td>0.000</td>
+              </tr>
+              <tr>
+                <th>DIS-CO</th>
+                <td>0.010</td>
+                <td>0.010</td>
+                <td>0.013</td>
+                <td>0.000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.custom-tabs ul li');
+    const suspectContainer = document.getElementById('table-container-suspect');
+    const cleanContainer = document.getElementById('table-container-clean');
+  
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active state from all tabs
+        tabs.forEach(t => t.classList.remove('is-active'));
+        // Activate the clicked tab
+        tab.classList.add('is-active');
+  
+        // Toggle the table containers with a smooth transition
+        if (tab.getAttribute('data-view') === 'suspect') {
+          suspectContainer.style.display = 'block';
+          cleanContainer.style.display = 'none';
+        } else {
+          suspectContainer.style.display = 'none';
+          cleanContainer.style.display = 'block';
+        }
+      });
+    });
+  });
+  </script>
+  
+  
+  
+
+  
+  
+
+
+
+
 
 
   <!-- BibTeX Section -->
