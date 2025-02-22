@@ -366,7 +366,7 @@ table.table td:nth-child(n+2) {
 
 /* Centered, refined caption styling */
 table.table caption {
-  caption-side: bottom !important;
+  caption-side: top !important;
   text-align: center !important;
   font-weight: 600 !important;
   margin-bottom: 0.75rem !important;
@@ -403,14 +403,6 @@ table.table th {
   border-top: none !important;
   border-left: none !important;
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -1231,16 +1223,25 @@ table.table th {
 </section>
 
 
-<!-- MovieTection Section -->
+<!-- Findings Section -->
 <section class="section" style="margin-top: -2rem;">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
         <div class="content has-text-justified">
           <h2 class="title is-3">Key Findings</h2>
-          <p>
-            We 
-          </p>
+          <h3 class="title is-4">DIS-CO outperforms existing approaches</h3>
+          <ul>
+            <li>
+              MCQA achieves high accuracy on suspect movies but also presents false positives on clean movies. This tradeoff reduces its reliability, as it misclassifies clean content as suspect.
+            </li>
+            <li>
+              Captions are weak indicators of memorization. Their suspect-level accuracy remains low across models, with Qwen2-VL 72B performing below 10%, highlighting their limitations.
+            </li>
+            <li>
+              Both DIS-CO variants improve detection for suspect movies, while clean movies are hardly guessed, indicating that DIS-CO is false-positive free.
+            </li>
+          </ul>
 
         <!-- Custom Tab Interface -->
         <div class="custom-tabs">
@@ -1253,10 +1254,10 @@ table.table th {
         <!-- Table Card for Suspect Data -->
         <div id="table-container-suspect" class="table-card">
           <table class="table is-bordered is-hoverable">
-            <caption>Accuracy scores for MovieTection (Suspect Split)</caption>
+            <caption>Accuracy scores on MovieTection (Suspect Split)</caption>
             <thead>
               <tr>
-                <th></th>
+                <th><span style="font-weight: normal;">Neutral Frames</span></th>
                 <th>GPT-4o</th>
                 <th>Gemini-1.5 Pro</th>
                 <th>LLaMA-3.2 90B</th>
@@ -1299,10 +1300,10 @@ table.table th {
         <!-- Table Card for Clean Data (initially hidden) -->
         <div id="table-container-clean" class="table-card" style="display: none;">
           <table class="table is-bordered is-hoverable">
-            <caption>Accuracy scores for MovieTection (Clean Split)</caption>
+            <caption>Accuracy scores on MovieTection (Clean Split)</caption>
             <thead>
               <tr>
-                <th></th>
+                <th><span style="font-weight: normal;">Neutral Frames</span></th>
                 <th>GPT-4o</th>
                 <th>Gemini-1.5 Pro</th>
                 <th>LLaMA-3.2 90B</th>
@@ -1341,7 +1342,338 @@ table.table th {
             </tbody>
           </table>
         </div>
+        <article class="message is-info">
+          <div class="message-body">
+            <strong>Note.</strong> The two DIS-CO variants differ in whether the overlap between caption-based and image-based predictions was removed. ⌊DIS-CO⌋ applies this removal, while DIS-CO considers all frames.
+          </div>
+        </article>
 
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.custom-tabs ul li');
+            const suspectContainer = document.getElementById('table-container-suspect');
+            const cleanContainer = document.getElementById('table-container-clean');
+          
+            tabs.forEach(tab => {
+              tab.addEventListener('click', () => {
+                // Remove active state from all tabs
+                tabs.forEach(t => t.classList.remove('is-active'));
+                // Activate the clicked tab
+                tab.classList.add('is-active');
+          
+                // Toggle the table containers with a smooth transition
+                if (tab.getAttribute('data-view') === 'suspect') {
+                  suspectContainer.style.display = 'block';
+                  cleanContainer.style.display = 'none';
+                } else {
+                  suspectContainer.style.display = 'none';
+                  cleanContainer.style.display = 'block';
+                }
+              });
+            });
+          });
+          </script>
+
+
+
+        <h3 class="title is-4">Popular and Higher-Quality movies are more easily recognized</h3>
+        <ul>
+          <li>
+            Our analysis shows that box-office success correlates with model recognition, suggesting that popular movies are more frequently included in training data.
+          </li>
+          <li>
+            Higher IMDb-rated movies also tend to be more recognizable, indicating that high-quality can also be seen as a proxy for the likelihood of memorization.
+          </li>
+        </ul>
+
+
+        <svg id="line-chart" width="45%"></svg>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            function drawLineChart() {
+              const svg = d3.select('#line-chart');
+              // Clear any existing content
+              svg.selectAll('*').remove();
+              
+              // Determine the available width from the container
+              const container = document.getElementById('line-chart');
+              const bbox = container.getBoundingClientRect();
+              const width = bbox.width;
+              // Set height relative to width via an aspect ratio (e.g., 0.4)
+              const height = width * 0.5;
+              
+              // Set the responsive viewBox and preserve aspect ratio
+              svg.attr("viewBox", `0 0 ${width} ${height}`)
+                 .attr("preserveAspectRatio", "xMidYMid meet");
+              
+              // Define margins as a proportion of width and height
+              const margin = {
+                top: height * 0.2,  // Increased top margin
+                right: width * 0.05,
+                bottom: height * 0.1,
+                left: width * 0.1
+              };
+
+              const innerWidth = width - margin.left - margin.right;
+              const innerHeight = height - margin.top - margin.bottom;
+              
+              // Append a group element and translate for margins
+              const g = svg.append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+              
+              // Define scales using fixed data domain values
+              const xScale = d3.scaleLinear()
+                .domain([1e8, 2.2e9])
+                .range([0, innerWidth]);
+              
+              // Create tick values for the x-axis
+              const xTickValues = [];
+              for (let val = 2e8; val <= 2.2e9; val += 4e8) {
+                xTickValues.push(val);
+              }
+              
+              const yScale = d3.scaleLinear()
+                .domain([0, 105])
+                .range([innerHeight, 0]);
+              
+              // Create and append the x-axis
+              const xAxis = d3.axisBottom(xScale)
+                .tickValues(xTickValues)
+                .tickFormat(d => d >= 1e9 ? (d / 1e9).toFixed(1) + "B" : (d / 1e6).toFixed(0) + "M");
+              g.append("g")
+                .attr("class", "x-axis")
+                .attr("transform", `translate(0, ${innerHeight})`)
+                .call(xAxis);
+              
+              // Create and append the y-axis
+              const yAxis = d3.axisLeft(yScale)
+                .ticks(5)
+                .tickSizeInner(0)
+                .tickSizeOuter(0)
+                .tickPadding(7);
+              g.append("g")
+                .attr("class", "y-axis")
+                .call(yAxis);
+              
+              // Add horizontal gridlines
+              const yTicks = yScale.ticks(5).filter(t => t !== 0);
+              g.append("g")
+                .attr("class", "grid horizontal-grid")
+                .call(
+                  d3.axisLeft(yScale)
+                    .tickValues(yTicks)
+                    .tickSize(-innerWidth)
+                    .tickFormat("")
+                )
+                .selectAll("line")
+                  .attr("stroke", "lightgray")
+                  .attr("stroke-dasharray", "5")
+                  .attr("stroke-width", "2");
+              
+              // Add vertical gridlines
+              g.append("g")
+                .attr("class", "grid vertical-grid")
+                .selectAll("line")
+                .data(xTickValues)
+                .enter()
+                .append("line")
+                  .attr("x1", d => xScale(d))
+                  .attr("y1", 0)
+                  .attr("x2", d => xScale(d))
+                  .attr("y2", innerHeight)
+                  .attr("stroke", "lightgray")
+                  .attr("stroke-dasharray", "5")
+                  .attr("stroke-width", "2");
+              
+              // Draw border lines around the plot area
+              g.append("line") // top border
+                .attr("x1", 0).attr("y1", 0)
+                .attr("x2", innerWidth).attr("y2", 0)
+                .attr("stroke", "lightgray")
+                .attr("stroke-width", 2);
+              g.append("line") // right border
+                .attr("x1", innerWidth).attr("y1", 0)
+                .attr("x2", innerWidth).attr("y2", innerHeight)
+                .attr("stroke", "lightgray")
+                .attr("stroke-width", 2);
+              g.append("line") // left border
+                .attr("x1", 0).attr("y1", 0)
+                .attr("x2", 0).attr("y2", innerHeight)
+                .attr("stroke", "#36454F")
+                .attr("stroke-width", 2);
+              g.append("line") // bottom border
+                .attr("x1", 0).attr("y1", innerHeight)
+                .attr("x2", innerWidth).attr("y2", innerHeight)
+                .attr("stroke", "#36454F")
+                .attr("stroke-width", 2);
+              
+              // Sample data for multiple lines
+              const linesData = [
+                {
+                  name: "GPT-4o",
+                  color: "#7bb296e6",
+                  values: [
+                    { x: 2.0e8,  y: 10 },
+                    { x: 6.0e8,  y: 25 },
+                    { x: 1.0e9,  y: 40 },
+                    { x: 1.4e9,  y: 70 },
+                    { x: 2.2e9,  y: 85 }
+                  ]
+                },
+                {
+                  name: "Gemini-1.5-Pro",
+                  color: "#f6d379e6",
+                  values: [
+                    { x: 2.0e8,  y: 20 },
+                    { x: 6.0e8,  y: 30 },
+                    { x: 1.0e9,  y: 40 },
+                    { x: 1.8e9,  y: 60 },
+                    { x: 2.2e9,  y: 75 }
+                  ]
+                },
+                {
+                  name: "Qwen2-VL 72B",
+                  color: "#695e93e6",
+                  values: [
+                    { x: 2.0e8,  y: 15 },
+                    { x: 8.0e8,  y: 35 },
+                    { x: 1.2e9,  y: 40 },
+                    { x: 1.6e9,  y: 55 },
+                    { x: 2.2e9,  y: 72 }
+                  ]
+                },
+                {
+                  name: "Llama-3.2 90B",
+                  color: "#ff9671",
+                  values: [
+                    { x: 2.0e8,  y: 5 },
+                    { x: 4.0e8,  y: 15 },
+                    { x: 1.0e9,  y: 50 },
+                    { x: 1.6e9,  y: 65 },
+                    { x: 2.2e9,  y: 90 }
+                  ]
+                }
+              ];
+              
+              // Create a line generator using a smooth curve
+              const lineGen = d3.line()
+                .x(d => xScale(d.x))
+                .y(d => yScale(d.y))
+                .curve(d3.curveMonotoneX);
+              
+              // Draw each line
+              linesData.forEach(lineObj => {
+                g.append("path")
+                  .datum(lineObj.values)
+                  .attr("fill", "none")
+                  .attr("stroke", lineObj.color)
+                  .attr("stroke-width", 3)
+                  .attr("d", lineGen);
+              });
+              
+              // Draw circles at data points
+              linesData.forEach(lineObj => {
+                const safeClassName = `circle-${sanitizeClassName(lineObj.name)}`;
+                g.selectAll(`.${safeClassName}`)
+                  .data(lineObj.values)
+                  .enter()
+                  .append("circle")
+                    .attr("class", safeClassName)
+                    .attr("fill", lineObj.color)
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 1)
+                    .attr("r", 4)
+                    .attr("cx", d => xScale(d.x))
+                    .attr("cy", d => yScale(d.y));
+              });
+
+              
+              // Draw a 2x2 legend for the lines
+              draw2x2LegendLine(g, innerWidth, linesData);
+            }
+
+            function sanitizeClassName(name) {
+              // Remove spaces and replace dots with hyphens
+              return name.replace(/\s/g, '').replace(/\./g, '-');
+            }
+
+
+            
+            function draw2x2LegendLine(g, innerWidth, linesData) {
+              // Remove any existing legend for the line chart
+              g.selectAll(".legend-line").remove();
+
+              const legendData = linesData.map(d => ({
+                name: d.name,
+                color: d.color
+              }));
+
+              const legendGroup = g.append("g")
+                .attr("class", "legend-line");
+
+              const items = legendGroup.selectAll(".legend-line-item")
+                .data(legendData)
+                .enter()
+                .append("g")
+                .attr("class", "legend-line-item");
+
+              // Use fixed sizes for legend squares and text
+              const fontSize = 12;
+              const squareSize = 10;
+
+              items.append("rect")
+                .attr("fill", d => d.color)
+                .attr("stroke", "black")
+                .attr("stroke-width", 1)
+                .attr("width", squareSize)
+                .attr("height", squareSize);
+
+              items.append("text")
+                .text(d => d.name)
+                .attr("font-family", "Roboto, sans-serif")
+                .attr("font-size", fontSize)
+                .attr("fill", "black")
+                .attr("x", squareSize + 5)
+                .attr("y", squareSize * 0.85);
+
+              // Dynamically measure and position legend items in a 2x2 grid
+              const nodeBboxes = [];
+              items.each(function() {
+                nodeBboxes.push(this.getBBox());
+              });
+
+              const colSpacing = 20;
+              const rowSpacing = 5;
+              const widthCol0 = Math.max(nodeBboxes[0]?.width || 0, nodeBboxes[2]?.width || 0);
+
+              // Position items: first row
+              items.filter((d, i) => i === 0)
+                .attr("transform", `translate(0, 0)`);
+              items.filter((d, i) => i === 1)
+                .attr("transform", `translate(${widthCol0 + colSpacing}, 0)`);
+              // Second row
+              const yRow2 = nodeBboxes[0].height + rowSpacing;
+              items.filter((d, i) => i === 2)
+                .attr("transform", `translate(0, ${yRow2})`);
+              items.filter((d, i) => i === 3)
+                .attr("transform", `translate(${widthCol0 + colSpacing}, ${yRow2})`);
+
+              // Defer bbox calculation to ensure the elements are rendered
+              requestAnimationFrame(() => {
+                const groupBbox = legendGroup.node().getBBox();
+                const offsetX = Math.max(0, (innerWidth - groupBbox.width) / 2);
+                // Set a fixed positive y offset so the legend appears inside the chart
+                legendGroup.attr("transform", `translate(${offsetX}, -35)`);
+              });
+            }
+
+            
+            // Draw the chart initially and redraw on window resize
+            drawLineChart();
+            window.addEventListener('resize', drawLineChart);
+          });
+        </script>
+        
 
         </div>
       </div>
@@ -1350,31 +1682,16 @@ table.table th {
 </section>
 
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const tabs = document.querySelectorAll('.custom-tabs ul li');
-    const suspectContainer = document.getElementById('table-container-suspect');
-    const cleanContainer = document.getElementById('table-container-clean');
-  
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        // Remove active state from all tabs
-        tabs.forEach(t => t.classList.remove('is-active'));
-        // Activate the clicked tab
-        tab.classList.add('is-active');
-  
-        // Toggle the table containers with a smooth transition
-        if (tab.getAttribute('data-view') === 'suspect') {
-          suspectContainer.style.display = 'block';
-          cleanContainer.style.display = 'none';
-        } else {
-          suspectContainer.style.display = 'none';
-          cleanContainer.style.display = 'block';
-        }
-      });
-    });
-  });
-  </script>
+
+
+
+
+
+
+
+
+
+
   
   
   
