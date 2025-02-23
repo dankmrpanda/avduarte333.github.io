@@ -361,7 +361,7 @@ table.table {
 /* Make Colums take always the same width */
 table.table th:nth-child(n+2),
 table.table td:nth-child(n+2) {
-  width: 20% !important;
+  width: 21% !important;
 }
 
 /* Centered, refined caption styling */
@@ -392,6 +392,7 @@ table.table th {
 .table-card table.table th:first-child,
 .table-card table.table td:first-child {
   white-space: nowrap !important;
+  text-align: left !important;
 }
 
 .table-card table.table thead th:nth-child(2) {
@@ -1684,7 +1685,7 @@ table.table th {
     const fontSize = svgWidth * 0.035;    // 3% of the chart width.
     const squareSize = svgWidth * 0.025;    // 2% of the chart width.
     const colSpacing = 20;
-    const rowSpacing = 5;
+    const rowSpacing = 0;
 
     // Draw colored squares.
     legendItems.append("rect")
