@@ -1260,7 +1260,7 @@ table.table th {
       <div class="column is-four-fifths">
         <div class="content has-text-justified">
           <h2 class="title is-3">Key Findings</h2>
-          <h3 class="title is-4">DIS-CO outperforms existing approaches</h3>
+          <h3 class="title is-4">DIS-CO outperforms existing approaches ⭐</h3>
         <!-- Custom Tab Interface -->
         <div class="custom-tabs">
           <ul>
@@ -1404,7 +1404,7 @@ table.table th {
           </li>
         </ul>
 
-        <h3 class="title is-4">Popular / Higher-Quality movies are more easily recognized</h3>
+        <h3 class="title is-4">Popular / Higher-Quality movies are more easily recognized 📈</h3>
 
 
       <!-- HTML: Two charts side by side, each 45% wide with a small gap -->
@@ -1437,6 +1437,9 @@ table.table th {
           const container = document.querySelector(svgSelector);
           const { width } = container.getBoundingClientRect();
           const height = width * 0.9; // Adjust aspect ratio as needed
+
+          // Responsive line width: for example, 0.5% of the width yields roughly 3 when width is ~600px.
+          const lineWidth = width * 0.0065;
 
           // Configure responsive SVG attributes.
           svg.attr("viewBox", `0 0 ${width} ${height}`)
@@ -1615,14 +1618,14 @@ table.table th {
           // Draw each line and its data points.
           linesData.forEach(({ name, color, values }) => {
             // Determine stroke dash style: dashed for Qwen and Llama, solid otherwise.
-            const dashStyle = (name.toLowerCase().includes("qwen") || name.toLowerCase().includes("llama")) ? "8" : null;
+            const dashStyle = (name.toLowerCase().includes("qwen") || name.toLowerCase().includes("llama")) ? "6" : null;
 
             // Draw the line.
             g.append("path")
             .datum(values)
             .attr("fill", "none")
             .attr("stroke", color)
-            .attr("stroke-width", 3)
+            .attr("stroke-width", lineWidth)
             .attr("stroke-dasharray", dashStyle)
             .attr("d", lineGenerator);
 
@@ -1899,9 +1902,395 @@ table.table th {
           </li>
         </ul>
 
-        <h3 class="title is-4">We can prevent disclosing memorization with fine-tuning</h3>
+        <h3 class="title is-4">It is possible to prevent disclosing memorization 🙊</h3>
 
-        
+        <!-- HTML: One centered line chart taking 90% of the page width -->
+<div id="linechart-container" style="width: 100%; margin: auto;">
+  <svg id="linechart-svg" width="100%"></svg>
+</div>
+
+<script>
+  (function() {
+    document.addEventListener('DOMContentLoaded', () => {
+      // Draw the chart initially
+      drawLineChart("#linechart-svg");
+
+      // Redraw on window resize
+      window.addEventListener('resize', () => {
+        drawLineChart("#linechart-svg");
+      });
+    });
+
+    /**
+     * Main function to draw a line chart within the provided SVG selector.
+     */
+    function drawLineChart(svgSelector) {
+      const svg = d3.select(svgSelector);
+      svg.selectAll('*').remove(); // Clear previous content
+
+      // Get container dimensions and compute chart height using an aspect ratio.
+      const container = document.querySelector(svgSelector);
+      const { width } = container.getBoundingClientRect();
+      const height = width * 0.4; // Adjust aspect ratio as needed
+      const lineWidth = width * 0.004;
+
+      // Configure responsive SVG attributes.
+      svg.attr("viewBox", `0 0 ${width} ${height}`)
+         .attr("preserveAspectRatio", "xMidYMid meet");
+
+      // Define margins (clamped to prevent excessive or tiny margins).
+      const margin = {
+        top: Math.min(height * 0.20, 100),
+        right: Math.min(width * 0.20, 100),
+        bottom: Math.min(height * 0.25, 100),
+        left: Math.min(width * 0.25, 100)
+      };
+
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+
+      // Compute a marker area that scales with the SVG width.
+      const markerAreaData = width * 0.1;
+
+      // Create a group for the chart content.
+      const g = svg.append("g")
+                   .attr("class", "linechart-g")
+                   .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+
+
+      // Define x-scale from 0 to 6000 with a little extra room after 6000.
+      const xScale = d3.scaleLinear()
+                       .domain([0, 6200])
+                       .range([0, innerWidth]);
+      // Define tick values at every 1000.
+      const xTickValues = [1000, 2000, 3000, 4000, 5000, 6000];
+
+      // Define the two data series with example values.
+      const linesData = [
+        {
+          name: "Sequential Frames",
+          color: "#5EA171", // darker green tone
+          values: [
+            { x: 80,    y: 0 },
+            { x: 300, y: 0 },
+            { x: 600, y: 47 },
+            { x: 1500, y: 91 },
+            { x: 3000, y: 92 },
+            { x: 4500, y: 95 },
+            { x: 6000, y: 99 },
+          ]
+        },
+        {
+          name: "Random Frames",
+          color: "#40826D", // lighter green tone
+          values: [
+            { x: 80,    y: 0 },  
+            { x: 300, y: 0 },
+            { x: 600, y: 89 },
+            { x: 1500, y: 94 },
+            { x: 3000, y: 94 },
+            { x: 4500, y: 95 },
+            { x: 6000, y: 98 },
+          ]
+        }
+      ];
+
+      // Define y-scale (same as before).
+      const yScale = d3.scaleLinear()
+                       .domain([0, 105])
+                       .range([innerHeight, 0]);
+
+      // Draw axes, gridlines, and borders with unique class names.
+      drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, width);
+      drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues);
+      drawBorders(g, innerWidth, innerHeight);
+
+      // Draw axis titles.
+      const xTitle = "# of Unique Fine-Tuning Frames";
+      const yTitle = "Accuracy (%)";
+      drawAxisTitles(g, innerWidth, innerHeight, margin, width, xTitle, yTitle);
+
+      // Create a line generator for smooth curves.
+      const lineGenerator = d3.line()
+                              .x(d => xScale(d.x))
+                              .y(d => yScale(d.y))
+                              .curve(d3.curveLinear);
+
+      // Draw each line and its data points.
+      linesData.forEach(({ name, color, values }) => {
+        // Determine stroke dash style:
+        // "Sequential Frames" is dashed, "Random Frames" is continuous.
+        const dashStyle = name === "Sequential Frames" ? "6" : null;
+
+        // Draw the line.
+        g.append("path")
+         .datum(values)
+         .attr("class", "linechart-line")
+         .attr("fill", "none")
+         .attr("stroke", color)
+         .attr("stroke-width", lineWidth)
+         .attr("stroke-dasharray", dashStyle)
+         .attr("d", lineGenerator);
+
+        // Determine marker symbol based on name.
+        let symbolType;
+        if (name === "Sequential Frames") {
+          symbolType = d3.symbolCircle;
+        } else if (name === "Random Frames") {
+          symbolType = d3.symbolSquare;
+        } else {
+          symbolType = d3.symbolCircle;   // fallback
+        }
+
+        // Create symbol generator using the dynamically computed marker area.
+        const markerSymbol = d3.symbol().type(symbolType).size(markerAreaData);
+
+        // Draw markers at each data point.
+        g.selectAll(`.linechart-marker-${sanitizeClassName(name)}`)
+         .data(values)
+         .enter()
+         .append("path")
+           .attr("class", `linechart-marker-${sanitizeClassName(name)}`)
+           .attr("d", markerSymbol)
+           .attr("fill", color)
+           .attr("stroke", "black")
+           .attr("stroke-width", 0.8)
+           .attr("opacity", 0.9)
+           .attr("transform", d => `translate(${xScale(d.x)}, ${yScale(d.y)})`);
+      });
+
+      // Draw the legend with marker symbols.
+      drawLegend(g, innerWidth, linesData, width);
+    }
+
+    /**
+     * Draw x-axis and y-axis with dynamically scaled tick font sizes.
+     */
+    function drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, svgWidth) {
+      const tickFontSize = svgWidth * 0.02;
+
+      const xAxis = d3.axisBottom(xScale)
+                      .tickValues(xTickValues)
+                      .tickFormat(d => d)
+                      .tickSizeOuter(0);
+
+      g.append("g")
+       .attr("class", "linechart-x-axis")
+       .attr("transform", `translate(0, ${innerHeight})`)
+       .call(xAxis)
+       .selectAll("text")
+         .attr("font-family", "Roboto, sans-serif")
+         .attr("font-size", tickFontSize)
+         .attr("fill", "#464646")
+         .attr("font-weight", "500");
+
+      const yAxis = d3.axisLeft(yScale)
+                      .ticks(5)
+                      .tickSizeInner(0)
+                      .tickSizeOuter(0)
+                      .tickPadding(7);
+      g.append("g")
+       .attr("class", "linechart-y-axis")
+       .call(yAxis)
+       .selectAll("text")
+         .attr("font-family", "Roboto, sans-serif")
+         .attr("font-size", tickFontSize)
+         .attr("fill", "#464646")
+         .attr("font-weight", "500");
+    }
+
+    /**
+     * Draw horizontal and vertical gridlines.
+     */
+    function drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues) {
+      const yTicks = yScale.ticks(5).filter(t => t !== 0);
+
+      g.append("g")
+       .attr("class", "linechart-grid linechart-horizontal-grid")
+       .call(
+         d3.axisLeft(yScale)
+           .tickValues(yTicks)
+           .tickSize(-innerWidth)
+           .tickFormat('')
+       )
+       .selectAll("line")
+         .attr("stroke", "lightgray")
+         .attr("stroke-dasharray", "5")
+         .attr("stroke-width", 2);
+
+      g.append("g")
+       .attr("class", "linechart-grid linechart-vertical-grid")
+       .selectAll("line")
+       .data(xTickValues)
+       .enter()
+       .append("line")
+         .attr("x1", d => xScale(d))
+         .attr("y1", 0)
+         .attr("x2", d => xScale(d))
+         .attr("y2", innerHeight)
+         .attr("stroke", "lightgray")
+         .attr("stroke-dasharray", "5")
+         .attr("stroke-width", 2);
+    }
+
+    /**
+     * Draw borders around the plot area.
+     */
+    function drawBorders(g, innerWidth, innerHeight) {
+      g.append("line")
+       .attr("class", "linechart-border")
+       .attr("x1", 0).attr("y1", 0)
+       .attr("x2", innerWidth).attr("y2", 0)
+       .attr("stroke", "lightgray")
+       .attr("stroke-width", 2);
+
+      g.append("line")
+       .attr("class", "linechart-border")
+       .attr("x1", innerWidth).attr("y1", -1)
+       .attr("x2", innerWidth).attr("y2", innerHeight)
+       .attr("stroke", "lightgray")
+       .attr("stroke-width", 2);
+
+      g.append("line")
+       .attr("class", "linechart-border")
+       .attr("x1", 0).attr("y1", -1)
+       .attr("x2", 0).attr("y2", innerHeight)
+       .attr("stroke", "#36454F")
+       .attr("stroke-width", 2);
+
+      g.append("line")
+       .attr("class", "linechart-border")
+       .attr("x1", -1).attr("y1", innerHeight)
+       .attr("x2", innerWidth + 1).attr("y2", innerHeight)
+       .attr("stroke", "#36454F")
+       .attr("stroke-width", 2);
+    }
+
+    /**
+     * Sanitize strings for use as CSS class names.
+     */
+    function sanitizeClassName(name) {
+      return name.replace(/\s/g, '').replace(/\./g, '-');
+    }
+
+    /**
+     * Helper function to determine the marker symbol type based on the series name.
+     */
+    function getSymbolType(name) {
+      if (name === "Sequential Frames") {
+        return d3.symbolCircle;
+      } else if (name === "Random Frames") {
+        return d3.symbolSquare;
+      } else {
+        return d3.symbolCircle;
+      }
+    }
+
+    /**
+     * Draw a responsive legend using marker symbols.
+     */
+    function drawLegend(g, innerWidth, linesData, svgWidth) {
+      // Remove any existing legend.
+      g.selectAll(".linechart-legend").remove();
+
+      const legendData = linesData.map(({ name, color }) => ({ name, color }));
+      const legendGroup = g.append("g").attr("class", "linechart-legend");
+      const legendItems = legendGroup.selectAll(".linechart-legend-item")
+                                     .data(legendData)
+                                     .enter()
+                                     .append("g")
+                                     .attr("class", "linechart-legend-item");
+
+      // Scale the marker size with the overall SVG width.
+      const fontSize = svgWidth * 0.022;       // 3% of the chart width.
+      const markerBoxSize = svgWidth * 0.02;    // Base box size for marker positioning.
+      const legendMarkerArea = svgWidth * 0.1333; // Marker area scales like in the chart
+
+      // Draw marker symbols in the legend.
+      legendItems.append("path")
+        .attr("d", d => {
+          const symbolType = getSymbolType(d.name);
+          return d3.symbol().type(symbolType).size(legendMarkerArea)();
+        })
+        .attr("fill", d => d.color)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1)
+        .attr("transform", `translate(${markerBoxSize/2}, ${markerBoxSize/2})`);
+
+      // Draw legend text.
+      legendItems.append("text")
+        .text(d => d.name)
+        .attr("font-family", "Roboto, sans-serif")
+        .attr("font-size", fontSize)
+        .attr("fill", "#464646")
+        .attr("x", markerBoxSize + 5)
+        .attr("y", markerBoxSize * 0.85);
+
+      // Position legend items in a 1x2 grid.
+      requestAnimationFrame(() => {
+        const items = legendGroup.selectAll(".linechart-legend-item").nodes();
+        let col0MaxWidth = 0;
+        items.forEach((item, i) => {
+          if (i % 2 === 0) {
+            const bbox = item.getBBox();
+            col0MaxWidth = Math.max(col0MaxWidth, bbox.width);
+          }
+        });
+        items.forEach((item, i) => {
+          const col = i % 2;
+          const row = Math.floor(i / 2);
+          const x = (col === 0) ? 0 : col0MaxWidth + 20;
+          const y = row * (item.getBBox().height);
+          d3.select(item).attr("transform", `translate(${x}, ${y})`);
+        });
+        const legendBBox = legendGroup.node().getBBox();
+        const offsetX = Math.max(0, (innerWidth - legendBBox.width) / 2);
+        const offsetY = -Math.min(20, 0.05 * svgWidth);
+        legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
+      });
+    }
+
+    /**
+     * Draw axis titles for the x-axis and y-axis.
+     */
+     function drawAxisTitles(g, innerWidth, innerHeight, margin, svgWidth, xTitle, yTitle) {
+      const titleFontSize = svgWidth * 0.022;  // Adjust as needed
+      let yAxisOffset;
+      
+      if (svgWidth < 700) {
+        yAxisOffset = -30;  // Use a fixed offset for mobile
+      } else {
+        yAxisOffset = -margin.left + (margin.left * 0.55); // Original calculation for larger screens
+      }
+      
+      // X-Axis Title (remains unchanged)
+      g.append("text")
+        .attr("class", "linechart-x-axis-title")
+        .attr("text-anchor", "middle")
+        .attr("x", innerWidth / 2)
+        .attr("y", innerHeight + margin.bottom - (margin.bottom * 0.35))
+        .text(xTitle)
+        .attr("font-size", titleFontSize)
+        .attr("fill", "#464646")
+        .attr("font-family", "Roboto, sans-serif");
+      
+      // Y-Axis Title with adjusted offset
+      g.append("text")
+        .attr("class", "linechart-y-axis-title")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -innerHeight / 2)
+        .attr("y", yAxisOffset)
+        .text(yTitle)
+        .attr("font-size", titleFontSize)
+        .attr("fill", "#464646")
+        .attr("font-family", "Roboto, sans-serif");
+    }
+  })();
+</script>
+
+
         
         
 
