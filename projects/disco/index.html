@@ -795,8 +795,14 @@ table.table th {
           .attr("stroke-width", borderWidth);
   
         // --- New Modification: Add Y-Axis Title ---
-        // Dynamic font size based on overall SVG width
-        const titleFontSize = width * 0.028;
+        // Wait for the y-axis ticks to render, get one tick's computed font size,
+        // add 2px, and use that for the title.
+        const tickLabelEl = g.select(".y-axis").select("text").node();
+        let computedFontSize = 12; // default fallback
+        if (tickLabelEl) {
+          computedFontSize = parseFloat(window.getComputedStyle(tickLabelEl).fontSize);
+        }
+        const titleFontSize = computedFontSize + 3;
         g.append("text")
           .attr("class", "y-axis-title")
           .attr("transform", "rotate(-90)")
@@ -1193,6 +1199,7 @@ table.table th {
   
   
   
+  
     
 
 <!-- DIS-CO Section -->
@@ -1257,7 +1264,7 @@ table.table th {
         <!-- Table Card for Suspect Data -->
         <div id="table-container-suspect" class="table-card">
           <table class="table is-bordered is-hoverable">
-            <caption>Accuracy scores on MovieTection (Suspect Split)</caption>
+            <caption>Accuracy scores on MovieTection<br>Suspect Split - Neutral Frames</caption>
             <thead>
               <tr>
                 <th></th>
@@ -1303,7 +1310,7 @@ table.table th {
         <!-- Table Card for Clean Data (initially hidden) -->
         <div id="table-container-clean" class="table-card" style="display: none;">
           <table class="table is-bordered is-hoverable">
-            <caption>Accuracy scores on MovieTection (Clean Split)</caption>
+            <caption>Accuracy scores on MovieTection<br>Clean Split - Neutral Frames</caption>
             <thead>
               <tr>
                 <th></th>
