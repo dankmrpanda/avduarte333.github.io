@@ -1386,293 +1386,338 @@ table.table th {
           </li>
         </ul>
 
+<!-- HTML Structure -->
+<svg id="line-chart" width="45%"></svg>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    /**
+     * Main function to draw the chart. Called initially and on window resize.
+     */
+    const drawLineChart = () => {
+      const svg = d3.select('#line-chart');
+      // Clear any existing content
+      svg.selectAll('*').remove();
 
-        <svg id="line-chart" width="45%"></svg>
-        <script>
-          document.addEventListener('DOMContentLoaded', function() {
-            function drawLineChart() {
-              const svg = d3.select('#line-chart');
-              // Clear any existing content
-              svg.selectAll('*').remove();
-              
-              // Determine the available width from the container
-              const container = document.getElementById('line-chart');
-              const bbox = container.getBoundingClientRect();
-              const width = bbox.width;
-              // Set height relative to width via an aspect ratio (e.g., 0.4)
-              const height = width * 0.8;
-              
-              // Set the responsive viewBox and preserve aspect ratio
-              svg.attr("viewBox", `0 0 ${width} ${height}`)
-                 .attr("preserveAspectRatio", "xMidYMid meet");
-              
-              // Define margins as a proportion of width and height
-              const margin = {
-                top: height * 0.2,  // Increased top margin
-                right: width * 0.05,
-                bottom: height * 0.1,
-                left: width * 0.1
-              };
+      // Get container dimensions and compute height using an aspect ratio.
+      const container = document.getElementById('line-chart');
+      const { width } = container.getBoundingClientRect();
+      // We can adjust the ratio if you want the chart taller/shorter.
+      const height = width * 0.8;
 
-              const innerWidth = width - margin.left - margin.right;
-              const innerHeight = height - margin.top - margin.bottom;
-              
-              // Append a group element and translate for margins
-              const g = svg.append("g")
-                .attr("transform", `translate(${margin.left}, ${margin.top})`);
-              
-              // Define scales using fixed data domain values
-              const xScale = d3.scaleLinear()
-                .domain([1e8, 2.2e9])
-                .range([0, innerWidth]);
-              
-              // Create tick values for the x-axis
-              const xTickValues = [];
-              for (let val = 2e8; val <= 2.2e9; val += 4e8) {
-                xTickValues.push(val);
-              }
-              
-              const yScale = d3.scaleLinear()
-                .domain([0, 105])
-                .range([innerHeight, 0]);
-              
-              // Create and append the x-axis
-              const xAxis = d3.axisBottom(xScale)
-                .tickValues(xTickValues)
-                .tickFormat(d => d >= 1e9 ? (d / 1e9).toFixed(1) + "B" : (d / 1e6).toFixed(0) + "M");
-              g.append("g")
-                .attr("class", "x-axis")
-                .attr("transform", `translate(0, ${innerHeight})`)
-                .call(xAxis);
-              
-              // Create and append the y-axis
-              const yAxis = d3.axisLeft(yScale)
-                .ticks(5)
-                .tickSizeInner(0)
-                .tickSizeOuter(0)
-                .tickPadding(7);
-              g.append("g")
-                .attr("class", "y-axis")
-                .call(yAxis);
-              
-              // Add horizontal gridlines
-              const yTicks = yScale.ticks(5).filter(t => t !== 0);
-              g.append("g")
-                .attr("class", "grid horizontal-grid")
-                .call(
-                  d3.axisLeft(yScale)
-                    .tickValues(yTicks)
-                    .tickSize(-innerWidth)
-                    .tickFormat("")
-                )
-                .selectAll("line")
-                  .attr("stroke", "lightgray")
-                  .attr("stroke-dasharray", "5")
-                  .attr("stroke-width", "2");
-              
-              // Add vertical gridlines
-              g.append("g")
-                .attr("class", "grid vertical-grid")
-                .selectAll("line")
-                .data(xTickValues)
-                .enter()
-                .append("line")
-                  .attr("x1", d => xScale(d))
-                  .attr("y1", 0)
-                  .attr("x2", d => xScale(d))
-                  .attr("y2", innerHeight)
-                  .attr("stroke", "lightgray")
-                  .attr("stroke-dasharray", "5")
-                  .attr("stroke-width", "2");
-              
-              // Draw border lines around the plot area
-              g.append("line") // top border
-                .attr("x1", 0).attr("y1", 0)
-                .attr("x2", innerWidth).attr("y2", 0)
-                .attr("stroke", "lightgray")
-                .attr("stroke-width", 2);
-              g.append("line") // right border
-                .attr("x1", innerWidth).attr("y1", 0)
-                .attr("x2", innerWidth).attr("y2", innerHeight)
-                .attr("stroke", "lightgray")
-                .attr("stroke-width", 2);
-              g.append("line") // left border
-                .attr("x1", 0).attr("y1", 0)
-                .attr("x2", 0).attr("y2", innerHeight)
-                .attr("stroke", "#36454F")
-                .attr("stroke-width", 2);
-              g.append("line") // bottom border
-                .attr("x1", 0).attr("y1", innerHeight)
-                .attr("x2", innerWidth).attr("y2", innerHeight)
-                .attr("stroke", "#36454F")
-                .attr("stroke-width", 2);
-              
-              // Sample data for multiple lines
-              const linesData = [
-                {
-                  name: "GPT-4o",
-                  color: "#7bb296e6",
-                  values: [
-                    { x: 2.0e8,  y: 10 },
-                    { x: 6.0e8,  y: 25 },
-                    { x: 1.0e9,  y: 40 },
-                    { x: 1.4e9,  y: 70 },
-                    { x: 2.2e9,  y: 85 }
-                  ]
-                },
-                {
-                  name: "Gemini-1.5-Pro",
-                  color: "#f6d379e6",
-                  values: [
-                    { x: 2.0e8,  y: 20 },
-                    { x: 6.0e8,  y: 30 },
-                    { x: 1.0e9,  y: 40 },
-                    { x: 1.8e9,  y: 60 },
-                    { x: 2.2e9,  y: 75 }
-                  ]
-                },
-                {
-                  name: "Qwen2-VL 72B",
-                  color: "#695e93e6",
-                  values: [
-                    { x: 2.0e8,  y: 15 },
-                    { x: 8.0e8,  y: 35 },
-                    { x: 1.2e9,  y: 40 },
-                    { x: 1.6e9,  y: 55 },
-                    { x: 2.2e9,  y: 72 }
-                  ]
-                },
-                {
-                  name: "Llama-3.2 90B",
-                  color: "#ff9671",
-                  values: [
-                    { x: 2.0e8,  y: 5 },
-                    { x: 4.0e8,  y: 15 },
-                    { x: 1.0e9,  y: 50 },
-                    { x: 1.6e9,  y: 65 },
-                    { x: 2.2e9,  y: 90 }
-                  ]
-                }
-              ];
-              
-              // Create a line generator using a smooth curve
-              const lineGen = d3.line()
-                .x(d => xScale(d.x))
-                .y(d => yScale(d.y))
-                .curve(d3.curveMonotoneX);
-              
-              // Draw each line
-              linesData.forEach(lineObj => {
-                g.append("path")
-                  .datum(lineObj.values)
-                  .attr("fill", "none")
-                  .attr("stroke", lineObj.color)
-                  .attr("stroke-width", 3)
-                  .attr("d", lineGen);
-              });
-              
-              // Draw circles at data points
-              linesData.forEach(lineObj => {
-                const safeClassName = `circle-${sanitizeClassName(lineObj.name)}`;
-                g.selectAll(`.${safeClassName}`)
-                  .data(lineObj.values)
-                  .enter()
-                  .append("circle")
-                    .attr("class", safeClassName)
-                    .attr("fill", lineObj.color)
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 1)
-                    .attr("r", 4)
-                    .attr("cx", d => xScale(d.x))
-                    .attr("cy", d => yScale(d.y));
-              });
+      // Configure the responsive SVG attributes.
+      svg.attr("viewBox", `0 0 ${width} ${height}`)
+         .attr("preserveAspectRatio", "xMidYMid meet");
 
-              
-              // Draw a 2x2 legend for the lines
-              draw2x2LegendLine(g, innerWidth, linesData);
-            }
+      /**
+       * Define margins, clamped to avoid huge or tiny margins.
+       * This helps prevent excessive cropping on narrow screens.
+       */
+      const margin = {
+        top: Math.min(height * 0.15, 60),
+        right: Math.min(width * 0.05, 40),
+        bottom: Math.min(height * 0.1, 50),
+        left: Math.min(width * 0.1, 60)
+      };
 
-            function sanitizeClassName(name) {
-              // Remove spaces and replace dots with hyphens
-              return name.replace(/\s/g, '').replace(/\./g, '-');
-            }
+      // Calculate the inner drawing area dimensions.
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+
+      // Create a group for the chart content.
+      const g = svg.append("g")
+                   .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+      // Define scales for x and y.
+      const xScale = d3.scaleLinear()
+                       .domain([1e8, 2.4e9])
+                       .range([0, innerWidth]);
+
+      const yScale = d3.scaleLinear()
+                       .domain([0, 105])
+                       .range([innerHeight, 0]);
+
+      // Generate tick values for the x-axis.
+      const xTickValues = [];
+      for (let val = 2e8; val <= 2.2e9; val += 4e8) {
+        xTickValues.push(val);
+      }
+
+      // Draw axes, gridlines, and plot borders.
+      drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues);
+      drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues);
+      drawBorders(g, innerWidth, innerHeight);
+
+      // Sample data for multiple lines.
+      const linesData = [
+        {
+          name: "GPT-4o",
+          color: "#7bb296e6",
+          values: [
+            { x: 2.0e8,  y: 20 },
+            { x: 3.0e8,  y: 20 },
+            { x: 5.0e8,  y: 20 },
+            { x: 7.9e8,  y: 20 },
+            { x: 9.0e8,  y: 20 },
+            { x: 1.3e9,  y: 20 },
+            { x: 2.26e9, y: 20 }
+          ]
+        },
+        {
+          name: "Gemini-1.5-Pro",
+          color: "#f6d379e6",
+          values: [
+            { x: 2.0e8,  y: 20 },
+            { x: 3.0e8,  y: 20 },
+            { x: 5.0e8,  y: 20 },
+            { x: 7.9e8,  y: 20 },
+            { x: 9.0e8,  y: 20 },
+            { x: 1.3e9,  y: 20 },
+            { x: 2.26e9, y: 20 }
+          ]
+        },
+        {
+          name: "Qwen2-VL 72B",
+          color: "#695e93e6",
+          values: [
+            { x: 2.0e8,  y: 20 },
+            { x: 3.0e8,  y: 20 },
+            { x: 5.0e8,  y: 20 },
+            { x: 7.9e8,  y: 20 },
+            { x: 9.0e8,  y: 20 },
+            { x: 1.3e9,  y: 20 },
+            { x: 2.26e9, y: 20 }
+          ]
+        },
+        {
+          name: "Llama-3.2 90B",
+          color: "#ff9671",
+          values: [
+            { x: 2.0e8,  y: 20 },
+            { x: 3.0e8,  y: 20 },
+            { x: 5.0e8,  y: 20 },
+            { x: 7.9e8,  y: 20 },
+            { x: 9.0e8,  y: 20 },
+            { x: 1.3e9,  y: 20 },
+            { x: 2.26e9, y: 20 }
+          ]
+        }
+      ];
+
+      // Create a line generator for smooth curves.
+      const lineGenerator = d3.line()
+                              .x(d => xScale(d.x))
+                              .y(d => yScale(d.y))
+                              .curve(d3.curveMonotoneX);
+
+      // Draw each line and its data points.
+      linesData.forEach(({ name, color, values }) => {
+        // Draw the line
+        g.append("path")
+         .datum(values)
+         .attr("fill", "none")
+         .attr("stroke", color)
+         .attr("stroke-width", 3)
+         .attr("d", lineGenerator);
+
+        // Draw the circles at each data point
+        g.selectAll(`.circle-${sanitizeClassName(name)}`)
+         .data(values)
+         .enter()
+         .append("circle")
+           .attr("class", `circle-${sanitizeClassName(name)}`)
+           .attr("fill", color)
+           .attr("stroke", "black")
+           .attr("stroke-width", 1)
+           .attr("r", 4)
+           .attr("cx", d => xScale(d.x))
+           .attr("cy", d => yScale(d.y));
+      });
+
+      // Draw a responsive legend.
+      drawLegend(g, innerWidth, linesData, width);
+    };
+
+    /**
+     * Draw the x-axis (bottom) and y-axis (left).
+     */
+    const drawAxis = (g, xScale, yScale, innerWidth, innerHeight, xTickValues) => {
+      // X-axis
+      const xAxis = d3.axisBottom(xScale)
+                      .tickValues(xTickValues)
+                      .tickFormat(d =>
+                        d >= 1e9 ? (d / 1e9).toFixed(1) + "B" :
+                        (d / 1e6).toFixed(0) + "M"
+                      );
+      g.append("g")
+       .attr("class", "x-axis")
+       .attr("transform", `translate(0, ${innerHeight})`)
+       .call(xAxis);
+
+      // Y-axis
+      const yAxis = d3.axisLeft(yScale)
+                      .ticks(5)
+                      .tickSizeInner(0)
+                      .tickSizeOuter(0)
+                      .tickPadding(7);
+      g.append("g")
+       .attr("class", "y-axis")
+       .call(yAxis);
+    };
+
+    /**
+     * Draw horizontal and vertical gridlines.
+     */
+    const drawGridlines = (g, xScale, yScale, innerWidth, innerHeight, xTickValues) => {
+      const yTicks = yScale.ticks(5).filter(t => t !== 0);
+
+      // Horizontal gridlines
+      g.append("g")
+       .attr("class", "grid horizontal-grid")
+       .call(
+         d3.axisLeft(yScale)
+           .tickValues(yTicks)
+           .tickSize(-innerWidth)
+           .tickFormat('')
+       )
+       .selectAll("line")
+         .attr("stroke", "lightgray")
+         .attr("stroke-dasharray", "5")
+         .attr("stroke-width", 2);
+
+      // Vertical gridlines
+      g.append("g")
+       .attr("class", "grid vertical-grid")
+       .selectAll("line")
+       .data(xTickValues)
+       .enter()
+       .append("line")
+         .attr("x1", d => xScale(d))
+         .attr("y1", 0)
+         .attr("x2", d => xScale(d))
+         .attr("y2", innerHeight)
+         .attr("stroke", "lightgray")
+         .attr("stroke-dasharray", "5")
+         .attr("stroke-width", 2);
+    };
+
+    /**
+     * Draw borders around the plot area.
+     */
+    const drawBorders = (g, innerWidth, innerHeight) => {
+      // Top border
+      g.append("line")
+       .attr("x1", 0).attr("y1", 0)
+       .attr("x2", innerWidth).attr("y2", 0)
+       .attr("stroke", "lightgray")
+       .attr("stroke-width", 2);
+
+      // Right border
+      g.append("line")
+       .attr("x1", innerWidth).attr("y1", 0)
+       .attr("x2", innerWidth).attr("y2", innerHeight)
+       .attr("stroke", "lightgray")
+       .attr("stroke-width", 2);
+
+      // Left border
+      g.append("line")
+       .attr("x1", 0).attr("y1", 0)
+       .attr("x2", 0).attr("y2", innerHeight)
+       .attr("stroke", "#36454F")
+       .attr("stroke-width", 2);
+
+      // Bottom border
+      g.append("line")
+       .attr("x1", 0).attr("y1", innerHeight)
+       .attr("x2", innerWidth).attr("y2", innerHeight)
+       .attr("stroke", "#36454F")
+       .attr("stroke-width", 2);
+    };
+
+    /**
+     * Sanitize strings for use as CSS class names.
+     */
+    const sanitizeClassName = (name) => {
+      return name.replace(/\s/g, '').replace(/\./g, '-');
+    };
+
+    /**
+     * Draw a responsive 2x2 legend.
+     */
+    const drawLegend = (g, innerWidth, linesData, svgWidth) => {
+      // Remove any existing legend
+      g.selectAll(".legend").remove();
+
+      const legendData = linesData.map(({ name, color }) => ({ name, color }));
+      const legendGroup = g.append("g").attr("class", "legend");
+      const legendItems = legendGroup.selectAll(".legend-item")
+                                     .data(legendData)
+                                     .enter()
+                                     .append("g")
+                                     .attr("class", "legend-item");
+
+      // Dynamic sizing based on the overall SVG width
+      const fontSize = Math.max(10, svgWidth * 0.02);
+      const squareSize = Math.max(8, svgWidth * 0.015);
+      const colSpacing = 20;
+      const rowSpacing = 5;
+
+      // Draw the colored squares
+      legendItems.append("rect")
+                 .attr("fill", d => d.color)
+                 .attr("stroke", "black")
+                 .attr("stroke-width", 1)
+                 .attr("width", squareSize)
+                 .attr("height", squareSize);
+
+      // Draw the legend text
+      legendItems.append("text")
+                 .text(d => d.name)
+                 .attr("font-family", "Roboto, sans-serif")
+                 .attr("font-size", fontSize)
+                 .attr("fill", "black")
+                 .attr("x", squareSize + 5)
+                 .attr("y", squareSize * 0.85);
+
+      // Position the legend items in a 2x2 grid after rendering
+      requestAnimationFrame(() => {
+        const items = legendGroup.selectAll(".legend-item").nodes();
+        let col0MaxWidth = 0;
+
+        // Determine maximum width of items in the first column
+        items.forEach((item, i) => {
+          if (i % 2 === 0) {
+            const bbox = item.getBBox();
+            col0MaxWidth = Math.max(col0MaxWidth, bbox.width);
+          }
+        });
+
+        // Translate each item based on row/column
+        items.forEach((item, i) => {
+          const col = i % 2;
+          const row = Math.floor(i / 2);
+          const x = (col === 0) ? 0 : col0MaxWidth + colSpacing;
+          const y = row * (item.getBBox().height + rowSpacing);
+          d3.select(item).attr("transform", `translate(${x}, ${y})`);
+        });
+
+        // Center the legend horizontally
+        const legendBBox = legendGroup.node().getBBox();
+        const offsetX = Math.max(0, (innerWidth - legendBBox.width) / 2);
+
+        // Use a dynamic negative offset so it doesn't get cut off on smaller charts
+        const offsetY = -Math.min(35, 0.1 * svgWidth);
+        legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
+      });
+    };
+
+    // Call the main draw function, and redraw on window resize
+    drawLineChart();
+    window.addEventListener('resize', drawLineChart);
+  });
+</script>
 
 
-            
-            function draw2x2LegendLine(g, innerWidth, linesData) {
-              // Remove any existing legend for the line chart
-              g.selectAll(".legend-line").remove();
-
-              const legendData = linesData.map(d => ({
-                name: d.name,
-                color: d.color
-              }));
-
-              const legendGroup = g.append("g")
-                .attr("class", "legend-line");
-
-              const items = legendGroup.selectAll(".legend-line-item")
-                .data(legendData)
-                .enter()
-                .append("g")
-                .attr("class", "legend-line-item");
-
-              // Use fixed sizes for legend squares and text
-              const fontSize = 12;
-              const squareSize = 10;
-
-              items.append("rect")
-                .attr("fill", d => d.color)
-                .attr("stroke", "black")
-                .attr("stroke-width", 1)
-                .attr("width", squareSize)
-                .attr("height", squareSize);
-
-              items.append("text")
-                .text(d => d.name)
-                .attr("font-family", "Roboto, sans-serif")
-                .attr("font-size", fontSize)
-                .attr("fill", "black")
-                .attr("x", squareSize + 5)
-                .attr("y", squareSize * 0.85);
-
-              // Dynamically measure and position legend items in a 2x2 grid
-              const nodeBboxes = [];
-              items.each(function() {
-                nodeBboxes.push(this.getBBox());
-              });
-
-              const colSpacing = 20;
-              const rowSpacing = 5;
-              const widthCol0 = Math.max(nodeBboxes[0]?.width || 0, nodeBboxes[2]?.width || 0);
-
-              // Position items: first row
-              items.filter((d, i) => i === 0)
-                .attr("transform", `translate(0, 0)`);
-              items.filter((d, i) => i === 1)
-                .attr("transform", `translate(${widthCol0 + colSpacing}, 0)`);
-              // Second row
-              const yRow2 = nodeBboxes[0].height + rowSpacing;
-              items.filter((d, i) => i === 2)
-                .attr("transform", `translate(0, ${yRow2})`);
-              items.filter((d, i) => i === 3)
-                .attr("transform", `translate(${widthCol0 + colSpacing}, ${yRow2})`);
-
-              // Defer bbox calculation to ensure the elements are rendered
-              requestAnimationFrame(() => {
-                const groupBbox = legendGroup.node().getBBox();
-                const offsetX = Math.max(0, (innerWidth - groupBbox.width) / 2);
-                // Set a fixed positive y offset so the legend appears inside the chart
-                legendGroup.attr("transform", `translate(${offsetX}, -35)`);
-              });
-            }
-
-            
-            // Draw the chart initially and redraw on window resize
-            drawLineChart();
-            window.addEventListener('resize', drawLineChart);
-          });
-        </script>
+        
         
 
         </div>
