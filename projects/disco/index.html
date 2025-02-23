@@ -802,7 +802,7 @@ table.table th {
         if (tickLabelEl) {
           computedFontSize = parseFloat(window.getComputedStyle(tickLabelEl).fontSize);
         }
-        const titleFontSize = computedFontSize;
+        const titleFontSize = computedFontSize + 2;
         g.append("text")
           .attr("class", "y-axis-title")
           .attr("transform", "rotate(-90)")
