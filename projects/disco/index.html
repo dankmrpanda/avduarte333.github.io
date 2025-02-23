@@ -361,7 +361,7 @@ table.table {
 /* Make Colums take always the same width */
 table.table th:nth-child(n+2),
 table.table td:nth-child(n+2) {
-  width: 21% !important;
+  width: 20% !important;
 }
 
 /* Centered, refined caption styling */
@@ -1232,18 +1232,6 @@ table.table th {
         <div class="content has-text-justified">
           <h2 class="title is-3">Key Findings</h2>
           <h3 class="title is-4">DIS-CO outperforms existing approaches</h3>
-          <ul>
-            <li>
-              MCQA achieves high accuracy on suspect movies but also presents false positives on clean movies. This tradeoff reduces its reliability, as it misclassifies clean content as suspect.
-            </li>
-            <li>
-              Captions are weak indicators of memorization. Their suspect-level accuracy remains low across models, with Qwen2-VL 72B performing below 10%, highlighting their limitations.
-            </li>
-            <li>
-              Both DIS-CO variants improve detection for suspect movies, while clean movies are hardly guessed, indicating that DIS-CO is false-positive free.
-            </li>
-          </ul>
-
         <!-- Custom Tab Interface -->
         <div class="custom-tabs">
           <ul>
@@ -1258,7 +1246,7 @@ table.table th {
             <caption>Accuracy scores on MovieTection (Suspect Split)</caption>
             <thead>
               <tr>
-                <th><span style="font-weight: normal;">Neutral Frames</span></th>
+                <th></th>
                 <th>GPT-4o</th>
                 <th>Gemini-1.5 Pro</th>
                 <th>LLaMA-3.2 90B</th>
@@ -1304,7 +1292,7 @@ table.table th {
             <caption>Accuracy scores on MovieTection (Clean Split)</caption>
             <thead>
               <tr>
-                <th><span style="font-weight: normal;">Neutral Frames</span></th>
+                <th></th>
                 <th>GPT-4o</th>
                 <th>Gemini-1.5 Pro</th>
                 <th>LLaMA-3.2 90B</th>
@@ -1375,24 +1363,25 @@ table.table th {
           });
           </script>
 
-
-
-        <h3 class="title is-4">Popular and Higher-Quality movies are more easily recognized</h3>
         <ul>
           <li>
-            Our analysis shows that box-office success correlates with model recognition, suggesting that popular movies are more frequently included in training data.
+            MCQA achieves high accuracy on suspect movies but also presents false positives on clean movies. This tradeoff reduces its reliability, as it misclassifies clean content as suspect.
           </li>
           <li>
-            Higher IMDb-rated movies also tend to be more recognizable, indicating that high-quality can also be seen as a proxy for the likelihood of memorization.
+            Captions are weak indicators of memorization. Their suspect-level accuracy remains low across models, with Qwen2-VL 72B performing below 10%, highlighting their limitations.
+          </li>
+          <li>
+            Both DIS-CO variants improve detection for suspect movies, while clean movies are hardly guessed, indicating that DIS-CO is false-positive free.
           </li>
         </ul>
+
+        <h3 class="title is-4">Popular and Higher-Quality movies are more easily recognized</h3>
 
 <!-- HTML: Two charts side by side, each 45% wide with a small gap -->
 <div style="display: flex; justify-content: space-between; gap: 10px;">
   <svg id="line-chart-1" width="50%"></svg>
   <svg id="line-chart-2" width="50%"></svg>
 </div>
-
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -1429,7 +1418,7 @@ table.table th {
     const margin = {
       top: Math.min(height * 0.20, 100),
       right: Math.min(width * 0.05, 40),
-      bottom: Math.min(height * 0.2, 100),
+      bottom: Math.min(height * 0.1, 100),
       left: Math.min(width * 0.1, 60)
     };
 
@@ -1440,87 +1429,150 @@ table.table th {
     const g = svg.append("g")
                  .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    // Define scales.
-    const xScale = d3.scaleLinear()
-                     .domain([1e8, 2.4e9])
-                     .range([0, innerWidth]);
+    // Define scales, tick values, and data conditionally.
+    let xScale, xTickValues, linesData;
+    if (svgSelector === "#line-chart-2") {
+      // Right chart: x-axis domain starts at 3.5 for extra left padding, with ticks from 4 to 9.
+      xScale = d3.scaleLinear()
+                 .domain([3.5, 9.5])
+                 .range([0, innerWidth]);
+      xTickValues = [4, 5, 6, 7, 8, 9];
 
+      linesData = [
+        {
+          name: "GPT-4o",
+          color: "#7bb296e6",
+          values: [
+            { x: 3.8, y: 56 },
+            { x: 4.3, y: 41 },
+            { x: 5.5, y: 37 },
+            { x: 6, y: 39 },
+            { x: 7.3, y: 63 },
+            { x: 8.3, y: 80 },
+            { x: 9, y: 96 }
+          ]
+        },
+        {
+          name: "Gemini-1.5-Pro",
+          color: "#f6d379e6",
+          values: [
+            { x: 3.8, y: 41 },
+            { x: 4.3, y: 23 },
+            { x: 5.5, y: 28 },
+            { x: 6, y: 22 },
+            { x: 7.3, y: 41 },
+            { x: 8.3, y: 78 },
+            { x: 9, y: 20 }
+          ]
+        },
+        {
+          name: "Qwen2-VL 72B",
+          color: "#695e93e6",
+          values: [
+            { x: 3.8, y: 18 },
+            { x: 4.3, y: 22 },
+            { x: 5.5, y: 19 },
+            { x: 6, y: 24 },
+            { x: 7.3, y: 29 },
+            { x: 8.3, y: 62 },
+            { x: 9, y: 57 }
+          ]
+        },
+        {
+          name: "Llama-3.2 90B",
+          color: "#ff9671",
+          values: [
+            { x: 3.8, y: 16 },
+            { x: 4.3, y: 18 },
+            { x: 5.5, y: 17 },
+            { x: 6, y: 18 },
+            { x: 7.3, y: 31 },
+            { x: 8.3, y: 64 },
+            { x: 9, y: 63 }
+          ]
+        }
+      ];
+    } else {
+      // Left chart: original x-axis and data.
+      xScale = d3.scaleLinear()
+                 .domain([1e8, 2.4e9])
+                 .range([0, innerWidth]);
+      xTickValues = [];
+      for (let val = 2e8; val <= 2.2e9; val += 4e8) {
+        xTickValues.push(val);
+      }
+
+      linesData = [
+        {
+          name: "GPT-4o",
+          color: "#7bb296e6",
+          values: [
+            { x: 2.0e8,  y: 58 },
+            { x: 3.0e8,  y: 58 },
+            { x: 5.0e8,  y: 77 },
+            { x: 7.9e8,  y: 80 },
+            { x: 9.0e8,  y: 59 },
+            { x: 1.3e9,  y: 85 },
+            { x: 2.26e9, y: 82 }
+          ]
+        },
+        {
+          name: "Gemini-1.5-Pro",
+          color: "#f6d379e6",
+          values: [
+            { x: 2.0e8,  y: 39 },
+            { x: 3.0e8,  y: 40 },
+            { x: 5.0e8,  y: 58 },
+            { x: 7.9e8,  y: 66 },
+            { x: 9.0e8,  y: 50 },
+            { x: 1.3e9,  y: 68 },
+            { x: 2.26e9, y: 78 }
+          ]
+        },
+        {
+          name: "Qwen2-VL 72B",
+          color: "#695e93e6",
+          values: [
+            { x: 2.0e8,  y: 33 },
+            { x: 3.0e8,  y: 36 },
+            { x: 5.0e8,  y: 21 },
+            { x: 7.9e8,  y: 39 },
+            { x: 9.0e8,  y: 35 },
+            { x: 1.3e9,  y: 61 },
+            { x: 2.26e9, y: 64 }
+          ]
+        },
+        {
+          name: "Llama-3.2 90B",
+          color: "#ff9671",
+          values: [
+            { x: 2.0e8,  y: 43 },
+            { x: 3.0e8,  y: 43 },
+            { x: 5.0e8,  y: 42 },
+            { x: 7.9e8,  y: 28 },
+            { x: 9.0e8,  y: 42 },
+            { x: 1.3e9,  y: 71 },
+            { x: 2.26e9, y: 65 }
+          ]
+        }
+      ];
+    }
+
+    // Define y-scale (same for both charts).
     const yScale = d3.scaleLinear()
                      .domain([0, 105])
                      .range([innerHeight, 0]);
-
-    // Generate tick values for the x-axis.
-    const xTickValues = [];
-    for (let val = 2e8; val <= 2.2e9; val += 4e8) {
-      xTickValues.push(val);
-    }
 
     // Draw axes (with dynamic tick font sizes), gridlines, and borders.
     drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, width);
     drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues);
     drawBorders(g, innerWidth, innerHeight);
 
-    // Sample data for multiple lines.
-    const linesData = [
-      {
-        name: "GPT-4o",
-        color: "#7bb296e6",
-        values: [
-          { x: 2.0e8,  y: 20 },
-          { x: 3.0e8,  y: 20 },
-          { x: 5.0e8,  y: 20 },
-          { x: 7.9e8,  y: 20 },
-          { x: 9.0e8,  y: 20 },
-          { x: 1.3e9,  y: 20 },
-          { x: 2.26e9, y: 20 }
-        ]
-      },
-      {
-        name: "Gemini-1.5-Pro",
-        color: "#f6d379e6",
-        values: [
-          { x: 2.0e8,  y: 20 },
-          { x: 3.0e8,  y: 20 },
-          { x: 5.0e8,  y: 20 },
-          { x: 7.9e8,  y: 20 },
-          { x: 9.0e8,  y: 20 },
-          { x: 1.3e9,  y: 20 },
-          { x: 2.26e9, y: 20 }
-        ]
-      },
-      {
-        name: "Qwen2-VL 72B",
-        color: "#695e93e6",
-        values: [
-          { x: 2.0e8,  y: 20 },
-          { x: 3.0e8,  y: 20 },
-          { x: 5.0e8,  y: 20 },
-          { x: 7.9e8,  y: 20 },
-          { x: 9.0e8,  y: 20 },
-          { x: 1.3e9,  y: 20 },
-          { x: 2.26e9, y: 20 }
-        ]
-      },
-      {
-        name: "Llama-3.2 90B",
-        color: "#ff9671",
-        values: [
-          { x: 2.0e8,  y: 20 },
-          { x: 3.0e8,  y: 20 },
-          { x: 5.0e8,  y: 20 },
-          { x: 7.9e8,  y: 20 },
-          { x: 9.0e8,  y: 20 },
-          { x: 1.3e9,  y: 20 },
-          { x: 2.26e9, y: 20 }
-        ]
-      }
-    ];
-
     // Create a line generator for smooth curves.
     const lineGenerator = d3.line()
                             .x(d => xScale(d.x))
                             .y(d => yScale(d.y))
-                            .curve(d3.curveMonotoneX);
+                            .curve(d3.curveLinear);
 
     // Draw each line and its data points.
     linesData.forEach(({ name, color, values }) => {
@@ -1557,13 +1609,22 @@ table.table th {
     // Calculate dynamic font size for tick labels (e.g., 3% of the overall chart width).
     const tickFontSize = svgWidth * 0.035;
 
-    // X-axis.
-    const xAxis = d3.axisBottom(xScale)
-                    .tickValues(xTickValues)
-                    .tickFormat(d =>
-                      d >= 1e9 ? (d / 1e9).toFixed(1) + "B" :
-                      (d / 1e6).toFixed(0) + "M"
-                    );
+    // Conditionally set the tick format for the x-axis.
+    let xAxis;
+    if (xScale.domain()[1] < 10) {
+      // For the right chart, format ticks as plain integers.
+      xAxis = d3.axisBottom(xScale)
+                .tickValues(xTickValues)
+                .tickFormat(d3.format("d"));
+    } else {
+      // For the left chart, use the original formatting.
+      xAxis = d3.axisBottom(xScale)
+                .tickValues(xTickValues)
+                .tickFormat(d =>
+                  d >= 1e9 ? (d / 1e9).toFixed(1) + "B" :
+                  (d / 1e6).toFixed(0) + "M"
+                );
+    }
     g.append("g")
      .attr("class", "x-axis")
      .attr("transform", `translate(0, ${innerHeight})`)
@@ -1723,13 +1784,23 @@ table.table th {
       });
       const legendBBox = legendGroup.node().getBBox();
       const offsetX = Math.max(0, (innerWidth - legendBBox.width) / 2);
-      const offsetY = -Math.min(40, 0.1 * svgWidth);
+      const offsetY = -Math.min(38, 0.1 * svgWidth);
       legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
     });
   }
 </script>
 
 
+
+
+        <ul>
+          <li>
+            Our analysis shows that box-office success correlates with model recognition, suggesting that popular movies are more frequently included in training data.
+          </li>
+          <li>
+            Higher IMDb-rated movies also tend to be more recognizable, indicating that high-quality can also be seen as a proxy for the likelihood of memorization.
+          </li>
+        </ul>
 
 
         
