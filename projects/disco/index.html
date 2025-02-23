@@ -507,7 +507,7 @@ table.table th {
           
           <h2 class="title is-4">The Key Idea:</h2>
             <p>
-              In a black-box setting — where model attributes like token probabilities are inaccessible — the most reliable way to determine whether a model has seen specific content is to make it reveal knowledge that goes beyond general understanding.<br>
+              In a black-box setting, where model attributes like token probabilities are inaccessible, the most reliable way to determine whether a model has seen specific content is to make it reveal knowledge that goes beyond general understanding.<br>
               To achieve this, we need a task designed with two key properties:
               <ul>
                 <li>
@@ -802,7 +802,7 @@ table.table th {
         if (tickLabelEl) {
           computedFontSize = parseFloat(window.getComputedStyle(tickLabelEl).fontSize);
         }
-        const titleFontSize = computedFontSize + 3;
+        const titleFontSize = computedFontSize;
         g.append("text")
           .attr("class", "y-axis-title")
           .attr("transform", "rotate(-90)")
@@ -1787,7 +1787,7 @@ table.table th {
                .text(d => d.name)
                .attr("font-family", "Roboto, sans-serif")
                .attr("font-size", fontSize)
-               .attr("fill", "black")
+               .attr("fill", "#464646")
                .attr("x", squareSize + 5)
                .attr("y", squareSize * 0.95);
 
