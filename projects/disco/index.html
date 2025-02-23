@@ -1404,7 +1404,8 @@ table.table th {
           </li>
         </ul>
 
-        <h3 class="title is-4">Popular and Higher-Quality movies are more easily recognized</h3>
+        <h3 class="title is-4">Popular / Higher-Quality movies are more easily recognized</h3>
+
 
 <!-- HTML: Two charts side by side, each 45% wide with a small gap -->
 <div style="display: flex; justify-content: space-between; gap: 10px;">
@@ -1453,6 +1454,9 @@ table.table th {
 
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
+
+    // Compute a marker area that scales with the SVG width.
+    const markerAreaData = width * 0.16; // For example, 600px => ~80 sq. pixels
 
     // Create a group for the chart content.
     const g = svg.append("g")
@@ -1534,7 +1538,7 @@ table.table th {
       linesData = [
         {
           name: "GPT-4o",
-          color: "#7bb296e6",
+          color: "#7bb296",
           values: [
             { x: 2.0e8,  y: 58 },
             { x: 3.0e8,  y: 58 },
@@ -1547,7 +1551,7 @@ table.table th {
         },
         {
           name: "Gemini-1.5-Pro",
-          color: "#f6d379e6",
+          color: "#f6d379",
           values: [
             { x: 2.0e8,  y: 39 },
             { x: 3.0e8,  y: 40 },
@@ -1560,7 +1564,7 @@ table.table th {
         },
         {
           name: "Qwen2-VL 72B",
-          color: "#695e93e6",
+          color: "#695e93",
           values: [
             { x: 2.0e8,  y: 33 },
             { x: 3.0e8,  y: 36 },
@@ -1592,12 +1596,12 @@ table.table th {
                      .domain([0, 105])
                      .range([innerHeight, 0]);
 
-    // Draw axes (with dynamic tick font sizes), gridlines, and borders.
+    // Draw axes, gridlines, and borders.
     drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, width);
     drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues);
     drawBorders(g, innerWidth, innerHeight);
 
-    // Draw axis titles (x-axis title depends on chart; y-axis title is shared)
+    // Draw axis titles.
     const xTitle = svgSelector === "#line-chart-2" ? "IMDb Rating" : "Box-Office ($)";
     const yTitle = "Accuracy (%)";
     drawAxisTitles(g, innerWidth, innerHeight, margin, width, xTitle, yTitle);
@@ -1610,54 +1614,72 @@ table.table th {
 
     // Draw each line and its data points.
     linesData.forEach(({ name, color, values }) => {
+      // Determine stroke dash style: dashed for Qwen and Llama, solid otherwise.
+      const dashStyle = (name.toLowerCase().includes("qwen") || name.toLowerCase().includes("llama")) ? "8" : null;
+
       // Draw the line.
       g.append("path")
        .datum(values)
        .attr("fill", "none")
        .attr("stroke", color)
        .attr("stroke-width", 3)
+       .attr("stroke-dasharray", dashStyle)
        .attr("d", lineGenerator);
 
-      // Draw circles at each data point.
-      g.selectAll(`.circle-${sanitizeClassName(name)}`)
+      // Determine marker symbol based on name.
+      let symbolType;
+      if (name === "GPT-4o") {
+        symbolType = d3.symbolDiamond2; // 45° rotated square (diamond)
+      } else if (name.startsWith("Gemini")) {
+        symbolType = d3.symbolSquare;   // normal square
+      } else if (name.startsWith("Qwen")) {
+        symbolType = d3.symbolCircle;   // circle
+      } else if (name.startsWith("Llama")) {
+        symbolType = d3.symbolTriangle; // triangle
+      } else {
+        symbolType = d3.symbolCircle;   // fallback
+      }
+
+      // Create symbol generator using the dynamically computed marker area.
+      const markerSymbol = d3.symbol().type(symbolType).size(markerAreaData);
+
+      // Draw markers at each data point.
+      g.selectAll(`.marker-${sanitizeClassName(name)}`)
        .data(values)
        .enter()
-       .append("circle")
-         .attr("class", `circle-${sanitizeClassName(name)}`)
+       .append("path")
+         .attr("class", `marker-${sanitizeClassName(name)}`)
+         .attr("d", markerSymbol)
          .attr("fill", color)
          .attr("stroke", "black")
-         .attr("stroke-width", 1)
-         .attr("r", 4)
-         .attr("cx", d => xScale(d.x))
-         .attr("cy", d => yScale(d.y));
+         .attr("stroke-width", 0.8)
+         .attr("opacity", 0.9)
+         .attr("transform", d => `translate(${xScale(d.x)}, ${yScale(d.y)})`);
     });
 
-    // Draw the legend with dynamic sizing.
+    // Draw the legend with marker symbols.
     drawLegend(g, innerWidth, linesData, width);
   }
 
   /**
-   * Draw x-axis and y-axis. The tick labels' font sizes scale with the overall chart width.
+   * Draw x-axis and y-axis with dynamically scaled tick font sizes.
    */
   function drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, svgWidth) {
-    // Calculate dynamic font size for tick labels (e.g., 3% of the overall chart width).
     const tickFontSize = svgWidth * 0.035;
 
-    // Conditionally set the tick format for the x-axis.
     let xAxis;
     if (xScale.domain()[1] < 10) {
-      // For the right chart, format ticks as plain integers.
       xAxis = d3.axisBottom(xScale)
                 .tickValues(xTickValues)
-                .tickFormat(d3.format("d"));
+                .tickFormat(d3.format("d"))
+                .tickSizeOuter(0);
     } else {
-      // For the left chart, use the original formatting.
       xAxis = d3.axisBottom(xScale)
                 .tickValues(xTickValues)
                 .tickFormat(d =>
                   d >= 1e9 ? (d / 1e9).toFixed(1) + "B" :
-                  (d / 1e6).toFixed(0) + "M"
-                );
+                  (d / 1e6).toFixed(0) + "M")
+                  .tickSizeOuter(0);
     }
     g.append("g")
      .attr("class", "x-axis")
@@ -1669,7 +1691,6 @@ table.table th {
        .attr("fill", "#464646")
        .attr("font-weight", "500");
 
-    // Y-axis.
     const yAxis = d3.axisLeft(yScale)
                     .ticks(5)
                     .tickSizeInner(0)
@@ -1691,7 +1712,6 @@ table.table th {
   function drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues) {
     const yTicks = yScale.ticks(5).filter(t => t !== 0);
 
-    // Horizontal gridlines.
     g.append("g")
      .attr("class", "grid horizontal-grid")
      .call(
@@ -1705,7 +1725,6 @@ table.table th {
        .attr("stroke-dasharray", "5")
        .attr("stroke-width", 2);
 
-    // Vertical gridlines.
     g.append("g")
      .attr("class", "grid vertical-grid")
      .selectAll("line")
@@ -1725,28 +1744,24 @@ table.table th {
    * Draw borders around the plot area.
    */
   function drawBorders(g, innerWidth, innerHeight) {
-    // Top border.
     g.append("line")
      .attr("x1", 0).attr("y1", 0)
      .attr("x2", innerWidth).attr("y2", 0)
      .attr("stroke", "lightgray")
      .attr("stroke-width", 2);
 
-    // Right border.
     g.append("line")
      .attr("x1", innerWidth).attr("y1", 0)
      .attr("x2", innerWidth).attr("y2", innerHeight)
      .attr("stroke", "lightgray")
      .attr("stroke-width", 2);
 
-    // Left border.
     g.append("line")
      .attr("x1", 0).attr("y1", 0)
      .attr("x2", 0).attr("y2", innerHeight)
      .attr("stroke", "#36454F")
      .attr("stroke-width", 2);
 
-    // Bottom border.
     g.append("line")
      .attr("x1", 0).attr("y1", innerHeight)
      .attr("x2", innerWidth).attr("y2", innerHeight)
@@ -1762,7 +1777,24 @@ table.table th {
   }
 
   /**
-   * Draw a responsive 2x2 legend.
+   * Helper function to determine the marker symbol type based on the series name.
+   */
+  function getSymbolType(name) {
+    if (name === "GPT-4o") {
+      return d3.symbolDiamond2; // 45° rotated square (diamond)
+    } else if (name.startsWith("Gemini")) {
+      return d3.symbolSquare;   // normal square
+    } else if (name.startsWith("Qwen")) {
+      return d3.symbolCircle;   // circle
+    } else if (name.startsWith("Llama")) {
+      return d3.symbolTriangle; // triangle
+    } else {
+      return d3.symbolCircle;   // fallback
+    }
+  }
+
+  /**
+   * Draw a responsive 2x2 legend using marker symbols.
    */
   function drawLegend(g, innerWidth, linesData, svgWidth) {
     // Remove any existing legend.
@@ -1776,30 +1808,32 @@ table.table th {
                                    .append("g")
                                    .attr("class", "legend-item");
 
-    // Let the font and squares scale with the overall SVG width.
-    const fontSize = svgWidth * 0.035;    // 3% of the chart width.
-    const squareSize = svgWidth * 0.025;    // 2% of the chart width.
-    const colSpacing = 20;
-    const rowSpacing = 0;
+    // Scale the marker size with the overall SVG width.
+    const fontSize = svgWidth * 0.035;       // 3% of the chart width.
+    const markerBoxSize = svgWidth * 0.025;    // Base box size for marker positioning.
+    const legendMarkerArea = svgWidth * 0.1333; // Marker area scales like in the chart
 
-    // Draw colored squares.
-    legendItems.append("rect")
-               .attr("fill", d => d.color)
-               .attr("stroke", "black")
-               .attr("stroke-width", 1)
-               .attr("width", squareSize)
-               .attr("height", squareSize);
+    // Draw marker symbols in the legend.
+    legendItems.append("path")
+      .attr("d", d => {
+        const symbolType = getSymbolType(d.name);
+        return d3.symbol().type(symbolType).size(legendMarkerArea)();
+      })
+      .attr("fill", d => d.color)
+      .attr("stroke", "black")
+      .attr("stroke-width", 1)
+      .attr("transform", `translate(${markerBoxSize/2}, ${markerBoxSize/2})`);
 
     // Draw legend text.
     legendItems.append("text")
-               .text(d => d.name)
-               .attr("font-family", "Roboto, sans-serif")
-               .attr("font-size", fontSize)
-               .attr("fill", "#464646")
-               .attr("x", squareSize + 5)
-               .attr("y", squareSize * 0.95);
+      .text(d => d.name)
+      .attr("font-family", "Roboto, sans-serif")
+      .attr("font-size", fontSize)
+      .attr("fill", "#464646")
+      .attr("x", markerBoxSize + 5)
+      .attr("y", markerBoxSize * 0.95);
 
-    // Position legend items in a 2x2 grid after rendering.
+    // Position legend items in a 2x2 grid.
     requestAnimationFrame(() => {
       const items = legendGroup.selectAll(".legend-item").nodes();
       let col0MaxWidth = 0;
@@ -1812,8 +1846,8 @@ table.table th {
       items.forEach((item, i) => {
         const col = i % 2;
         const row = Math.floor(i / 2);
-        const x = (col === 0) ? 0 : col0MaxWidth + colSpacing;
-        const y = row * (item.getBBox().height + rowSpacing);
+        const x = (col === 0) ? 0 : col0MaxWidth + 20;
+        const y = row * (item.getBBox().height + 0);
         d3.select(item).attr("transform", `translate(${x}, ${y})`);
       });
       const legendBBox = legendGroup.node().getBBox();
@@ -1825,19 +1859,10 @@ table.table th {
 
   /**
    * Draw axis titles for the x-axis and y-axis.
-   * @param {Object} g - The main group element for the chart.
-   * @param {Number} innerWidth - The inner width of the chart.
-   * @param {Number} innerHeight - The inner height of the chart.
-   * @param {Object} margin - The margins used for the chart.
-   * @param {Number} svgWidth - The overall width of the SVG element.
-   * @param {String} xTitle - The title for the x-axis.
-   * @param {String} yTitle - The title for the y-axis.
    */
   function drawAxisTitles(g, innerWidth, innerHeight, margin, svgWidth, xTitle, yTitle) {
-    // Define a dynamic font size for the titles (adjust the multiplier as needed)
     const titleFontSize = svgWidth * 0.04;  // 4% of the SVG width
 
-    // Append the x-axis title
     g.append("text")
       .attr("class", "x-axis-title")
       .attr("text-anchor", "middle")
@@ -1848,7 +1873,6 @@ table.table th {
       .attr("fill", "#464646")
       .attr("font-family", "Roboto, sans-serif");
 
-    // Append the y-axis title (rotated)
     g.append("text")
       .attr("class", "y-axis-title")
       .attr("text-anchor", "middle")
@@ -1866,9 +1890,11 @@ table.table th {
 
 
 
+
+
         <ul>
           <li>
-            Our analysis shows that box-office success correlates with model recognition, suggesting that popular movies are more frequently included in training data.
+            Our analysis shows that box-office success correlates with the models' performance on the task, suggesting that popular movies are more frequently included in training data.
           </li>
           <li>
             Higher IMDb-rated movies also tend to be more recognizable, indicating that high-quality can also be seen as a proxy for the likelihood of memorization.
