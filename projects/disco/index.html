@@ -706,7 +706,7 @@ table.table th {
         const width  = bbox.width + 20;
         const height = bbox.height;
   
-        const margin = { top: 45, right: 30, bottom: 10, left: 35 };
+        const margin = { top: 45, right: 50, bottom: 10, left: 60 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
   
@@ -793,6 +793,19 @@ table.table th {
           .attr("x2", innerWidth).attr("y2", innerHeight)
           .attr("stroke", "#36454F")
           .attr("stroke-width", borderWidth);
+  
+        // --- New Modification: Add Y-Axis Title ---
+        // Dynamic font size based on overall SVG width
+        const titleFontSize = width * 0.028;
+        g.append("text")
+          .attr("class", "y-axis-title")
+          .attr("transform", "rotate(-90)")
+          .attr("x", -innerHeight / 2)
+          .attr("y", -margin.left + (margin.left * 0.4))
+          .attr("text-anchor", "middle")
+          .style("font-size", titleFontSize + "px")
+          .style("fill", "#464646")
+          .text("Accuracy (%)");
   
         // Draw the static bars for other models
         drawInitialBars(g, innerWidth, innerHeight, yScale, xScale);
@@ -969,7 +982,7 @@ table.table th {
         const width  = bbox.width + 20;
         const height = bbox.height;
   
-        const margin = { top: 45, right: 30, bottom: 10, left: 35 };
+        const margin = { top: 45, right: 50, bottom: 10, left: 60 };
         const innerWidth  = width - margin.left - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
   
@@ -1177,6 +1190,7 @@ table.table th {
   
     });
   </script>
+  
   
   
     
@@ -1569,8 +1583,8 @@ table.table th {
     drawBorders(g, innerWidth, innerHeight);
 
     // Draw axis titles (x-axis title depends on chart; y-axis title is shared)
-    const xTitle = svgSelector === "#line-chart-2" ? "(IMDb) rating" : "(Box-Office)";
-    const yTitle = "Accuracy";
+    const xTitle = svgSelector === "#line-chart-2" ? "IMDb Rating" : "Box-Office ($)";
+    const yTitle = "Accuracy (%)";
     drawAxisTitles(g, innerWidth, innerHeight, margin, width, xTitle, yTitle);
 
     // Create a line generator for smooth curves.
