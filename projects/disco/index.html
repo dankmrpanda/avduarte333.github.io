@@ -1418,8 +1418,8 @@ table.table th {
     const margin = {
       top: Math.min(height * 0.20, 100),
       right: Math.min(width * 0.05, 40),
-      bottom: Math.min(height * 0.1, 100),
-      left: Math.min(width * 0.1, 60)
+      bottom: Math.min(height * 0.15, 100),
+      left: Math.min(width * 0.15, 60)
     };
 
     const innerWidth = width - margin.left - margin.right;
@@ -1567,6 +1567,11 @@ table.table th {
     drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, width);
     drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues);
     drawBorders(g, innerWidth, innerHeight);
+
+    // Draw axis titles (x-axis title depends on chart; y-axis title is shared)
+    const xTitle = svgSelector === "#line-chart-2" ? "(IMDb) rating" : "(Box-Office)";
+    const yTitle = "Accuracy";
+    drawAxisTitles(g, innerWidth, innerHeight, margin, width, xTitle, yTitle);
 
     // Create a line generator for smooth curves.
     const lineGenerator = d3.line()
@@ -1788,7 +1793,46 @@ table.table th {
       legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
     });
   }
+
+  /**
+   * Draw axis titles for the x-axis and y-axis.
+   * @param {Object} g - The main group element for the chart.
+   * @param {Number} innerWidth - The inner width of the chart.
+   * @param {Number} innerHeight - The inner height of the chart.
+   * @param {Object} margin - The margins used for the chart.
+   * @param {Number} svgWidth - The overall width of the SVG element.
+   * @param {String} xTitle - The title for the x-axis.
+   * @param {String} yTitle - The title for the y-axis.
+   */
+  function drawAxisTitles(g, innerWidth, innerHeight, margin, svgWidth, xTitle, yTitle) {
+    // Define a dynamic font size for the titles (adjust the multiplier as needed)
+    const titleFontSize = svgWidth * 0.04;  // 4% of the SVG width
+
+    // Append the x-axis title
+    g.append("text")
+      .attr("class", "x-axis-title")
+      .attr("text-anchor", "middle")
+      .attr("x", innerWidth / 2)
+      .attr("y", innerHeight + margin.bottom - (margin.bottom * 0.25))
+      .text(xTitle)
+      .attr("font-size", titleFontSize)
+      .attr("fill", "#464646")
+      .attr("font-family", "Roboto, sans-serif");
+
+    // Append the y-axis title (rotated)
+    g.append("text")
+      .attr("class", "y-axis-title")
+      .attr("text-anchor", "middle")
+      .attr("transform", "rotate(-90)")
+      .attr("x", -innerHeight / 2)
+      .attr("y", -margin.left + (margin.left * 0.35))
+      .text(yTitle)
+      .attr("font-size", titleFontSize)
+      .attr("fill", "#464646")
+      .attr("font-family", "Roboto, sans-serif");
+  }
 </script>
+
 
 
 
