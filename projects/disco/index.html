@@ -1416,7 +1416,7 @@ table.table th {
     // Get container dimensions and compute chart height using an aspect ratio.
     const container = document.querySelector(svgSelector);
     const { width } = container.getBoundingClientRect();
-    const height = width * 0.8; // Adjust aspect ratio as needed
+    const height = width * 0.9; // Adjust aspect ratio as needed
 
     // Configure responsive SVG attributes.
     svg.attr("viewBox", `0 0 ${width} ${height}`)
@@ -1426,9 +1426,9 @@ table.table th {
      * Define margins (clamped to prevent excessive or tiny margins).
      */
     const margin = {
-      top: Math.min(height * 0.15, 60),
+      top: Math.min(height * 0.20, 100),
       right: Math.min(width * 0.05, 40),
-      bottom: Math.min(height * 0.1, 50),
+      bottom: Math.min(height * 0.2, 100),
       left: Math.min(width * 0.1, 60)
     };
 
@@ -1554,7 +1554,7 @@ table.table th {
    */
   function drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, svgWidth) {
     // Calculate dynamic font size for tick labels (e.g., 3% of the overall chart width).
-    const tickFontSize = svgWidth * 0.03;
+    const tickFontSize = svgWidth * 0.035;
 
     // X-axis.
     const xAxis = d3.axisBottom(xScale)
@@ -1570,7 +1570,8 @@ table.table th {
      .selectAll("text")
        .attr("font-family", "Roboto, sans-serif")
        .attr("font-size", tickFontSize)
-       .attr("fill", "black");
+       .attr("fill", "#464646")
+       .attr("font-weight", "500");
 
     // Y-axis.
     const yAxis = d3.axisLeft(yScale)
@@ -1584,7 +1585,8 @@ table.table th {
      .selectAll("text")
        .attr("font-family", "Roboto, sans-serif")
        .attr("font-size", tickFontSize)
-       .attr("fill", "black");
+       .attr("fill", "#464646")
+       .attr("font-weight", "500");
   }
 
   /**
@@ -1679,8 +1681,8 @@ table.table th {
                                    .attr("class", "legend-item");
 
     // Let the font and squares scale with the overall SVG width.
-    const fontSize = svgWidth * 0.03;    // 3% of the chart width.
-    const squareSize = svgWidth * 0.02;    // 2% of the chart width.
+    const fontSize = svgWidth * 0.035;    // 3% of the chart width.
+    const squareSize = svgWidth * 0.025;    // 2% of the chart width.
     const colSpacing = 20;
     const rowSpacing = 5;
 
@@ -1699,7 +1701,7 @@ table.table th {
                .attr("font-size", fontSize)
                .attr("fill", "black")
                .attr("x", squareSize + 5)
-               .attr("y", squareSize * 0.85);
+               .attr("y", squareSize * 0.95);
 
     // Position legend items in a 2x2 grid after rendering.
     requestAnimationFrame(() => {
@@ -1720,7 +1722,7 @@ table.table th {
       });
       const legendBBox = legendGroup.node().getBBox();
       const offsetX = Math.max(0, (innerWidth - legendBBox.width) / 2);
-      const offsetY = -Math.min(35, 0.1 * svgWidth);
+      const offsetY = -Math.min(40, 0.1 * svgWidth);
       legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
     });
   }
