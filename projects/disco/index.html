@@ -279,6 +279,9 @@
       .legend-text { font-size: 12px !important; }
       .legend-square { width: 8px !important; height: 8px !important; }
     }
+
+
+
     @media screen and (max-width: 1000px) {
       figure.chart-or-image, #quiz-answer-wrapper { width: 90% !important; }
     }
@@ -794,15 +797,19 @@ table.table th {
           .attr("stroke", "#36454F")
           .attr("stroke-width", borderWidth);
   
-        // --- New Modification: Add Y-Axis Title ---
-        // Wait for the y-axis ticks to render, get one tick's computed font size,
-        // add 2px, and use that for the title.
+
+        // --- Add Y-Axis Title ---
         const tickLabelEl = g.select(".y-axis").select("text").node();
-        let computedFontSize = 12; // default fallback
-        if (tickLabelEl) {
+        let computedFontSize;
+        if (window.innerWidth <= 1000) {
+          // For mobile devices, force a smaller base size
+          computedFontSize = 12;
+        } else if (tickLabelEl) {
           computedFontSize = parseFloat(window.getComputedStyle(tickLabelEl).fontSize);
+        } else {
+          computedFontSize = 12; // fallback
         }
-        const titleFontSize = computedFontSize + 2;
+        const titleFontSize = computedFontSize + 4;
         g.append("text")
           .attr("class", "y-axis-title")
           .attr("transform", "rotate(-90)")
@@ -812,6 +819,7 @@ table.table th {
           .style("font-size", titleFontSize + "px")
           .style("fill", "#464646")
           .text("Accuracy (%)");
+
   
         // Draw the static bars for other models
         drawInitialBars(g, innerWidth, innerHeight, yScale, xScale);
