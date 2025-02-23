@@ -1673,7 +1673,8 @@ table.table th {
                       .tickValues(xTickValues)
                       .tickFormat(d3.format("d"))
                       .tickSizeInner(4)
-                      .tickSizeOuter(0);
+                      .tickSizeOuter(0)
+                      .tickPadding(2);
           } else {
             xAxis = d3.axisBottom(xScale)
                       .tickValues(xTickValues)
@@ -1681,7 +1682,8 @@ table.table th {
                         d >= 1e9 ? (d / 1e9).toFixed(1) + "B" :
                         (d / 1e6).toFixed(0) + "M")
                         .tickSizeInner(4)
-                        .tickSizeOuter(0);
+                        .tickSizeOuter(0)
+                        .tickPadding(2);
           }
           g.append("g")
           .attr("class", "x-axis")
