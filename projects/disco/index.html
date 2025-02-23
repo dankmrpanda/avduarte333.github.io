@@ -1407,501 +1407,499 @@ table.table th {
         <h3 class="title is-4">Popular / Higher-Quality movies are more easily recognized</h3>
 
 
-<!-- HTML: Two charts side by side, each 45% wide with a small gap -->
-<div style="display: flex; justify-content: space-between; gap: 10px;">
-  <svg id="line-chart-1" width="50%"></svg>
-  <svg id="line-chart-2" width="50%"></svg>
-</div>
+      <!-- HTML: Two charts side by side, each 45% wide with a small gap -->
+      <div style="display: flex; justify-content: space-between; gap: 10px;">
+        <svg id="line-chart-1" width="50%"></svg>
+        <svg id="line-chart-2" width="50%"></svg>
+      </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Draw both charts initially
-    drawLineChart("#line-chart-1");
-    drawLineChart("#line-chart-2");
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          // Draw both charts initially
+          drawLineChart("#line-chart-1");
+          drawLineChart("#line-chart-2");
 
-    // Redraw on window resize
-    window.addEventListener('resize', () => {
-      drawLineChart("#line-chart-1");
-      drawLineChart("#line-chart-2");
-    });
-  });
+          // Redraw on window resize
+          window.addEventListener('resize', () => {
+            drawLineChart("#line-chart-1");
+            drawLineChart("#line-chart-2");
+          });
+        });
 
-  /**
-   * Main function to draw a line chart within the provided SVG selector.
-   */
-  function drawLineChart(svgSelector) {
-    const svg = d3.select(svgSelector);
-    svg.selectAll('*').remove(); // Clear previous content
+        /**
+         * Main function to draw a line chart within the provided SVG selector.
+         */
+        function drawLineChart(svgSelector) {
+          const svg = d3.select(svgSelector);
+          svg.selectAll('*').remove(); // Clear previous content
 
-    // Get container dimensions and compute chart height using an aspect ratio.
-    const container = document.querySelector(svgSelector);
-    const { width } = container.getBoundingClientRect();
-    const height = width * 0.9; // Adjust aspect ratio as needed
+          // Get container dimensions and compute chart height using an aspect ratio.
+          const container = document.querySelector(svgSelector);
+          const { width } = container.getBoundingClientRect();
+          const height = width * 0.9; // Adjust aspect ratio as needed
 
-    // Configure responsive SVG attributes.
-    svg.attr("viewBox", `0 0 ${width} ${height}`)
-       .attr("preserveAspectRatio", "xMidYMid meet");
+          // Configure responsive SVG attributes.
+          svg.attr("viewBox", `0 0 ${width} ${height}`)
+            .attr("preserveAspectRatio", "xMidYMid meet");
 
-    /**
-     * Define margins (clamped to prevent excessive or tiny margins).
-     */
-    const margin = {
-      top: Math.min(height * 0.20, 100),
-      right: Math.min(width * 0.05, 40),
-      bottom: Math.min(height * 0.15, 100),
-      left: Math.min(width * 0.15, 60)
-    };
+          /**
+           * Define margins (clamped to prevent excessive or tiny margins).
+           */
+          const margin = {
+            top: Math.min(height * 0.20, 100),
+            right: Math.min(width * 0.05, 40),
+            bottom: Math.min(height * 0.15, 100),
+            left: Math.min(width * 0.15, 60)
+          };
 
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
+          const innerWidth = width - margin.left - margin.right;
+          const innerHeight = height - margin.top - margin.bottom;
 
-    // Compute a marker area that scales with the SVG width.
-    const markerAreaData = width * 0.16; // For example, 600px => ~80 sq. pixels
+          // Compute a marker area that scales with the SVG width.
+          const markerAreaData = width * 0.16; // For example, 600px => ~80 sq. pixels
 
-    // Create a group for the chart content.
-    const g = svg.append("g")
-                 .attr("transform", `translate(${margin.left}, ${margin.top})`);
+          // Create a group for the chart content.
+          const g = svg.append("g")
+                      .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    // Define scales, tick values, and data conditionally.
-    let xScale, xTickValues, linesData;
-    if (svgSelector === "#line-chart-2") {
-      // Right chart: x-axis domain starts at 3.5 for extra left padding, with ticks from 4 to 9.
-      xScale = d3.scaleLinear()
-                 .domain([3.5, 9.5])
-                 .range([0, innerWidth]);
-      xTickValues = [4, 5, 6, 7, 8, 9];
+          // Define scales, tick values, and data conditionally.
+          let xScale, xTickValues, linesData;
+          if (svgSelector === "#line-chart-2") {
+            // Right chart: x-axis domain starts at 3.5 for extra left padding, with ticks from 4 to 9.
+            xScale = d3.scaleLinear()
+                      .domain([3.5, 9.5])
+                      .range([0, innerWidth]);
+            xTickValues = [4, 5, 6, 7, 8, 9];
 
-      linesData = [
-        {
-          name: "GPT-4o",
-          color: "#7bb296e6",
-          values: [
-            { x: 3.8, y: 56 },
-            { x: 4.3, y: 41 },
-            { x: 5.5, y: 37 },
-            { x: 6, y: 39 },
-            { x: 7.3, y: 63 },
-            { x: 8.3, y: 80 },
-            { x: 9, y: 96 }
-          ]
-        },
-        {
-          name: "Gemini-1.5-Pro",
-          color: "#f6d379e6",
-          values: [
-            { x: 3.8, y: 41 },
-            { x: 4.3, y: 23 },
-            { x: 5.5, y: 28 },
-            { x: 6, y: 22 },
-            { x: 7.3, y: 41 },
-            { x: 8.3, y: 78 },
-            { x: 9, y: 20 }
-          ]
-        },
-        {
-          name: "Qwen2-VL 72B",
-          color: "#695e93e6",
-          values: [
-            { x: 3.8, y: 18 },
-            { x: 4.3, y: 22 },
-            { x: 5.5, y: 19 },
-            { x: 6, y: 24 },
-            { x: 7.3, y: 29 },
-            { x: 8.3, y: 62 },
-            { x: 9, y: 57 }
-          ]
-        },
-        {
-          name: "Llama-3.2 90B",
-          color: "#ff9671",
-          values: [
-            { x: 3.8, y: 16 },
-            { x: 4.3, y: 18 },
-            { x: 5.5, y: 17 },
-            { x: 6, y: 18 },
-            { x: 7.3, y: 31 },
-            { x: 8.3, y: 64 },
-            { x: 9, y: 63 }
-          ]
+            linesData = [
+              {
+                name: "GPT-4o",
+                color: "#7bb296e6",
+                values: [
+                  { x: 3.8, y: 56 },
+                  { x: 4.3, y: 41 },
+                  { x: 5.5, y: 37 },
+                  { x: 6, y: 39 },
+                  { x: 7.3, y: 63 },
+                  { x: 8.3, y: 80 },
+                  { x: 9, y: 96 }
+                ]
+              },
+              {
+                name: "Gemini-1.5-Pro",
+                color: "#f6d379e6",
+                values: [
+                  { x: 3.8, y: 41 },
+                  { x: 4.3, y: 23 },
+                  { x: 5.5, y: 28 },
+                  { x: 6, y: 22 },
+                  { x: 7.3, y: 41 },
+                  { x: 8.3, y: 78 },
+                  { x: 9, y: 20 }
+                ]
+              },
+              {
+                name: "Qwen2-VL 72B",
+                color: "#695e93e6",
+                values: [
+                  { x: 3.8, y: 18 },
+                  { x: 4.3, y: 22 },
+                  { x: 5.5, y: 19 },
+                  { x: 6, y: 24 },
+                  { x: 7.3, y: 29 },
+                  { x: 8.3, y: 62 },
+                  { x: 9, y: 57 }
+                ]
+              },
+              {
+                name: "Llama-3.2 90B",
+                color: "#ff9671",
+                values: [
+                  { x: 3.8, y: 16 },
+                  { x: 4.3, y: 18 },
+                  { x: 5.5, y: 17 },
+                  { x: 6, y: 18 },
+                  { x: 7.3, y: 31 },
+                  { x: 8.3, y: 64 },
+                  { x: 9, y: 63 }
+                ]
+              }
+            ];
+          } else {
+            // Left chart: original x-axis and data.
+            xScale = d3.scaleLinear()
+                      .domain([1e8, 2.4e9])
+                      .range([0, innerWidth]);
+            xTickValues = [];
+            for (let val = 2e8; val <= 2.2e9; val += 4e8) {
+              xTickValues.push(val);
+            }
+
+            linesData = [
+              {
+                name: "GPT-4o",
+                color: "#7bb296",
+                values: [
+                  { x: 2.0e8,  y: 58 },
+                  { x: 3.0e8,  y: 58 },
+                  { x: 5.0e8,  y: 77 },
+                  { x: 7.9e8,  y: 80 },
+                  { x: 9.0e8,  y: 59 },
+                  { x: 1.3e9,  y: 85 },
+                  { x: 2.26e9, y: 82 }
+                ]
+              },
+              {
+                name: "Gemini-1.5-Pro",
+                color: "#f6d379",
+                values: [
+                  { x: 2.0e8,  y: 39 },
+                  { x: 3.0e8,  y: 40 },
+                  { x: 5.0e8,  y: 58 },
+                  { x: 7.9e8,  y: 66 },
+                  { x: 9.0e8,  y: 50 },
+                  { x: 1.3e9,  y: 68 },
+                  { x: 2.26e9, y: 78 }
+                ]
+              },
+              {
+                name: "Qwen2-VL 72B",
+                color: "#695e93",
+                values: [
+                  { x: 2.0e8,  y: 33 },
+                  { x: 3.0e8,  y: 36 },
+                  { x: 5.0e8,  y: 21 },
+                  { x: 7.9e8,  y: 39 },
+                  { x: 9.0e8,  y: 35 },
+                  { x: 1.3e9,  y: 61 },
+                  { x: 2.26e9, y: 64 }
+                ]
+              },
+              {
+                name: "Llama-3.2 90B",
+                color: "#ff9671",
+                values: [
+                  { x: 2.0e8,  y: 43 },
+                  { x: 3.0e8,  y: 43 },
+                  { x: 5.0e8,  y: 42 },
+                  { x: 7.9e8,  y: 28 },
+                  { x: 9.0e8,  y: 42 },
+                  { x: 1.3e9,  y: 71 },
+                  { x: 2.26e9, y: 65 }
+                ]
+              }
+            ];
+          }
+
+          // Define y-scale (same for both charts).
+          const yScale = d3.scaleLinear()
+                          .domain([0, 105])
+                          .range([innerHeight, 0]);
+
+          // Draw axes, gridlines, and borders.
+          drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, width);
+          drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues);
+          drawBorders(g, innerWidth, innerHeight);
+
+          // Draw axis titles.
+          const xTitle = svgSelector === "#line-chart-2" ? "IMDb Rating" : "Box-Office ($)";
+          const yTitle = "Accuracy (%)";
+          drawAxisTitles(g, innerWidth, innerHeight, margin, width, xTitle, yTitle);
+
+          // Create a line generator for smooth curves.
+          const lineGenerator = d3.line()
+                                  .x(d => xScale(d.x))
+                                  .y(d => yScale(d.y))
+                                  .curve(d3.curveLinear);
+
+          // Draw each line and its data points.
+          linesData.forEach(({ name, color, values }) => {
+            // Determine stroke dash style: dashed for Qwen and Llama, solid otherwise.
+            const dashStyle = (name.toLowerCase().includes("qwen") || name.toLowerCase().includes("llama")) ? "8" : null;
+
+            // Draw the line.
+            g.append("path")
+            .datum(values)
+            .attr("fill", "none")
+            .attr("stroke", color)
+            .attr("stroke-width", 3)
+            .attr("stroke-dasharray", dashStyle)
+            .attr("d", lineGenerator);
+
+            // Determine marker symbol based on name.
+            let symbolType;
+            if (name === "GPT-4o") {
+              symbolType = d3.symbolDiamond2; // 45° rotated square (diamond)
+            } else if (name.startsWith("Gemini")) {
+              symbolType = d3.symbolSquare;   // normal square
+            } else if (name.startsWith("Qwen")) {
+              symbolType = d3.symbolCircle;   // circle
+            } else if (name.startsWith("Llama")) {
+              symbolType = d3.symbolTriangle; // triangle
+            } else {
+              symbolType = d3.symbolCircle;   // fallback
+            }
+
+            // Create symbol generator using the dynamically computed marker area.
+            const markerSymbol = d3.symbol().type(symbolType).size(markerAreaData);
+
+            // Draw markers at each data point.
+            g.selectAll(`.marker-${sanitizeClassName(name)}`)
+            .data(values)
+            .enter()
+            .append("path")
+              .attr("class", `marker-${sanitizeClassName(name)}`)
+              .attr("d", markerSymbol)
+              .attr("fill", color)
+              .attr("stroke", "black")
+              .attr("stroke-width", 0.8)
+              .attr("opacity", 0.9)
+              .attr("transform", d => `translate(${xScale(d.x)}, ${yScale(d.y)})`);
+          });
+
+          // Draw the legend with marker symbols.
+          drawLegend(g, innerWidth, linesData, width);
         }
-      ];
-    } else {
-      // Left chart: original x-axis and data.
-      xScale = d3.scaleLinear()
-                 .domain([1e8, 2.4e9])
-                 .range([0, innerWidth]);
-      xTickValues = [];
-      for (let val = 2e8; val <= 2.2e9; val += 4e8) {
-        xTickValues.push(val);
-      }
 
-      linesData = [
-        {
-          name: "GPT-4o",
-          color: "#7bb296",
-          values: [
-            { x: 2.0e8,  y: 58 },
-            { x: 3.0e8,  y: 58 },
-            { x: 5.0e8,  y: 77 },
-            { x: 7.9e8,  y: 80 },
-            { x: 9.0e8,  y: 59 },
-            { x: 1.3e9,  y: 85 },
-            { x: 2.26e9, y: 82 }
-          ]
-        },
-        {
-          name: "Gemini-1.5-Pro",
-          color: "#f6d379",
-          values: [
-            { x: 2.0e8,  y: 39 },
-            { x: 3.0e8,  y: 40 },
-            { x: 5.0e8,  y: 58 },
-            { x: 7.9e8,  y: 66 },
-            { x: 9.0e8,  y: 50 },
-            { x: 1.3e9,  y: 68 },
-            { x: 2.26e9, y: 78 }
-          ]
-        },
-        {
-          name: "Qwen2-VL 72B",
-          color: "#695e93",
-          values: [
-            { x: 2.0e8,  y: 33 },
-            { x: 3.0e8,  y: 36 },
-            { x: 5.0e8,  y: 21 },
-            { x: 7.9e8,  y: 39 },
-            { x: 9.0e8,  y: 35 },
-            { x: 1.3e9,  y: 61 },
-            { x: 2.26e9, y: 64 }
-          ]
-        },
-        {
-          name: "Llama-3.2 90B",
-          color: "#ff9671",
-          values: [
-            { x: 2.0e8,  y: 43 },
-            { x: 3.0e8,  y: 43 },
-            { x: 5.0e8,  y: 42 },
-            { x: 7.9e8,  y: 28 },
-            { x: 9.0e8,  y: 42 },
-            { x: 1.3e9,  y: 71 },
-            { x: 2.26e9, y: 65 }
-          ]
+        /**
+         * Draw x-axis and y-axis with dynamically scaled tick font sizes.
+         */
+        function drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, svgWidth) {
+          const tickFontSize = svgWidth * 0.035;
+
+          let xAxis;
+          if (xScale.domain()[1] < 10) {
+            xAxis = d3.axisBottom(xScale)
+                      .tickValues(xTickValues)
+                      .tickFormat(d3.format("d"))
+                      .tickSizeInner(4)
+                      .tickSizeOuter(0);
+          } else {
+            xAxis = d3.axisBottom(xScale)
+                      .tickValues(xTickValues)
+                      .tickFormat(d =>
+                        d >= 1e9 ? (d / 1e9).toFixed(1) + "B" :
+                        (d / 1e6).toFixed(0) + "M")
+                        .tickSizeInner(4)
+                        .tickSizeOuter(0);
+          }
+          g.append("g")
+          .attr("class", "x-axis")
+          .attr("transform", `translate(0, ${innerHeight})`)
+          .call(xAxis)
+          .selectAll("text")
+            .attr("font-family", "Roboto, sans-serif")
+            .attr("font-size", tickFontSize)
+            .attr("fill", "#464646")
+            .attr("font-weight", "500");
+
+          const yAxis = d3.axisLeft(yScale)
+                          .ticks(5)
+                          .tickSizeInner(0)
+                          .tickSizeOuter(0)
+                          .tickPadding(7);
+          g.append("g")
+          .attr("class", "y-axis")
+          .call(yAxis)
+          .selectAll("text")
+            .attr("font-family", "Roboto, sans-serif")
+            .attr("font-size", tickFontSize)
+            .attr("fill", "#464646")
+            .attr("font-weight", "500");
         }
-      ];
-    }
 
-    // Define y-scale (same for both charts).
-    const yScale = d3.scaleLinear()
-                     .domain([0, 105])
-                     .range([innerHeight, 0]);
+        /**
+         * Draw horizontal and vertical gridlines.
+         */
+        function drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues) {
+          const yTicks = yScale.ticks(5).filter(t => t !== 0);
 
-    // Draw axes, gridlines, and borders.
-    drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, width);
-    drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues);
-    drawBorders(g, innerWidth, innerHeight);
+          g.append("g")
+          .attr("class", "grid horizontal-grid")
+          .call(
+            d3.axisLeft(yScale)
+              .tickValues(yTicks)
+              .tickSize(-innerWidth)
+              .tickFormat('')
+          )
+          .selectAll("line")
+            .attr("stroke", "lightgray")
+            .attr("stroke-dasharray", "5")
+            .attr("stroke-width", 2);
 
-    // Draw axis titles.
-    const xTitle = svgSelector === "#line-chart-2" ? "IMDb Rating" : "Box-Office ($)";
-    const yTitle = "Accuracy (%)";
-    drawAxisTitles(g, innerWidth, innerHeight, margin, width, xTitle, yTitle);
-
-    // Create a line generator for smooth curves.
-    const lineGenerator = d3.line()
-                            .x(d => xScale(d.x))
-                            .y(d => yScale(d.y))
-                            .curve(d3.curveLinear);
-
-    // Draw each line and its data points.
-    linesData.forEach(({ name, color, values }) => {
-      // Determine stroke dash style: dashed for Qwen and Llama, solid otherwise.
-      const dashStyle = (name.toLowerCase().includes("qwen") || name.toLowerCase().includes("llama")) ? "8" : null;
-
-      // Draw the line.
-      g.append("path")
-       .datum(values)
-       .attr("fill", "none")
-       .attr("stroke", color)
-       .attr("stroke-width", 3)
-       .attr("stroke-dasharray", dashStyle)
-       .attr("d", lineGenerator);
-
-      // Determine marker symbol based on name.
-      let symbolType;
-      if (name === "GPT-4o") {
-        symbolType = d3.symbolDiamond2; // 45° rotated square (diamond)
-      } else if (name.startsWith("Gemini")) {
-        symbolType = d3.symbolSquare;   // normal square
-      } else if (name.startsWith("Qwen")) {
-        symbolType = d3.symbolCircle;   // circle
-      } else if (name.startsWith("Llama")) {
-        symbolType = d3.symbolTriangle; // triangle
-      } else {
-        symbolType = d3.symbolCircle;   // fallback
-      }
-
-      // Create symbol generator using the dynamically computed marker area.
-      const markerSymbol = d3.symbol().type(symbolType).size(markerAreaData);
-
-      // Draw markers at each data point.
-      g.selectAll(`.marker-${sanitizeClassName(name)}`)
-       .data(values)
-       .enter()
-       .append("path")
-         .attr("class", `marker-${sanitizeClassName(name)}`)
-         .attr("d", markerSymbol)
-         .attr("fill", color)
-         .attr("stroke", "black")
-         .attr("stroke-width", 0.8)
-         .attr("opacity", 0.9)
-         .attr("transform", d => `translate(${xScale(d.x)}, ${yScale(d.y)})`);
-    });
-
-    // Draw the legend with marker symbols.
-    drawLegend(g, innerWidth, linesData, width);
-  }
-
-  /**
-   * Draw x-axis and y-axis with dynamically scaled tick font sizes.
-   */
-  function drawAxis(g, xScale, yScale, innerWidth, innerHeight, xTickValues, svgWidth) {
-    const tickFontSize = svgWidth * 0.035;
-
-    let xAxis;
-    if (xScale.domain()[1] < 10) {
-      xAxis = d3.axisBottom(xScale)
-                .tickValues(xTickValues)
-                .tickFormat(d3.format("d"))
-                .tickSizeOuter(0);
-    } else {
-      xAxis = d3.axisBottom(xScale)
-                .tickValues(xTickValues)
-                .tickFormat(d =>
-                  d >= 1e9 ? (d / 1e9).toFixed(1) + "B" :
-                  (d / 1e6).toFixed(0) + "M")
-                  .tickSizeOuter(0);
-    }
-    g.append("g")
-     .attr("class", "x-axis")
-     .attr("transform", `translate(0, ${innerHeight})`)
-     .call(xAxis)
-     .selectAll("text")
-       .attr("font-family", "Roboto, sans-serif")
-       .attr("font-size", tickFontSize)
-       .attr("fill", "#464646")
-       .attr("font-weight", "500");
-
-    const yAxis = d3.axisLeft(yScale)
-                    .ticks(5)
-                    .tickSizeInner(0)
-                    .tickSizeOuter(0)
-                    .tickPadding(7);
-    g.append("g")
-     .attr("class", "y-axis")
-     .call(yAxis)
-     .selectAll("text")
-       .attr("font-family", "Roboto, sans-serif")
-       .attr("font-size", tickFontSize)
-       .attr("fill", "#464646")
-       .attr("font-weight", "500");
-  }
-
-  /**
-   * Draw horizontal and vertical gridlines.
-   */
-  function drawGridlines(g, xScale, yScale, innerWidth, innerHeight, xTickValues) {
-    const yTicks = yScale.ticks(5).filter(t => t !== 0);
-
-    g.append("g")
-     .attr("class", "grid horizontal-grid")
-     .call(
-       d3.axisLeft(yScale)
-         .tickValues(yTicks)
-         .tickSize(-innerWidth)
-         .tickFormat('')
-     )
-     .selectAll("line")
-       .attr("stroke", "lightgray")
-       .attr("stroke-dasharray", "5")
-       .attr("stroke-width", 2);
-
-    g.append("g")
-     .attr("class", "grid vertical-grid")
-     .selectAll("line")
-     .data(xTickValues)
-     .enter()
-     .append("line")
-       .attr("x1", d => xScale(d))
-       .attr("y1", 0)
-       .attr("x2", d => xScale(d))
-       .attr("y2", innerHeight)
-       .attr("stroke", "lightgray")
-       .attr("stroke-dasharray", "5")
-       .attr("stroke-width", 2);
-  }
-
-  /**
-   * Draw borders around the plot area.
-   */
-  function drawBorders(g, innerWidth, innerHeight) {
-    g.append("line")
-     .attr("x1", 0).attr("y1", 0)
-     .attr("x2", innerWidth).attr("y2", 0)
-     .attr("stroke", "lightgray")
-     .attr("stroke-width", 2);
-
-    g.append("line")
-     .attr("x1", innerWidth).attr("y1", 0)
-     .attr("x2", innerWidth).attr("y2", innerHeight)
-     .attr("stroke", "lightgray")
-     .attr("stroke-width", 2);
-
-    g.append("line")
-     .attr("x1", 0).attr("y1", 0)
-     .attr("x2", 0).attr("y2", innerHeight)
-     .attr("stroke", "#36454F")
-     .attr("stroke-width", 2);
-
-    g.append("line")
-     .attr("x1", 0).attr("y1", innerHeight)
-     .attr("x2", innerWidth).attr("y2", innerHeight)
-     .attr("stroke", "#36454F")
-     .attr("stroke-width", 2);
-  }
-
-  /**
-   * Sanitize strings for use as CSS class names.
-   */
-  function sanitizeClassName(name) {
-    return name.replace(/\s/g, '').replace(/\./g, '-');
-  }
-
-  /**
-   * Helper function to determine the marker symbol type based on the series name.
-   */
-  function getSymbolType(name) {
-    if (name === "GPT-4o") {
-      return d3.symbolDiamond2; // 45° rotated square (diamond)
-    } else if (name.startsWith("Gemini")) {
-      return d3.symbolSquare;   // normal square
-    } else if (name.startsWith("Qwen")) {
-      return d3.symbolCircle;   // circle
-    } else if (name.startsWith("Llama")) {
-      return d3.symbolTriangle; // triangle
-    } else {
-      return d3.symbolCircle;   // fallback
-    }
-  }
-
-  /**
-   * Draw a responsive 2x2 legend using marker symbols.
-   */
-  function drawLegend(g, innerWidth, linesData, svgWidth) {
-    // Remove any existing legend.
-    g.selectAll(".legend").remove();
-
-    const legendData = linesData.map(({ name, color }) => ({ name, color }));
-    const legendGroup = g.append("g").attr("class", "legend");
-    const legendItems = legendGroup.selectAll(".legend-item")
-                                   .data(legendData)
-                                   .enter()
-                                   .append("g")
-                                   .attr("class", "legend-item");
-
-    // Scale the marker size with the overall SVG width.
-    const fontSize = svgWidth * 0.035;       // 3% of the chart width.
-    const markerBoxSize = svgWidth * 0.025;    // Base box size for marker positioning.
-    const legendMarkerArea = svgWidth * 0.1333; // Marker area scales like in the chart
-
-    // Draw marker symbols in the legend.
-    legendItems.append("path")
-      .attr("d", d => {
-        const symbolType = getSymbolType(d.name);
-        return d3.symbol().type(symbolType).size(legendMarkerArea)();
-      })
-      .attr("fill", d => d.color)
-      .attr("stroke", "black")
-      .attr("stroke-width", 1)
-      .attr("transform", `translate(${markerBoxSize/2}, ${markerBoxSize/2})`);
-
-    // Draw legend text.
-    legendItems.append("text")
-      .text(d => d.name)
-      .attr("font-family", "Roboto, sans-serif")
-      .attr("font-size", fontSize)
-      .attr("fill", "#464646")
-      .attr("x", markerBoxSize + 5)
-      .attr("y", markerBoxSize * 0.95);
-
-    // Position legend items in a 2x2 grid.
-    requestAnimationFrame(() => {
-      const items = legendGroup.selectAll(".legend-item").nodes();
-      let col0MaxWidth = 0;
-      items.forEach((item, i) => {
-        if (i % 2 === 0) {
-          const bbox = item.getBBox();
-          col0MaxWidth = Math.max(col0MaxWidth, bbox.width);
+          g.append("g")
+          .attr("class", "grid vertical-grid")
+          .selectAll("line")
+          .data(xTickValues)
+          .enter()
+          .append("line")
+            .attr("x1", d => xScale(d))
+            .attr("y1", 0)
+            .attr("x2", d => xScale(d))
+            .attr("y2", innerHeight)
+            .attr("stroke", "lightgray")
+            .attr("stroke-dasharray", "5")
+            .attr("stroke-width", 2);
         }
-      });
-      items.forEach((item, i) => {
-        const col = i % 2;
-        const row = Math.floor(i / 2);
-        const x = (col === 0) ? 0 : col0MaxWidth + 20;
-        const y = row * (item.getBBox().height + 0);
-        d3.select(item).attr("transform", `translate(${x}, ${y})`);
-      });
-      const legendBBox = legendGroup.node().getBBox();
-      const offsetX = Math.max(0, (innerWidth - legendBBox.width) / 2);
-      const offsetY = -Math.min(38, 0.1 * svgWidth);
-      legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
-    });
-  }
 
-  /**
-   * Draw axis titles for the x-axis and y-axis.
-   */
-  function drawAxisTitles(g, innerWidth, innerHeight, margin, svgWidth, xTitle, yTitle) {
-    const titleFontSize = svgWidth * 0.04;  // 4% of the SVG width
+        /**
+         * Draw borders around the plot area.
+         */
+        function drawBorders(g, innerWidth, innerHeight) {
+          g.append("line")
+          .attr("x1", 0).attr("y1", 0)
+          .attr("x2", innerWidth).attr("y2", 0)
+          .attr("stroke", "lightgray")
+          .attr("stroke-width", 2);
 
-    g.append("text")
-      .attr("class", "x-axis-title")
-      .attr("text-anchor", "middle")
-      .attr("x", innerWidth / 2)
-      .attr("y", innerHeight + margin.bottom - (margin.bottom * 0.25))
-      .text(xTitle)
-      .attr("font-size", titleFontSize)
-      .attr("fill", "#464646")
-      .attr("font-family", "Roboto, sans-serif");
+          g.append("line")
+          .attr("x1", innerWidth).attr("y1", -1)
+          .attr("x2", innerWidth).attr("y2", innerHeight)
+          .attr("stroke", "lightgray")
+          .attr("stroke-width", 2);
 
-    g.append("text")
-      .attr("class", "y-axis-title")
-      .attr("text-anchor", "middle")
-      .attr("transform", "rotate(-90)")
-      .attr("x", -innerHeight / 2)
-      .attr("y", -margin.left + (margin.left * 0.35))
-      .text(yTitle)
-      .attr("font-size", titleFontSize)
-      .attr("fill", "#464646")
-      .attr("font-family", "Roboto, sans-serif");
-  }
-</script>
+          g.append("line")
+          .attr("x1", 0).attr("y1", -1)
+          .attr("x2", 0).attr("y2", innerHeight)
+          .attr("stroke", "#36454F")
+          .attr("stroke-width", 2);
 
+          g.append("line")
+          .attr("x1", -1).attr("y1", innerHeight)
+          .attr("x2", innerWidth + 1).attr("y2", innerHeight)
+          .attr("stroke", "#36454F")
+          .attr("stroke-width", 2);
+        }
 
+        /**
+         * Sanitize strings for use as CSS class names.
+         */
+        function sanitizeClassName(name) {
+          return name.replace(/\s/g, '').replace(/\./g, '-');
+        }
 
+        /**
+         * Helper function to determine the marker symbol type based on the series name.
+         */
+        function getSymbolType(name) {
+          if (name === "GPT-4o") {
+            return d3.symbolDiamond2; // 45° rotated square (diamond)
+          } else if (name.startsWith("Gemini")) {
+            return d3.symbolSquare;   // normal square
+          } else if (name.startsWith("Qwen")) {
+            return d3.symbolCircle;   // circle
+          } else if (name.startsWith("Llama")) {
+            return d3.symbolTriangle; // triangle
+          } else {
+            return d3.symbolCircle;   // fallback
+          }
+        }
 
+        /**
+         * Draw a responsive 2x2 legend using marker symbols.
+         */
+        function drawLegend(g, innerWidth, linesData, svgWidth) {
+          // Remove any existing legend.
+          g.selectAll(".legend").remove();
 
+          const legendData = linesData.map(({ name, color }) => ({ name, color }));
+          const legendGroup = g.append("g").attr("class", "legend");
+          const legendItems = legendGroup.selectAll(".legend-item")
+                                        .data(legendData)
+                                        .enter()
+                                        .append("g")
+                                        .attr("class", "legend-item");
 
+          // Scale the marker size with the overall SVG width.
+          const fontSize = svgWidth * 0.035;       // 3% of the chart width.
+          const markerBoxSize = svgWidth * 0.025;    // Base box size for marker positioning.
+          const legendMarkerArea = svgWidth * 0.1333; // Marker area scales like in the chart
+
+          // Draw marker symbols in the legend.
+          legendItems.append("path")
+            .attr("d", d => {
+              const symbolType = getSymbolType(d.name);
+              return d3.symbol().type(symbolType).size(legendMarkerArea)();
+            })
+            .attr("fill", d => d.color)
+            .attr("stroke", "black")
+            .attr("stroke-width", 1)
+            .attr("transform", `translate(${markerBoxSize/2}, ${markerBoxSize/2})`);
+
+          // Draw legend text.
+          legendItems.append("text")
+            .text(d => d.name)
+            .attr("font-family", "Roboto, sans-serif")
+            .attr("font-size", fontSize)
+            .attr("fill", "#464646")
+            .attr("x", markerBoxSize + 5)
+            .attr("y", markerBoxSize * 0.95);
+
+          // Position legend items in a 2x2 grid.
+          requestAnimationFrame(() => {
+            const items = legendGroup.selectAll(".legend-item").nodes();
+            let col0MaxWidth = 0;
+            items.forEach((item, i) => {
+              if (i % 2 === 0) {
+                const bbox = item.getBBox();
+                col0MaxWidth = Math.max(col0MaxWidth, bbox.width);
+              }
+            });
+            items.forEach((item, i) => {
+              const col = i % 2;
+              const row = Math.floor(i / 2);
+              const x = (col === 0) ? 0 : col0MaxWidth + 20;
+              const y = row * (item.getBBox().height + 0);
+              d3.select(item).attr("transform", `translate(${x}, ${y})`);
+            });
+            const legendBBox = legendGroup.node().getBBox();
+            const offsetX = Math.max(0, (innerWidth - legendBBox.width) / 2);
+            const offsetY = -Math.min(38, 0.1 * svgWidth);
+            legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
+          });
+        }
+
+        /**
+         * Draw axis titles for the x-axis and y-axis.
+         */
+        function drawAxisTitles(g, innerWidth, innerHeight, margin, svgWidth, xTitle, yTitle) {
+          const titleFontSize = svgWidth * 0.04;  // 4% of the SVG width
+
+          g.append("text")
+            .attr("class", "x-axis-title")
+            .attr("text-anchor", "middle")
+            .attr("x", innerWidth / 2)
+            .attr("y", innerHeight + margin.bottom - (margin.bottom * 0.25))
+            .text(xTitle)
+            .attr("font-size", titleFontSize)
+            .attr("fill", "#464646")
+            .attr("font-family", "Roboto, sans-serif");
+
+          g.append("text")
+            .attr("class", "y-axis-title")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -innerHeight / 2)
+            .attr("y", -margin.left + (margin.left * 0.35))
+            .text(yTitle)
+            .attr("font-size", titleFontSize)
+            .attr("fill", "#464646")
+            .attr("font-family", "Roboto, sans-serif");
+        }
+      </script>
 
         <ul>
           <li>
             Our analysis shows that box-office success correlates with the models' performance on the task, suggesting that popular movies are more frequently included in training data.
           </li>
           <li>
-            Higher IMDb-rated movies also tend to be more recognizable, indicating that high-quality can also be seen as a proxy for the likelihood of memorization.
+            Higher IMDb-rated movies also tend to be more recognizable, indicating that quality can also be seen as a proxy for the likelihood of memorization.
           </li>
         </ul>
 
+        <h3 class="title is-4">We can prevent disclosing memorization with fine-tuning</h3>
 
+        
         
         
 
