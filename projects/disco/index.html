@@ -2197,15 +2197,40 @@ table.table th {
       const legendData = linesData.map(({ name, color }) => ({ name, color }));
       const legendGroup = g.append("g").attr("class", "linechart-legend");
       const legendItems = legendGroup.selectAll(".linechart-legend-item")
-                                     .data(legendData)
-                                     .enter()
-                                     .append("g")
-                                     .attr("class", "linechart-legend-item");
+                                    .data(legendData)
+                                    .enter()
+                                    .append("g")
+                                    .attr("class", "linechart-legend-item");
 
-      // Scale the marker size with the overall SVG width.
-      const fontSize = svgWidth * 0.022;       // 3% of the chart width.
-      const markerBoxSize = svgWidth * 0.02;    // Base box size for marker positioning.
-      const legendMarkerArea = svgWidth * 0.1333; // Marker area scales like in the chart
+      // Use the screen width (not the SVG width) to set breakpoints.
+      const screenWidth = window.innerWidth;
+      
+      // Define factors for the different breakpoints.
+      let fontFactor, markerBoxFactor, markerAreaFactor, offsetFactor;
+      if (screenWidth < 768) {
+        // For mobile screens
+        fontFactor = 0.020;       // Smaller text
+        markerBoxFactor = 0.02;    // Smaller marker box
+        markerAreaFactor = 0.1;    // Smaller symbol area
+        offsetFactor = 0.03;        // Adjust vertical offset accordingly
+      } else if (screenWidth >= 768 && screenWidth <= 1000) {
+        // For tablet screens
+        fontFactor = 0.022;
+        markerBoxFactor = 0.02;
+        markerAreaFactor = 0.1333;
+        offsetFactor = 0.03;
+      } else {
+        // For larger desktop screens
+        fontFactor = 0.024;       // Slightly larger text
+        markerBoxFactor = 0.022;    // Bigger marker box
+        markerAreaFactor = 0.15;    // Larger symbol area
+        offsetFactor = 0.03;
+      }
+      
+      // Scale values based on svgWidth and the factors.
+      const fontSize = svgWidth * fontFactor;
+      const markerBoxSize = svgWidth * markerBoxFactor;
+      const legendMarkerArea = svgWidth * markerAreaFactor;
 
       // Draw marker symbols in the legend.
       legendItems.append("path")
@@ -2216,7 +2241,7 @@ table.table th {
         .attr("fill", d => d.color)
         .attr("stroke", "black")
         .attr("stroke-width", 1)
-        .attr("transform", `translate(${markerBoxSize/2}, ${markerBoxSize/2})`);
+        .attr("transform", `translate(${markerBoxSize / 2}, ${markerBoxSize / 2})`);
 
       // Draw legend text.
       legendItems.append("text")
@@ -2246,16 +2271,21 @@ table.table th {
         });
         const legendBBox = legendGroup.node().getBBox();
         const offsetX = Math.max(0, (innerWidth - legendBBox.width) / 2);
-        const offsetY = -Math.min(22, 0.05 * svgWidth);
+        // Compute the vertical offset based on svgWidth and the breakpoint factor.
+        // For example, the original code used:
+        //    const offsetY = -Math.min(22, 0.05 * svgWidth);
+        // Here we replace 0.05 with our offsetFactor.
+        const offsetY = -Math.min(220, svgWidth * offsetFactor);
         legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
       });
     }
+
 
     /**
      * Draw axis titles for the x-axis and y-axis.
      */
      function drawAxisTitles(g, innerWidth, innerHeight, margin, svgWidth, xTitle, yTitle) {
-      const titleFontSize = svgWidth * 0.022; // Adjust as needed
+      const titleFontSize = svgWidth * 0.024; // Adjust as needed
       
       // Determine screen width to set breakpoints
       const screenWidth = window.innerWidth; 
