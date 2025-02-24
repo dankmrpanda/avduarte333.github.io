@@ -1229,7 +1229,7 @@ table.table th {
             Whether you completed the full quiz or just explored a few examples, we hope the key idea came accross: this task isn't easy! And for the cases you got right, think about it: had you seen those movies before? 🤔
           </p>
           <p>
-            What we found particularly intriguing is that even with these highly neutral images, the models still manage to recognize most of them.
+            What we found particularly intriguing is that even with these highly neutral images, the models still manage to recognize them pretty regularly.
           </p>
           <p>
             This surprising ability led us to investigate the phenomenon more systematically, ultimately shaping our approach and leading to the development of <b>DIS-CO</b>.
@@ -1403,7 +1403,7 @@ table.table th {
 
         <ul>
           <li>
-            MCQA achieves high accuracy on suspect movies but also presents false positives on clean movies. This tradeoff reduces its reliability, as it misclassifies clean content as suspect.
+            Multiple-Choice (MCQA) achieves high accuracy on suspect movies but also presents false positives on clean movies. This tradeoff reduces its reliability, as it misclassifies clean content as suspect.
           </li>
           <li>
             Captions are weak indicators of memorization. Their suspect-level accuracy remains low across models, with Qwen2-VL 72B performing below 10%, highlighting their limitations.
@@ -1894,7 +1894,7 @@ table.table th {
             .attr("text-anchor", "middle")
             .attr("transform", "rotate(-90)")
             .attr("x", -innerHeight / 2)
-            .attr("y", -margin.left + (margin.left * 0.35))
+            .attr("y", -margin.left + (margin.left * 0.3))
             .text(yTitle)
             .attr("font-size", titleFontSize)
             .attr("fill", "#464646")
