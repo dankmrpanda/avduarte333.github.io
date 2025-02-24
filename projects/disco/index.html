@@ -2246,7 +2246,7 @@ table.table th {
         });
         const legendBBox = legendGroup.node().getBBox();
         const offsetX = Math.max(0, (innerWidth - legendBBox.width) / 2);
-        const offsetY = -Math.min(20, 0.05 * svgWidth);
+        const offsetY = -Math.min(22, 0.05 * svgWidth);
         legendGroup.attr("transform", `translate(${offsetX}, ${offsetY})`);
       });
     }
@@ -2255,16 +2255,25 @@ table.table th {
      * Draw axis titles for the x-axis and y-axis.
      */
      function drawAxisTitles(g, innerWidth, innerHeight, margin, svgWidth, xTitle, yTitle) {
-      const titleFontSize = svgWidth * 0.022;  // Adjust as needed
-      let yAxisOffset;
+      const titleFontSize = svgWidth * 0.022; // Adjust as needed
       
-      if (svgWidth < 700) {
-        yAxisOffset = -30;  // Use a fixed offset for mobile
+      // Determine screen width to set breakpoints
+      const screenWidth = window.innerWidth; 
+
+      // Set a dynamic factor based on screen width breakpoints
+      let factor;
+      if (screenWidth < 768) {
+        factor = 0.70;  // For mobile screens
+      } else if (screenWidth >= 768 && screenWidth <= 1000) {
+        factor = 0.65;  // For tablet mode
       } else {
-        yAxisOffset = -margin.left + (margin.left * 0.55); // Original calculation for larger screens
+        factor = 0.55;  // For larger (desktop) screens
       }
-      
-      // X-Axis Title (remains unchanged)
+
+      // Compute the dynamic offset using the factor
+      const computedYoffset = -margin.left + (margin.left * factor);
+
+      // Draw the x-axis title
       g.append("text")
         .attr("class", "linechart-x-axis-title")
         .attr("text-anchor", "middle")
@@ -2274,14 +2283,14 @@ table.table th {
         .attr("font-size", titleFontSize)
         .attr("fill", "#464646")
         .attr("font-family", "Roboto, sans-serif");
-      
-      // Y-Axis Title with adjusted offset
+
+      // Draw the y-axis title with the computed offset
       g.append("text")
         .attr("class", "linechart-y-axis-title")
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
         .attr("x", -innerHeight / 2)
-        .attr("y", yAxisOffset)
+        .attr("y", computedYoffset)
         .text(yTitle)
         .attr("font-size", titleFontSize)
         .attr("fill", "#464646")
