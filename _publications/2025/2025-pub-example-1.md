@@ -18,7 +18,7 @@ authors:
   - Lei Li
 links:
   Website: /projects/disco/
-  Paper: 
+  Paper: https://arxiv.org/abs/2502.17358
   Code: https://github.com/avduarte333/DIS-CO
   Dataset: https://huggingface.co/datasets/DIS-CO/MovieTection
 ---
