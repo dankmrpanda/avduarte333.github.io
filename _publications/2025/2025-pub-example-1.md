@@ -2,9 +2,9 @@
 title:          "DIS-CO: Discovering Copyrighted Content in VLMs Training Data"
 date:           2025-02-20 00:01:00 +0800
 selected:       true
-# pub:            "International Conference on Machine Learning (ICML)"
+pub:            "Proceedings of ICML"
 # pub_pre:        "Submitted to "
-pub_post:       '<em>Under review,</em>'
+# pub_post:       '<em>Under review,</em>'
 # pub_last:       ' <span class="badge badge-pill badge-publication badge-success">Spotlight</span>'
 pub_date:       "2025"
 
