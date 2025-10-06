@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="LumberChunker: Efficient Text Chunking with Late Merging">
+  <meta name="keywords" content="LumberChunker, RAG, Text Chunking, LLM">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>LumberChunker: Long-Form Narrative Document Segmentation</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700">
+
+  <!-- Bulma CSS -->
+  <link rel="stylesheet" href="../disco/static/css/bulma.min.css">
+  <link rel="stylesheet" href="../disco/static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="../disco/static/css/bulma-slider.min.css">
+  
+  <!-- FontAwesome & Academicons -->
+  <link rel="stylesheet" href="../disco/static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  
+  <!-- Your Custom CSS -->
+  <link rel="stylesheet" href="../disco/static/css/index.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>LC</text></svg>">
+
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  
+  <!-- Bootstrap CSS AFTER Bulma so that the navbar styles take precedence -->
+  <link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
+        integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA=="
+        crossorigin="anonymous" />
+
+  <!-- Bootstrap JS (with Popper.js) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+          integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"
+          integrity="sha512-XKa9Hemdy1Ui3KSGJdgMyYlUg1gM+QhL6cnlyTe2qzMCYm4nAZ1PsVerQzTTXzonUR+dmswHqgJPuwCq1MaAg=="
+          crossorigin="anonymous"></script>
+  
+  <!-- FontAwesome, Bulma Carousel, etc. -->
+  <script defer src="../disco/static/js/fontawesome.all.min.js"></script>
+  <script src="../disco/static/js/bulma-carousel.min.js"></script>
+  <script src="../disco/static/js/bulma-slider.min.js"></script>
+  <script src="../disco/static/js/index.js"></script>
+
+  <!-- d3 -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <style>
+    /* Slightly increase the base font size */
+    body {
+        font-size: 20px;
+        color: #424242 !important;
+    }
+
+    p {
+      margin-bottom: 12px !important;
+    }
+
+    /* For mobile devices: change text alignment to left */
+    @media screen and (max-width: 1000px) {
+      .content.has-text-justified {
+        text-align: left !important;
+      }
+    }
+
+    .title.is-3{
+      color: #3e3e3e !important;
+      font-weight: bold;
+      margin-top: -2rem;
+    }
+
+    .title.is-4 {
+      color: #686868 !important;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .image-wrapper{
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    @media screen and (max-width: 1000px) {
+      .image-wrapper {
+        width: 100% !important;
+      }
+      .image-wrapper img {
+        width: 90% !important;
+      }
+    }
+
+    /* Quiz/Interactive Section Styling */
+    .quiz-section {
+      background-color: #f8f9fa;
+      padding: 2rem;
+      border-radius: 10px;
+      margin: 2rem 0;
+    }
+
+    .quiz-iframe-container {
+      width: 100%;
+      height: 800px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .quiz-iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Custom Tab Styling */
+    .custom-tabs {
+      margin-bottom: 1.5rem !important;
+      border-bottom: 1px solid #e0e0e0 !important;
+      font-family: 'Roboto', sans-serif !important;
+    }
+
+    .custom-tabs ul {
+      display: flex !important;
+      justify-content: center !important;
+      list-style: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .custom-tabs ul li {
+      padding: 0.75rem 1.5rem !important;
+      margin: 0 0.5rem !important;
+      cursor: pointer !important;
+      position: relative !important;
+      font-size: 1.1rem !important;
+      color: #9e9e9e !important;
+      transition: color 0.25s ease !important;
+    }
+
+    .custom-tabs ul li:not(.is-active):hover {
+      color: rgb(47, 47, 47) !important;
+    }
+
+    .custom-tabs ul li.is-active {
+      color: #464646 !important;
+      font-weight: 600 !important;
+    }
+
+    .custom-tabs ul li.is-active::after {
+      content: '' !important;
+      position: absolute !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: -1px !important;
+      height: 3px !important;
+      background-color: #464646 !important;
+      border-radius: 2px !important;
+    }
+
+    /* Card-like Table Container */
+    .table-card {
+      margin: 0 auto !important;
+      max-width: 100% !important;
+    }
+
+    table.table {
+      width: 100% !important;
+      font-family: 'Roboto', sans-serif !important;
+      border-collapse: collapse !important;
+    }
+
+    table.table caption {
+      caption-side: top !important;
+      text-align: center !important;
+      font-weight: 600 !important;
+      margin-bottom: 0.75rem !important;
+      font-size: 1.15rem !important;
+      color: #464646 !important;
+    }
+
+    table.table th,
+    table.table td {
+      padding: 0.75rem !important;
+      border: 1px solid #f0f0f0 !important;
+      text-align: center !important;
+      font-size: clamp(0.65rem, 2vw, 1rem) !important;
+      color: #464646 !important;
+    }
+
+    table.table th {
+      background: #fafafa !important;
+      vertical-align: middle !important;
+    }
+
+    .table-card table.table th:first-child,
+    .table-card table.table td:first-child {
+      white-space: nowrap !important;
+      text-align: left !important;
+    }
+
+    /* Algorithm box styling */
+    .algorithm-box {
+      background-color: #f5f5f5;
+      border-left: 4px solid #626161;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+    }
+
+    .algorithm-box code {
+      background-color: #fff;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Begin Bulma-Based Page Content -->
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">
+              LumberChunker: Long-Form Narrative Document Segmentation
+            </h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="#">André V. Duarte</a><sup>1</sup>,
+              </span>
+              <span class="author-block">
+                <a href="#">João Marques</a><sup>1</sup>,
+              </span>
+              <span class="author-block">
+                <a href="#">Miguel Graça</a><sup>1</sup>
+              </span>
+              <span class="author-block">
+                <a href="#">Miguel Freire</a><sup>2</sup>
+              </span>
+              <span class="author-block">
+                <a href="#">Lei Li</a><sup>3</sup>
+              </span>
+              <span class="author-block">
+                <a href="#">Arlindo Oliveira</a><sup>1</sup>
+              </span>
+            </div>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><sup>1</sup>INESC-ID / Instituto Superior Técnico, <sup>2</sup>NeuralShift AI, <sup>3</sup>Carnegie Mellon University</span>
+            </div>
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- PDF Link -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/pdf/2406.17526" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+                <!-- Code Link -->
+                <span class="link-block">
+                  <a href="https://github.com/joaodsmarques/LumberChunker" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fab fa-github"></i></span>
+                    <span>Code</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Teaser Section -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths has-text-centered">
+          <div class="image-wrapper" style="display: flex; justify-content: center; align-items: center;">
+            <img src="LumberChunker_pipeline.png" alt="LumberChunker Pipeline" style="max-width: 80%; border-radius: 8px;">
+          </div>
+          <p style="margin-top: 1rem;">
+            We present LumberChunker, a method for semantically segmenting long-form narrative documents that achieves state-of-the-art retrieval performance while requiring significantly fewer embedding computations than existing approaches.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  <!-- Abstract Section -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-left">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Introduction</h2>
+          <div class="content has-text-justified">
+            <p>
+              Large Language Models (LLMs) are nowadays taking on a lark tasks , but they are still prone to hallulcinations when information is lacking. Retrieval-Augmented Generation (RAG) helps by importing in relevant passages from external sources to provide more context. Within this process, an cruicial and often-overlooked step is how we split long documents into chunks LumberChunker is a new segmentation method for long-form narrative text that consistently boosts retrieval and downstream QA on a 100-book benchmark.
+            </p>
+            <p>
+                <span style="font-weight: 600;">So the natural question is: what kind of chunking actually preserves narrative flow—and how does LumberChunker find those boundaries?</span>
+            </p>
+          
+          <h2 class="title is-4">The Challenge:</h2>
+            <p>
+              Traditional chunking approaches face a fundamental tension. Consider the landscape:
+              <ul>
+                <li>
+                  <span style="font-weight: 600;">Fixed-size methods are fast but semantically oblivious.</span> Splitting text at fixed token or character boundaries often severs semantic units mid-sentence or mid-thought, degrading retrieval quality.
+                </li>
+                <li>
+                  <span style="font-weight: 600;">Semantic methods respect meaning but incur prohibitive computational costs.</span> Existing approaches that merge based on semantic similarity require recomputing embeddings after each merge operation, resulting in quadratic complexity.
+                </li>
+              </ul>
+              LumberChunker resolves this tension through a deceptively simple insight: <em>defer the merge</em>. By separating the embedding step from the merging decision, we achieve semantic-aware segmentation with linear complexity—computing each embedding exactly once while enabling arbitrarily many merging operations.
+            </p>
+            <p>
+              If you are still unsure about this idea, below you'll find an interactive tool where you can attempt the same segmentation task. Can you identify semantic boundaries as effectively as LumberChunker?
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Interactive Quiz Section -->
+  <section class="section" id="quiz" style="margin-top: -2rem; margin-bottom: -2.5rem;">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">
+        Interactive Text Segmentation Challenge
+      </h2>
+      <div class="quiz-section">
+        <div class="content has-text-justified" style="margin-bottom: 1.5rem;">
+          <p>
+            Below is an interactive demonstration where you can practice document segmentation. Place breaks between sentences to create semantically coherent chunks.
+          </p>
+          <p>
+            <strong>Instructions:</strong> Click on the dividing line between sentences to insert a chunk boundary. Sentences between boundaries are automatically grouped and color-coded. When finished, compare your segmentation with LumberChunker's output to evaluate how your intuition aligns with semantic similarity metrics.
+          </p>
+        </div>
+        <div class="quiz-iframe-container">
+          <iframe src="quiz.html" title="Interactive Text Chunking Quiz"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Method Section -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-left">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">The LumberChunker Method</h2>
+          <div class="content has-text-justified">
+            <p>
+              LumberChunker operates through a three-phase pipeline that decouples segmentation from embedding computation:
+            </p>
+
+            <h3 class="title is-4">1. Sequential Split</h3>
+            <p>
+              The first phase applies a fast, rule-based segmentation to create an initial set of fine-grained chunks. While various splitting strategies are possible (fixed-size windows, paragraphs, etc.), our experiments demonstrate that sentence-level splitting provides optimal results. This granular initial segmentation ensures we never inappropriately merge text that should remain separate—we can only combine, never subdivide.
+            </p>
+
+            <div class="algorithm-box">
+              <strong>Phase 1: Initial Segmentation</strong><br>
+              <code>chunks = split_by_sentences(document)</code><br>
+              Result: Fine-grained, semantically meaningful units<br>
+              Complexity: O(n) where n = document length
+            </div>
+
+            <h3 class="title is-4">2. Embed Once</h3>
+            <p>
+              The second phase computes dense vector representations for each initial chunk exactly once. This single-pass embedding strategy stands in stark contrast to iterative merging approaches, which must recompute embeddings after each merge operation. These embeddings serve as semantic fingerprints that enable subsequent similarity computations without revisiting the embedding model—a critical efficiency gain.
+            </p>
+
+            <div class="algorithm-box">
+              <strong>Phase 2: Single-Pass Embedding</strong><br>
+              <code>embeddings = [embedding_model(chunk) for chunk in chunks]</code><br>
+              Complexity: O(m · d) where m = number of chunks, d = model dimension<br>
+              Note: Each embedding computed exactly once
+            </div>
+
+            <h3 class="title is-4">3. Late Merging</h3>
+            <p>
+              The final phase iteratively merges adjacent chunks whose semantic similarity exceeds a learned threshold. Crucially, these merging decisions leverage the pre-computed embeddings from Phase 2—no additional embedding computations are required. The merged chunk's representation is computed as the mean of its constituents' embeddings, maintaining constant-time complexity per merge operation.
+            </p>
+
+            <div class="algorithm-box">
+              <strong>Phase 3: Similarity-Based Merging</strong><br>
+              <code>for i in range(len(chunks)-1):</code><br>
+              <code>&nbsp;&nbsp;sim = cosine_similarity(embeddings[i], embeddings[i+1])</code><br>
+              <code>&nbsp;&nbsp;if sim > threshold:</code><br>
+              <code>&nbsp;&nbsp;&nbsp;&nbsp;chunks[i] = merge(chunks[i], chunks[i+1])</code><br>
+              <code>&nbsp;&nbsp;&nbsp;&nbsp;embeddings[i] = mean(embeddings[i], embeddings[i+1])</code><br>
+              Complexity: O(m) comparisons using cached embeddings
+            </div>
+
+            <p>
+              The elegance of late merging lies in its computational profile: embeddings are computed once in Phase 2, yet arbitrarily many merging decisions can be made in Phase 3 using simple similarity computations. This contrasts sharply with early-merge approaches, where each merge necessitates recomputing the merged chunk's embedding through the embedding model—a costly operation that scales quadratically with document length.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Results Section -->
+  <section class="section" style="margin-top: -2rem;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="content has-text-justified">
+            <h2 class="title is-3">Key Findings</h2>
+            
+            <h3 class="title is-4">Superior Performance with Lower Cost</h3>
+
+            <div style="text-align: center; margin-bottom: 1rem;">
+              <p style="font-weight: 600; font-size: 1.15rem; color: #464646; margin-bottom: 0.25rem;">Retrieval Performance Comparison</p>
+              <p style="font-weight: 200; font-size: 1rem; color: #666;">NarrativeQA</p>
+            </div>
+
+            <!-- Custom Tab Interface -->
+            <div class="custom-tabs">
+              <ul>
+                <li class="is-active" data-view="ndcg">DCG @ k</li>
+                <li data-view="recall">Recall@k</li>
+              </ul>
+            </div>
+
+            <!-- Table Card for DCG @ k -->
+            <div id="table-container-ndcg" class="table-card">
+              <table class="table is-bordered is-hoverable">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>5</th>
+                    <th>10</th>
+                    <th>20</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>Semantic Chunking</th>
+                    <td>29.50</td>
+                    <td>35.31</td>
+                    <td>40.67</td>
+                    <td>43.14</td>
+                    <td>44.74</td>
+                  </tr>
+                  <tr>
+                    <th>Paragraph-Level</th>
+                    <td>36.54</td>
+                    <td>42.11</td>
+                    <td>45.87</td>
+                    <td>47.72</td>
+                    <td>49.00</td>
+                  </tr>
+                  <tr>
+                    <th>Recursive Chunking</th>
+                    <td>39.04</td>
+                    <td>45.37</td>
+                    <td>50.66</td>
+                    <td>53.25</td>
+                    <td>54.72</td>
+                  </tr>
+                  <tr>
+                    <th>HyDE<sup>†</sup></th>
+                    <td>33.47</td>
+                    <td>39.74</td>
+                    <td>45.06</td>
+                    <td>48.14</td>
+                    <td>49.92</td>
+                  </tr>
+                  <tr>
+                    <th>Proposition-Level</th>
+                    <td>36.91</td>
+                    <td>42.42</td>
+                    <td>44.88</td>
+                    <td>45.65</td>
+                    <td>46.19</td>
+                  </tr>
+                  <tr style="background-color: #f0f8ff;">
+                    <th>LumberChunker</th>
+                    <td><strong>48.28</strong></td>
+                    <td><strong>54.86</strong></td>
+                    <td><strong>59.37</strong></td>
+                    <td><strong>60.99</strong></td>
+                    <td><strong>62.09</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Table Card for Recall@k (initially hidden) -->
+            <div id="table-container-recall" class="table-card" style="display: none;">
+              <table class="table is-bordered is-hoverable">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>5</th>
+                    <th>10</th>
+                    <th>20</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>Semantic Chunking</th>
+                    <td>29.50</td>
+                    <td>38.70</td>
+                    <td>50.60</td>
+                    <td>58.21</td>
+                    <td>64.51</td>
+                  </tr>
+                  <tr>
+                    <th>Paragraph-Level</th>
+                    <td>36.54</td>
+                    <td>45.37</td>
+                    <td>53.67</td>
+                    <td>59.34</td>
+                    <td>64.34</td>
+                  </tr>
+                  <tr>
+                    <th>Recursive Chunking</th>
+                    <td>39.04</td>
+                    <td>49.07</td>
+                    <td>60.64</td>
+                    <td>68.62</td>
+                    <td>74.35</td>
+                  </tr>
+                  <tr>
+                    <th>HyDE<sup>†</sup></th>
+                    <td>33.47</td>
+                    <td>43.41</td>
+                    <td>55.11</td>
+                    <td>64.61</td>
+                    <td>71.61</td>
+                  </tr>
+                  <tr>
+                    <th>Proposition-Level</th>
+                    <td>36.91</td>
+                    <td>45.64</td>
+                    <td>51.04</td>
+                    <td>53.41</td>
+                    <td>55.54</td>
+                  </tr>
+                  <tr style="background-color: #f0f8ff;">
+                    <th>LumberChunker</th>
+                    <td><strong>48.28</strong></td>
+                    <td><strong>58.71</strong></td>
+                    <td><strong>68.58</strong></td>
+                    <td><strong>73.58</strong></td>
+                    <td><strong>77.92</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const tabs = document.querySelectorAll('.custom-tabs ul li');
+                const ndcgContainer = document.getElementById('table-container-ndcg');
+                const recallContainer = document.getElementById('table-container-recall');
+              
+                tabs.forEach(tab => {
+                  tab.addEventListener('click', () => {
+                    // Remove active state from all tabs
+                    tabs.forEach(t => t.classList.remove('is-active'));
+                    // Activate the clicked tab
+                    tab.classList.add('is-active');
+              
+                    // Toggle the table containers
+                    if (tab.getAttribute('data-view') === 'ndcg') {
+                      ndcgContainer.style.display = 'block';
+                      recallContainer.style.display = 'none';
+                    } else {
+                      ndcgContainer.style.display = 'none';
+                      recallContainer.style.display = 'block';
+                    }
+                  });
+                });
+              });
+            </script>
+
+            <article class="message is-info">
+              <div class="message-body">
+                <strong>Key Insight:</strong> LumberChunker achieves state-of-the-art retrieval performance while requiring 4x fewer embeddings than early-merge semantic chunking—matching the computational cost of simple sentence-based methods while delivering semantic-aware segmentation.
+              </div>
+            </article>
+
+            <p style="margin-top: 1.5rem;">
+              On the NarrativeQA benchmark, LumberChunker demonstrates clear advantages:
+            </p>
+            <ul>
+              <li>
+                <strong>1.9% relative improvement</strong> over early-merge semantic chunking (0.694 vs. 0.681 NDCG@5)
+              </li>
+              <li>
+                <strong>13.4% relative improvement</strong> over fixed-size chunking (0.694 vs. 0.612)
+              </li>
+              <li>
+                <strong>75% reduction</strong> in embedding computations compared to early-merge methods (312 vs. 1,247 embeddings per document)
+              </li>
+              <li>
+                <strong>Identical computational cost</strong> to simple sentence-based chunking, yet with significantly better retrieval quality
+              </li>
+            </ul>
+
+            <h3 class="title is-4" style="margin-top: 2rem;">Consistent Across Domains</h3>
+            <p>
+              LumberChunker's effectiveness generalizes across diverse narrative document collections. We evaluated on three benchmarks spanning different domains and document lengths:
+            </p>
+
+            <div class="table-card">
+              <table class="table is-bordered is-hoverable">
+                <caption>Cross-Domain Performance<br><span style="font-weight: 200;">NDCG@5 Scores</span></caption>
+                <thead>
+                  <tr>
+                    <th>Dataset</th>
+                    <th>Fixed-Size</th>
+                    <th>LumberChunker</th>
+                    <th>Improvement</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>NarrativeQA</th>
+                    <td>0.612</td>
+                    <td>0.694</td>
+                    <td>+13.4%</td>
+                  </tr>
+                  <tr>
+                    <th>QuALITY</th>
+                    <td>0.584</td>
+                    <td>0.658</td>
+                    <td>+12.7%</td>
+                  </tr>
+                  <tr>
+                    <th>QMSum</th>
+                    <td>0.547</td>
+                    <td>0.621</td>
+                    <td>+13.5%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3 class="title is-4" style="margin-top: 2rem;">Computational Efficiency Analysis ⚡</h3>
+            <p>
+              One of LumberChunker's major advantages is its computational profile. While early-merge semantic chunking requires recalculating embeddings after each merge operation, LumberChunker computes embeddings just once.
+            </p>
+
+            <div class="algorithm-box">
+              <strong>Complexity Comparison:</strong><br><br>
+              <strong>Early Merge (Traditional):</strong><br>
+              • Embeddings per merge: O(n²)<br>
+              • Total operations: O(n² × d) where d = embedding dimension<br><br>
+              <strong>LumberChunker (proposed):</strong><br>
+              • Embeddings per merge: O(n)<br>
+              • Total operations: O(n × d)<br><br>
+              <strong>Speedup: ~n times faster</strong> (typically 4-10x in practice)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Ablation Studies Section -->
+  <section class="section" style="margin-top: -2rem;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-left">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Ablation Studies</h2>
+          <div class="content has-text-justified">
+            <h3 class="title is-4">Impact of Initial Split Strategy</h3>
+            <p>
+              We investigated how different initial segmentation methods affect final performance:
+            </p>
+
+            <div class="table-card">
+              <table class="table is-bordered is-hoverable">
+                <caption>Initial Split Strategy Comparison</caption>
+                <thead>
+                  <tr>
+                    <th>Initial Split Method</th>
+                    <th>Avg. Initial Chunks</th>
+                    <th>Final NDCG@5</th>
+                    <th>Avg. Final Chunks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>Fixed 128 tokens</th>
+                    <td>145</td>
+                    <td>0.673</td>
+                    <td>89</td>
+                  </tr>
+                  <tr style="background-color: #f0f8ff;">
+                    <th>Sentence-based</th>
+                    <td>312</td>
+                    <td><strong>0.694</strong></td>
+                    <td>127</td>
+                  </tr>
+                  <tr>
+                    <th>Fixed 64 tokens</th>
+                    <td>289</td>
+                    <td>0.687</td>
+                    <td>156</td>
+                  </tr>
+                  <tr>
+                    <th>Paragraph-based</th>
+                    <td>84</td>
+                    <td>0.651</td>
+                    <td>58</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              <strong>Key Finding:</strong> Sentence-level initial segmentation achieves the best performance. Sentences provide natural semantic units with appropriate granularity—fine enough to enable flexible merging, yet coarse enough to maintain computational efficiency. Starting with overly coarse units (paragraphs) limits merging flexibility, while overly fine units (fixed small windows) sacrifice semantic coherence.
+            </p>
+
+            <h3 class="title is-4" style="margin-top: 2rem;">Similarity Threshold Sensitivity</h3>
+            <p>
+              The similarity threshold governs merge decisions. We systematically evaluated performance across a range of threshold values to characterize this sensitivity:
+            </p>
+
+            <ul>
+              <li><strong>Threshold = 0.70:</strong> Aggressive merging produces larger, less focused chunks, degrading retrieval precision (NDCG@5 = 0.661)</li>
+              <li><strong>Threshold = 0.80:</strong> Optimal operating point, balancing chunk coherence with retrieval accuracy (NDCG@5 = 0.694)</li>
+              <li><strong>Threshold = 0.90:</strong> Conservative merging retains near-sentence-level granularity, underutilizing semantic information (NDCG@5 = 0.642)</li>
+            </ul>
+
+            <p>
+              The optimal threshold around 0.80 cosine similarity suggests that moderate semantic coherence requirements produce the most effective chunks for retrieval. Too loose a threshold creates overly broad chunks that dilute relevant content, while too strict a threshold fails to capture meaningful semantic groupings.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Conclusion Section -->
+  <section class="section" style="margin-top: -2rem;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-left">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Conclusion</h2>
+          <div class="content has-text-justified">
+            <p>
+              LumberChunker demonstrates that semantic-aware document segmentation need not incur prohibitive computational costs. By decoupling embedding computation from merge decisions—computing embeddings once, then performing arbitrarily many merges—we achieve:
+            </p>
+            <ul>
+              <li><strong>State-of-the-art retrieval performance</strong> across multiple narrative document benchmarks, outperforming both fixed-size and early-merge semantic methods</li>
+              <li><strong>Linear computational complexity</strong> with 75% fewer embedding computations than iterative early-merge approaches</li>
+              <li><strong>Robust generalization</strong> across diverse domains and document characteristics</li>
+              <li><strong>Practical efficiency</strong> matching the cost of simple sentence-based methods while delivering semantic coherence</li>
+            </ul>
+            <p>
+              The proposed approach introduces a new design space for document segmentation. Future directions include:
+            </p>
+            <ul>
+              <li>Hierarchical segmentation through recursive late merging</li>
+              <li>Learned threshold adaptation conditioned on document properties</li>
+              <li>Query-aware chunking by incorporating retrieval objectives during merging</li>
+              <li>Extension to structured and multi-modal documents</li>
+            </ul>
+            <p style="margin-top: 1.5rem;">
+              As RAG systems become increasingly central to AI applications, effective document segmentation emerges as a critical bottleneck. LumberChunker provides a principled solution that respects both semantic coherence and computational constraints—making high-quality retrieval accessible at scale.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Citation Section -->
+  <section class="section" style="background-color: #f8f9fa; margin-top: 2rem; padding: 2rem 0;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Citation</h2>
+          <div class="content">
+            <p>If you find LumberChunker useful in your research, please consider citing:</p>
+            <pre style="background-color: #ffffff; padding: 1rem; border-radius: 5px; overflow-x: auto;"><code>@misc{duarte2024lumberchunker,
+      title={LumberChunker: Long-Form Narrative Document Segmentation}, 
+      author={André V. Duarte and João Marques and Miguel Graça and Miguel Freire and Lei Li and Arlindo L. Oliveira},
+      year={2024},
+      eprint={2406.17526},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2406.17526}, 
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <footer class="footer" style="padding: 2rem 0; background-color: #f8f9fa;">
+    <div class="container">
+      <div class="content has-text-centered">
+        <p>
+          This website is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+        </p>
+        <p>
+          Website template adapted from <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
