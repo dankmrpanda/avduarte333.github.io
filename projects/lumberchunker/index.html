@@ -294,8 +294,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column is-four-fifths has-text-centered">
-          <div class="image-wrapper" style="display: flex; justify-content: center; align-items: center;">
-            <img src="LumberChunker_pipeline.png" alt="LumberChunker Pipeline" style="max-width: 80%; border-radius: 8px;">
+          <div class="image-wrapper" id="pipeline-image-wrapper" style="display: flex; justify-content: center; align-items: center;">
           </div>
           <p style="margin-top: 1rem;">
             We present LumberChunker, a method for semantically segmenting long-form narrative documents that achieves state-of-the-art retrieval performance while requiring significantly fewer embedding computations than existing approaches.
@@ -340,7 +339,7 @@
           </p>
 
           <p>
-            Want to get a feel for it? Try the interactive demo below and place boundaries yourself, then compare with LumberChunker’s cuts. Can you spot the same turns the model does? 👀
+            Want to test your understanding? Try the interactive quiz below to see if you can identify the optimal way to segment a passage.
           </p>
         </div>
       </div>
@@ -353,19 +352,19 @@
   <section class="section" id="quiz" style="margin-top: -2rem; margin-bottom: -2.5rem;">
     <div class="container is-max-desktop">
       <h2 class="title is-3 has-text-centered">
-        Interactive Text Segmentation Challenge
+        Text Segmentation Knowledge Check
       </h2>
       <div class="quiz-section">
         <div class="content has-text-justified" style="margin-bottom: 1.5rem;">
           <p>
-            Below is an interactive demonstration where you can practice document segmentation. Place breaks between sentences to create semantically coherent chunks.
+            Test your understanding of semantic chunking with this interactive quiz. You'll be presented with a passage and three different segmentation strategies.
           </p>
           <p>
-            <strong>Instructions:</strong> Click on the dividing line between sentences to insert a chunk boundary. Sentences between boundaries are automatically grouped and color-coded. When finished, compare your segmentation with LumberChunker's output to evaluate how your intuition aligns with semantic similarity metrics.
+            <strong>Instructions:</strong> Read the passage carefully, then select which segmentation approach you think best captures the semantic boundaries. Submit your answer to see detailed feedback explaining why each approach works or doesn't work, and compare your choice with LumberChunker's optimal segmentation.
           </p>
         </div>
         <div class="quiz-iframe-container">
-          <iframe src="quiz.html" title="Interactive Text Chunking Quiz"></iframe>
+          <iframe src="quiz.html" title="Text Segmentation Quiz"></iframe>
         </div>
       </div>
     </div>
@@ -427,8 +426,7 @@
             <!-- <div class="notification is-info is-light">
               <strong>Include Figure 2 here (full-width):</strong> DCG@k across different <code>θ</code>, with <code>θ=550</code> highlighted as the sweet spot.
             </div> -->
-            <div class="image-wrapper" style="display: flex; justify-content: center; align-items: center;">
-            <img src="dcg token.png" alt="LumberChunker Pipeline" style="max-width: 80%; border-radius: 8px;">
+            <div class="image-wrapper" id="dcg-image-wrapper" style="display: flex; justify-content: center; align-items: center;">
             </div>
             <h3 class="title is-5">Why this works</h3>
             <p>
@@ -534,6 +532,45 @@
                     <td><strong>62.09</strong></td>
                   </tr>
                 </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6" style="background-color: #fafafa; padding: 1rem; border-top: 2px solid #e0e0e0;">
+                      <div style="text-align: center;">
+                        <p style="font-weight: 600; font-size: 0.9rem; color: #464646; margin-bottom: 0.5rem;">Chart Line Styles:</p>
+                        <div style="display: inline-flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; align-items: center;">
+                          <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <svg width="40" height="16" style="vertical-align: middle;">
+                              <line x1="0" y1="8" x2="40" y2="8" stroke="#2563eb" stroke-width="2.5" />
+                              <circle cx="20" cy="8" r="3.5" fill="#2563eb" stroke="white" stroke-width="1.5" />
+                            </svg>
+                            <span style="font-size: 0.85rem; color: #424242; font-weight: 500;">LumberChunker</span>
+                          </div>
+                          <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <svg width="40" height="16" style="vertical-align: middle;">
+                              <line x1="0" y1="8" x2="40" y2="8" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="8,4" />
+                              <circle cx="20" cy="8" r="2.5" fill="#dc2626" stroke="white" stroke-width="1.5" />
+                            </svg>
+                            <span style="font-size: 0.85rem; color: #424242;">Recursive</span>
+                          </div>
+                          <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <svg width="40" height="16" style="vertical-align: middle;">
+                              <line x1="0" y1="8" x2="40" y2="8" stroke="#059669" stroke-width="2.5" stroke-dasharray="4,4" />
+                              <circle cx="20" cy="8" r="2.5" fill="#059669" stroke="white" stroke-width="1.5" />
+                            </svg>
+                            <span style="font-size: 0.85rem; color: #424242;">Paragraph</span>
+                          </div>
+                          <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <svg width="40" height="16" style="vertical-align: middle;">
+                              <line x1="0" y1="8" x2="40" y2="8" stroke="#9333ea" stroke-width="2.5" stroke-dasharray="2,2" />
+                              <circle cx="20" cy="8" r="2.5" fill="#9333ea" stroke="white" stroke-width="1.5" />
+                            </svg>
+                            <span style="font-size: 0.85rem; color: #424242;">Semantic</span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
 
@@ -638,8 +675,7 @@
               <strong>Include Figure 3 here (full-width):</strong> QA accuracy comparison (RAG-LumberChunker, RAG-Recursive, RAG-Manual, and non-RAG open-book).
             </div> -->
 
-            <div class="image-wrapper" style="display: flex; justify-content: center; align-items: center;">
-            <img src="qa acc.png" alt="LumberChunker Pipeline" style="max-width: 80%; border-radius: 8px;">
+            <div class="image-wrapper" id="qa-image-wrapper" style="display: flex; justify-content: center; align-items: center;">
             </div>
 
             <h3 class="title is-4">Closer to human boundaries</h3>
@@ -899,6 +935,641 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    // D3.js Image and Chart Rendering
+    
+    // Function to render pipeline image using d3.js
+    function renderPipelineImage() {
+      const container = d3.select('#pipeline-image-wrapper');
+      container.selectAll('*').remove();
+      
+      const svg = container.append('svg')
+        .attr('width', '100%')
+        .attr('height', 'auto')
+        .style('max-width', '80%')
+        .style('border-radius', '8px')
+        .style('display', 'block')
+        .style('margin', '0 auto');
+      
+      const img = new Image();
+      img.onload = function() {
+        svg.attr('viewBox', `0 0 ${this.width} ${this.height}`)
+           .attr('preserveAspectRatio', 'xMidYMid meet');
+        
+        svg.append('image')
+          .attr('href', 'LumberChunker_pipeline.png')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', this.width)
+          .attr('height', this.height);
+      };
+      img.src = 'LumberChunker_pipeline.png';
+    }
+
+    // Function to render DCG line chart showing different theta values
+    function renderDCGChart() {
+      const container = d3.select('#dcg-image-wrapper');
+      container.selectAll('*').remove();
+      
+      // Data: DCG values for different theta (θ) values across k
+      // Using LumberChunker's DCG@k values and estimating values for different theta
+      const thetaConfigs = [
+        {
+          theta: 450,
+          color: '#1e88e5',
+          dashArray: 'none',
+          marker: 'circle',
+          values: [
+            { k: 1, dcg: 0.47 },
+            { k: 2, dcg: 0.533 },
+            { k: 5, dcg: 0.576 },
+            { k: 10, dcg: 0.595 },
+            { k: 20, dcg: 0.606 }
+          ]
+        },
+        {
+          theta: 550,
+          color: '#ffa726',
+          dashArray: '8,4',
+          marker: 'square',
+          values: [
+            { k: 1, dcg: 0.483 },
+            { k: 2, dcg: 0.549 },
+            { k: 5, dcg: 0.594 },
+            { k: 10, dcg: 0.610 },
+            { k: 20, dcg: 0.621 }
+          ]
+        },
+        {
+          theta: 650,
+          color: '#26a69a',
+          dashArray: '12,4,4,4',
+          marker: 'diamond',
+          values: [
+            { k: 1, dcg: 0.447 },
+            { k: 2, dcg: 0.518 },
+            { k: 5, dcg: 0.565 },
+            { k: 10, dcg: 0.583 },
+            { k: 20, dcg: 0.596 }
+          ]
+        },
+        {
+          theta: 1000,
+          color: '#ff7043',
+          dashArray: '2,3',
+          marker: 'triangle',
+          values: [
+            { k: 1, dcg: 0.420 },
+            { k: 2, dcg: 0.487 },
+            { k: 5, dcg: 0.538 },
+            { k: 10, dcg: 0.562 },
+            { k: 20, dcg: 0.573 }
+          ]
+        }
+      ];
+      
+      // Dimensions
+      const margin = { top: 50, right: 40, bottom: 60, left: 70 };
+      const width = 900 - margin.left - margin.right;
+      const height = 500 - margin.top - margin.bottom;
+      
+      // Create SVG
+      const svg = container.append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('max-width', '80%')
+        .style('display', 'block')
+        .style('margin', '0 auto')
+        .style('background-color', 'white')
+        .style('border-radius', '8px')
+        .style('box-shadow', '0 2px 8px rgba(0,0,0,0.1)');
+      
+      const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+      
+      // Scales
+      const x = d3.scaleLinear()
+        .domain([1, 20])
+        .range([0, width]);
+      
+      const y = d3.scaleLinear()
+        .domain([0.40, 0.65])
+        .range([height, 0]);
+      
+      // Grid lines
+      g.append('g')
+        .attr('class', 'grid')
+        .attr('opacity', 0.2)
+        .selectAll('line.horizontal')
+        .data(y.ticks(6))
+        .join('line')
+        .attr('class', 'horizontal')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', d => y(d))
+        .attr('y2', d => y(d))
+        .attr('stroke', '#ccc')
+        .attr('stroke-width', 1);
+      
+      g.append('g')
+        .attr('class', 'grid')
+        .attr('opacity', 0.2)
+        .selectAll('line.vertical')
+        .data([1, 2, 5, 10, 20])
+        .join('line')
+        .attr('class', 'vertical')
+        .attr('x1', d => x(d))
+        .attr('x2', d => x(d))
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', '#ccc')
+        .attr('stroke-width', 1);
+      
+      // Axes with black borders
+      const xAxis = g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickValues([1, 2, 5, 10, 20]).tickFormat(d => d))
+        .style('font-size', '14px');
+      
+      xAxis.selectAll('text')
+        .style('fill', '#000')
+        .style('font-weight', '500');
+      
+      xAxis.select('.domain')
+        .attr('stroke', '#000')
+        .attr('stroke-width', 2);
+      
+      const yAxis = g.append('g')
+        .call(d3.axisLeft(y).ticks(6).tickFormat(d => d.toFixed(2)))
+        .style('font-size', '14px');
+      
+      yAxis.selectAll('text')
+        .style('fill', '#000')
+        .style('font-weight', '500');
+      
+      yAxis.select('.domain')
+        .attr('stroke', '#000')
+        .attr('stroke-width', 2);
+      
+      // Add border frame
+      g.append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', 'none')
+        .attr('stroke', '#000')
+        .attr('stroke-width', 2);
+      
+      // Axis labels
+      svg.append('text')
+        .attr('x', (width + margin.left + margin.right) / 2)
+        .attr('y', height + margin.top + 45)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '18px')
+        .style('font-weight', '600')
+        .style('fill', '#000')
+        .text('k');
+      
+      svg.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -(height + margin.top + margin.bottom) / 2 + 30)
+        .attr('y', 20)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '18px')
+        .style('font-weight', '600')
+        .style('fill', '#000')
+        .text('DCG');
+      
+      // Line generator
+      const line = d3.line()
+        .x(d => x(d.k))
+        .y(d => y(d.dcg))
+        .curve(d3.curveMonotoneX);
+      
+      // Symbol generators for different markers
+      const symbols = {
+        circle: d3.symbol().type(d3.symbolCircle).size(80),
+        square: d3.symbol().type(d3.symbolSquare).size(100),
+        diamond: d3.symbol().type(d3.symbolDiamond).size(120),
+        triangle: d3.symbol().type(d3.symbolTriangle).size(100)
+      };
+      
+      // Draw lines for each theta (without animation initially)
+      const paths = [];
+      thetaConfigs.forEach((config, index) => {
+        const path = g.append('path')
+          .datum(config.values)
+          .attr('fill', 'none')
+          .attr('stroke', config.color)
+          .attr('stroke-width', 2.5)
+          .attr('stroke-dasharray', config.dashArray)
+          .attr('d', line);
+        
+        const pathLength = path.node().getTotalLength();
+        
+        // Store path info for later animation
+        paths.push({
+          path: path,
+          pathLength: pathLength,
+          config: config,
+          index: index
+        });
+        
+        // Set initial state (hidden)
+        path
+          .attr('stroke-dasharray', config.dashArray === 'none' ? pathLength + ' ' + pathLength : config.dashArray + ' ' + pathLength)
+          .attr('stroke-dashoffset', pathLength);
+      });
+      
+      // Add markers for each data point (hidden initially)
+      const markers = [];
+      thetaConfigs.forEach((config, configIndex) => {
+        const markerGroup = g.selectAll(`.marker-${configIndex}`)
+          .data(config.values)
+          .join('path')
+          .attr('class', `marker-${configIndex}`)
+          .attr('transform', d => `translate(${x(d.k)},${y(d.dcg)})`)
+          .attr('d', symbols[config.marker])
+          .attr('fill', 'white')
+          .attr('stroke', config.color)
+          .attr('stroke-width', 2.5)
+          .style('cursor', 'pointer')
+          .attr('opacity', 0);
+        
+        markers.push({ markers: markerGroup, config: config, index: configIndex });
+      });
+      
+      // Add legend box in bottom right corner of chart
+      const legendGroup = g.append('g')
+        .attr('transform', `translate(${width - 165}, ${height - 125})`)
+        .attr('opacity', 0);
+      
+      // Legend background box
+      legendGroup.append('rect')
+        .attr('x', -12)
+        .attr('y', -12)
+        .attr('width', 155)
+        .attr('height', 110)
+        .attr('fill', 'white')
+        .attr('stroke', '#000')
+        .attr('stroke-width', 1.5)
+        .attr('rx', 2);
+      
+      // Legend items
+      thetaConfigs.forEach((config, i) => {
+        const legendRow = legendGroup.append('g')
+          .attr('transform', `translate(5, ${i * 24 + 5})`)
+          .style('cursor', 'pointer');
+        
+        // Line sample
+        legendRow.append('line')
+          .attr('x1', 0)
+          .attr('x2', 32)
+          .attr('y1', 0)
+          .attr('y2', 0)
+          .attr('stroke', config.color)
+          .attr('stroke-width', 2.5)
+          .attr('stroke-dasharray', config.dashArray);
+        
+        // Marker sample
+        legendRow.append('path')
+          .attr('transform', `translate(16, 0)`)
+          .attr('d', symbols[config.marker])
+          .attr('fill', 'white')
+          .attr('stroke', config.color)
+          .attr('stroke-width', 2.5);
+        
+        // Label
+        legendRow.append('text')
+          .attr('x', 42)
+          .attr('y', 0)
+          .attr('dy', '0.32em')
+          .style('font-size', '13px')
+          .style('font-weight', '500')
+          .style('fill', '#000')
+          .text(`θ: ${config.theta}`);
+      });
+      
+      // Set up Intersection Observer for scroll-triggered animation
+      const dcgWrapper = document.getElementById('dcg-image-wrapper');
+      let hasAnimatedDCG = false;
+      
+      const dcgObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !hasAnimatedDCG) {
+            hasAnimatedDCG = true;
+            
+            // Animate lines drawing in
+            paths.forEach(({ path, pathLength, config, index }) => {
+              path.transition()
+                .duration(1800)
+                .delay(index * 200)
+                .ease(d3.easeQuadInOut)
+                .attr('stroke-dashoffset', 0)
+                .on('end', function() {
+                  if (config.dashArray !== 'none') {
+                    d3.select(this).attr('stroke-dasharray', config.dashArray);
+                  } else {
+                    d3.select(this).attr('stroke-dasharray', 'none');
+                  }
+                });
+            });
+            
+            // Animate markers appearing
+            markers.forEach(({ markers: markerGroup, config, index: configIndex }) => {
+              markerGroup.transition()
+                .delay((d, i) => configIndex * 200 + i * 250 + 1400)
+                .duration(400)
+                .attr('opacity', 1);
+            });
+            
+            // Add hover effects after animation
+            setTimeout(() => {
+              thetaConfigs.forEach((config, configIndex) => {
+                g.selectAll(`.marker-${configIndex}`)
+                  .on('mouseover', function(event, d) {
+                    d3.select(this)
+                      .transition()
+                      .duration(200)
+                      .attr('d', d3.symbol().type(d3[`symbol${config.marker.charAt(0).toUpperCase() + config.marker.slice(1)}`]).size(150));
+                    
+                    // Show tooltip
+                    g.append('text')
+                      .attr('class', 'tooltip')
+                      .attr('x', x(d.k))
+                      .attr('y', y(d.dcg) - 20)
+                      .attr('text-anchor', 'middle')
+                      .style('font-size', '13px')
+                      .style('font-weight', '700')
+                      .style('fill', config.color)
+                      .text(`θ=${config.theta}: ${d.dcg.toFixed(3)}`);
+                  })
+                  .on('mouseout', function(event, d) {
+                    d3.select(this)
+                      .transition()
+                      .duration(200)
+                      .attr('d', symbols[config.marker]);
+                    
+                    g.selectAll('.tooltip').remove();
+                  });
+              });
+            }, 3000);
+            
+            // Animate legend appearance
+            legendGroup.transition()
+              .delay(2200)
+              .duration(600)
+              .attr('opacity', 1);
+          }
+        });
+      }, {
+        threshold: 0.3,
+        rootMargin: '0px'
+      });
+      
+      if (dcgWrapper) {
+        dcgObserver.observe(dcgWrapper);
+      }
+    }
+
+    // Function to render QA Accuracy bar chart
+    function renderQAChart() {
+      const container = d3.select('#qa-image-wrapper');
+      container.selectAll('*').remove();
+      
+      // Data: QA Accuracy percentages - matching the reference image exactly
+      const data = [
+        { method: 'Closed-Book', accuracy: 26.43, color: '#7cb342', label: 'Closed-Book' },
+        { method: 'Open-Book', accuracy: 37.76, color: '#29b6f6', label: 'Open-Book' },
+        { method: 'RAG - Recursive Chunks', accuracy: 84.96, color: '#7986cb', label: 'RAG - Recursive Chunks' },
+        { method: 'RAG - LumberChunker', accuracy: 88.89, color: '#ffb74d', label: 'RAG - LumberChunker' },
+        { method: 'RAG - Manual Chunks', accuracy: 90.53, color: '#757575', label: 'RAG - Manual Chunks' }
+      ];
+      
+      // Dimensions
+      const margin = { top: 50, right: 40, bottom: 70, left: 80 };
+      const width = 1000 - margin.left - margin.right;
+      const height = 500 - margin.top - margin.bottom;
+      
+      // Create SVG
+      const svg = container.append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('max-width', '80%')
+        .style('display', 'block')
+        .style('margin', '0 auto')
+        .style('background-color', 'white')
+        .style('border-radius', '8px')
+        .style('box-shadow', '0 2px 8px rgba(0,0,0,0.1)');
+      
+      const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+      
+      // Scales
+      const x = d3.scaleBand()
+        .domain(data.map((d, i) => i))
+        .range([0, width])
+        .padding(0.25);
+      
+      const y = d3.scaleLinear()
+        .domain([0, 100])
+        .range([height, 0]);
+      
+      // Grid lines
+      g.append('g')
+        .attr('class', 'grid')
+        .attr('opacity', 0.2)
+        .selectAll('line')
+        .data(y.ticks(5))
+        .join('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', d => y(d))
+        .attr('y2', d => y(d))
+        .attr('stroke', '#ccc')
+        .attr('stroke-width', 1);
+      
+      // Axes with black borders
+      const xAxis = g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(() => ''))
+        .style('font-size', '14px');
+      
+      xAxis.select('.domain')
+        .attr('stroke', '#000')
+        .attr('stroke-width', 2);
+      
+      xAxis.selectAll('.tick')
+        .remove();
+      
+      const yAxis = g.append('g')
+        .call(d3.axisLeft(y).ticks(5).tickFormat(d => d))
+        .style('font-size', '16px');
+      
+      yAxis.selectAll('text')
+        .style('fill', '#000')
+        .style('font-weight', '500');
+      
+      yAxis.select('.domain')
+        .attr('stroke', '#000')
+        .attr('stroke-width', 2);
+      
+      // Add border frame
+      g.append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', 'none')
+        .attr('stroke', '#000')
+        .attr('stroke-width', 2);
+      
+      // Axis label
+      svg.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -(height + margin.top + margin.bottom) / 2 + 30)
+        .attr('y', 25)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '18px')
+        .style('font-weight', '600')
+        .style('fill', '#000')
+        .text('Accuracy (%)');
+      
+      // Draw bars (without animation initially)
+      const bars = g.selectAll('.bar')
+        .data(data)
+        .join('rect')
+        .attr('class', 'bar')
+        .attr('x', (d, i) => x(i))
+        .attr('y', height)
+        .attr('width', x.bandwidth())
+        .attr('height', 0)
+        .attr('fill', d => d.color)
+        .attr('stroke', '#000')
+        .attr('stroke-width', 1.5)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event, d) {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('opacity', 0.8);
+        })
+        .on('mouseout', function() {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('opacity', 1);
+        });
+      
+      // Add value labels (hidden initially)
+      const labels = g.selectAll('.label')
+        .data(data)
+        .join('text')
+        .attr('class', 'label')
+        .attr('x', (d, i) => x(i) + x.bandwidth() / 2)
+        .attr('y', d => y(d.accuracy) - 10)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '18px')
+        .style('font-weight', '700')
+        .style('fill', '#000')
+        .attr('opacity', 0)
+        .text(d => d.accuracy.toFixed(2));
+      
+      // Add legend in top-left corner
+      const legendGroup = g.append('g')
+        .attr('transform', `translate(30, 30)`)
+        .attr('opacity', 0);
+      
+      // Legend background
+      legendGroup.append('rect')
+        .attr('x', -12)
+        .attr('y', -12)
+        .attr('width', 200)
+        .attr('height', 145)
+        .attr('fill', 'white')
+        .attr('stroke', '#000')
+        .attr('stroke-width', 1.5)
+        .attr('rx', 2);
+      
+      // Legend items
+      data.forEach((d, i) => {
+        const legendRow = legendGroup.append('g')
+          .attr('transform', `translate(5, ${i * 26 + 5})`);
+        
+        // Color box
+        legendRow.append('rect')
+          .attr('x', 0)
+          .attr('y', -9)
+          .attr('width', 18)
+          .attr('height', 18)
+          .attr('fill', d.color)
+          .attr('stroke', '#000')
+          .attr('stroke-width', 1);
+        
+        // Label
+        legendRow.append('text')
+          .attr('x', 25)
+          .attr('y', 0)
+          .attr('dy', '0.32em')
+          .style('font-size', '12.5px')
+          .style('font-weight', '400')
+          .style('fill', '#000')
+          .text(d.label);
+      });
+      
+      // Set up Intersection Observer for scroll-triggered animation
+      const qaWrapper = document.getElementById('qa-image-wrapper');
+      let hasAnimated = false;
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !hasAnimated) {
+            hasAnimated = true;
+            
+            // Animate bars sliding up
+            bars.transition()
+              .delay((d, i) => i * 150)
+              .duration(1000)
+              .ease(d3.easeCubicOut)
+              .attr('y', d => y(d.accuracy))
+              .attr('height', d => height - y(d.accuracy));
+            
+            // Animate labels fading in
+            labels.transition()
+              .delay((d, i) => i * 150 + 800)
+              .duration(500)
+              .attr('opacity', 1);
+            
+            // Animate legend appearance
+            legendGroup.transition()
+              .delay(1200)
+              .duration(600)
+              .attr('opacity', 1);
+          }
+        });
+      }, {
+        threshold: 0.3,
+        rootMargin: '0px'
+      });
+      
+      if (qaWrapper) {
+        observer.observe(qaWrapper);
+      }
+    }
+
+    // Render all visualizations when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      renderPipelineImage();
+      renderDCGChart();
+      renderQAChart();
+    });
+  </script>
 
 </body>
 </html>

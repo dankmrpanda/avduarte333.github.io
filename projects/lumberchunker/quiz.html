@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Text Chunking Quiz</title>
+    <title>Text Chunking Multiple Choice Quiz</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         * {
@@ -22,7 +22,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
             padding: 30px;
@@ -46,43 +46,144 @@
             font-size: 0.95em;
         }
 
-        .instructions {
+        .quiz-content {
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .quiz-content.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .quiz-content.hidden {
+            display: none;
+        }
+
+        .passage-section {
             background-color: #f8f9fa;
             border-left: 4px solid #626161;
-            padding: 15px 20px;
-            margin-bottom: 20px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
             border-radius: 4px;
         }
 
-        .instructions h3 {
+        .passage-section h3 {
             color: #464646;
-            margin-bottom: 10px;
-            font-size: 1.05em;
+            margin-bottom: 15px;
+            font-size: 1.1em;
             font-weight: 600;
         }
 
-        .instructions ul {
-            margin-left: 20px;
-        }
-
-        .instructions li {
-            margin: 6px 0;
-            line-height: 1.7;
+        .passage-sentence {
+            margin: 8px 0;
+            line-height: 1.8;
             color: #424242;
         }
 
-        .instructions strong {
+        .question-section {
+            margin-bottom: 25px;
+        }
+
+        .question-section h3 {
+            color: #3e3e3e;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .option-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+        .option-card:hover {
+            border-color: #9e9e9e;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .option-card.selected {
+            border-color: #464646;
+            background-color: #f8f9fa;
+            box-shadow: 0 4px 12px rgba(70,70,70,0.15);
+        }
+
+        .option-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .option-header input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .option-header label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 1.05em;
+            color: #424242;
+        }
+
+        .option-header label strong {
             color: #3e3e3e;
             font-weight: 600;
+        }
+
+        .chunk-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .chunk-preview-item {
+            padding: 12px 15px;
+            border-radius: 6px;
+            border-left: 3px solid;
+        }
+
+        .chunk-preview-item.chunk-1 { background-color: #fff5f5; border-left-color: #e57373; }
+        .chunk-preview-item.chunk-2 { background-color: #f0f8ff; border-left-color: #64b5f6; }
+        .chunk-preview-item.chunk-3 { background-color: #fffef0; border-left-color: #ffd54f; }
+        .chunk-preview-item.chunk-4 { background-color: #f3e5f5; border-left-color: #ba68c8; }
+        .chunk-preview-item.chunk-5 { background-color: #f1f8f4; border-left-color: #81c784; }
+
+        .chunk-name {
+            font-weight: 600;
+            color: #464646;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .chunk-sentences-preview {
+            font-size: 0.9em;
+        }
+
+        .preview-sentence {
+            margin: 4px 0;
+            color: #424242;
         }
 
         .controls {
             display: flex;
             justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
             gap: 15px;
+            margin-top: 25px;
             transition: opacity 0.4s ease-in-out;
         }
 
@@ -95,19 +196,14 @@
             display: none;
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
         .btn {
-            padding: 10px 24px;
+            padding: 12px 28px;
             border: 1px solid #e0e0e0;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.25s ease;
-            font-size: 0.95em;
+            font-size: 1em;
             font-family: 'Roboto', sans-serif;
             background-color: #ffffff;
             color: #464646;
@@ -117,29 +213,28 @@
         .btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.12);
-            border-color: #464646;
         }
 
-        .check-btn {
+        .submit-btn {
             background-color: #464646;
             color: white;
             border-color: #464646;
         }
 
-        .check-btn:hover {
+        .submit-btn:hover {
             background-color: #3e3e3e;
             border-color: #3e3e3e;
         }
 
         .reset-btn:hover {
             background-color: #f8f9fa;
+            border-color: #464646;
         }
 
         .back-btn {
             background-color: #464646;
             color: white;
             border-color: #464646;
-            margin-bottom: 20px;
         }
 
         .back-btn:hover {
@@ -147,192 +242,131 @@
             border-color: #3e3e3e;
         }
 
-        .sentences-container {
-            margin: 25px 0;
-            min-height: 200px;
-            transition: opacity 0.4s ease-in-out;
-        }
-
-        .sentences-container.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .sentences-container.hidden {
+        /* Results Section */
+        .results-container {
             display: none;
-        }
-
-        .sentence {
-            padding: 15px 20px;
-            background-color: #fafafa;
-            border-radius: 4px;
-            transition: all 0.25s ease;
-            line-height: 1.7;
-            font-size: 1em;
-            color: #424242;
-            border: 1px solid #f0f0f0;
-        }
-
-        .sentence.chunk-1 { background-color: #fff5f5; border-left: 3px solid #e57373; }
-        .sentence.chunk-2 { background-color: #f0f8ff; border-left: 3px solid #64b5f6; }
-        .sentence.chunk-3 { background-color: #fffef0; border-left: 3px solid #ffd54f; }
-        .sentence.chunk-4 { background-color: #f3e5f5; border-left: 3px solid #ba68c8; }
-        .sentence.chunk-5 { background-color: #f1f8f4; border-left: 3px solid #81c784; }
-
-        .break-indicator {
-            position: relative;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 5px 0;
-        }
-
-        .break-line {
-            width: 100%;
-            height: 1px;
-            background-color: #e0e0e0;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            position: relative;
-        }
-
-        .break-line:hover {
-            height: 2px;
-            background-color: #9e9e9e;
-        }
-
-        .break-indicator.active .break-line {
-            height: 3px;
-            background-color: #464646;
-        }
-
-        .break-button {
-            position: absolute;
-            background-color: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            font-size: 1.4em;
-            user-select: none;
-            font-weight: 600;
-            color: #9e9e9e;
-        }
-
-        .break-button:hover {
-            transform: scale(1.15);
-            border-color: #9e9e9e;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        .break-indicator.active .break-button {
-            border-color: #464646;
-            background-color: #464646;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .comparison-container {
-            margin-top: 0px;
-            display: none;
-            padding: 25px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            border: 1px solid #e0e0e0;
             opacity: 0;
             transition: opacity 0.4s ease-in-out;
         }
 
-        .comparison-container.show {
+        .results-container.show {
             display: block;
         }
 
-        .comparison-container.fade-in {
+        .results-container.fade-in {
             opacity: 1;
         }
 
-        .comparison-summary {
+        .result-header {
             text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: white;
-            border-radius: 6px;
-            border: 1px solid #e0e0e0;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .result-header.correct {
+            background-color: #f1f8f4;
+            border: 2px solid #81c784;
+        }
+
+        .result-header.incorrect {
+            background-color: #fff5f5;
+            border: 2px solid #e57373;
+        }
+
+        .result-header h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #3e3e3e;
+            font-weight: 600;
+        }
+
+        .result-header p {
+            font-size: 1.1em;
             color: #424242;
         }
 
-        .comparison-summary strong {
-            color: #3e3e3e;
-            font-weight: 600;
+        .result-section {
+            margin-bottom: 35px;
         }
 
-        .comparison-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .result-section h3 {
+            color: #3e3e3e;
+            font-size: 1.3em;
             margin-bottom: 20px;
-        }
-
-        .comparison-col {
-            background: white;
-            padding: 20px;
-            border-radius: 6px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .comparison-col h3 {
-            margin-bottom: 15px;
-            color: #3e3e3e;
-            border-bottom: 2px solid #464646;
-            padding-bottom: 10px;
             font-weight: 600;
-            font-size: 1.15em;
+        }
+
+        .option-label {
+            background-color: #464646;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .feedback-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #626161;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .correct-feedback {
+            background-color: #f1f8f4;
+            border-left-color: #81c784;
+        }
+
+        .chunks-display {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .chunk-display {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 6px;
-            background-color: #fafafa;
-            border: 1px solid #f0f0f0;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
         }
 
         .chunk-display h4 {
             color: #464646;
-            margin-bottom: 10px;
-            font-size: 1.05em;
+            margin-bottom: 15px;
+            font-size: 1.15em;
             font-weight: 600;
         }
 
         .chunk-sentences {
-            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .chunk-sentence {
-            padding: 10px 14px;
-            margin: 8px 0;
-            background-color: white;
-            border-radius: 4px;
-            border-left: 3px solid #626161;
+            padding: 12px 16px;
+            border-radius: 6px;
+            border-left: 3px solid;
             line-height: 1.7;
-            color: #424242;
         }
+
+        .chunk-sentence.chunk-1 { background-color: #fff5f5; border-left-color: #e57373; }
+        .chunk-sentence.chunk-2 { background-color: #f0f8ff; border-left-color: #64b5f6; }
+        .chunk-sentence.chunk-3 { background-color: #fffef0; border-left-color: #ffd54f; }
+        .chunk-sentence.chunk-4 { background-color: #f3e5f5; border-left-color: #ba68c8; }
+        .chunk-sentence.chunk-5 { background-color: #f1f8f4; border-left-color: #81c784; }
 
         .reasoning-box {
             background-color: #fffef0;
             border-left: 4px solid #ffd54f;
-            padding: 14px;
-            margin-top: 12px;
+            padding: 16px;
+            margin-top: 15px;
             border-radius: 4px;
-            font-size: 0.92em;
-            line-height: 1.6;
-            color: #424242;
+            font-size: 0.95em;
+            line-height: 1.7;
         }
 
         .reasoning-box strong {
@@ -340,38 +374,17 @@
             font-weight: 600;
         }
 
-        .accuracy-box {
+        .correct-answer-section {
             background-color: #f0f8ff;
+            padding: 25px;
+            border-radius: 8px;
             border: 2px solid #64b5f6;
-            padding: 20px;
-            border-radius: 6px;
-            text-align: center;
         }
 
-        .accuracy-box h4 {
-            color: #3e3e3e;
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .accuracy-box p {
-            color: #424242;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #9e9e9e;
-            font-style: italic;
-        }
-
-        .error {
-            background-color: #fff5f5;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #ffcdd2;
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
         }
 
         @media (max-width: 768px) {
@@ -379,18 +392,12 @@
                 padding: 15px;
             }
 
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
+            .result-header h2 {
+                font-size: 1.5em;
             }
 
-            .batch-selector,
-            .action-buttons {
-                justify-content: center;
-            }
-
-            .comparison-row {
-                grid-template-columns: 1fr;
+            .chunk-preview {
+                font-size: 0.9em;
             }
         }
     </style>
@@ -398,39 +405,35 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Try It Yourself: Text Segmentation Challenge</h1>
-            <p>Place line breaks between sentences to create semantically coherent chunks.</p>
+            <h1>Text Segmentation Quiz</h1>
+            <p>Choose the best way to segment this passage into semantic chunks</p>
         </div>
 
+        <!-- Quiz Content -->
         <div class="quiz-content">
-            <div class="instructions">
-                <h3>How It Works:</h3>
-                <ul>
-                    <li><strong>Click the dividing line</strong> between sentences to add a chunk break</li>
-                    <li><strong>Click again</strong> to remove a break</li>
-                    <li>Sentences between breaks are automatically grouped into colored chunks</li>
-                    <li>When ready, click <strong>"Compare with Model"</strong> to see how your chunking compares to the model's segmentation</li>
-                    <li>Click <strong>"Reset"</strong> to start over</li>
-                </ul>
-            </div>
-            
-            <div class="controls">
-                <div class="action-buttons">
-                    <button class="btn check-btn" id="checkBtn">Compare with Model</button>
-                    <button class="btn reset-btn" id="resetBtn">Reset</button>
+            <div class="passage-section">
+                <h3>Passage:</h3>
+                <div id="passageContainer">
+                    <div class="loading">Loading passage...</div>
                 </div>
             </div>
 
-            <div class="sentences-container" id="sentencesContainer">
-                <div class="loading">Loading text...</div>
-            </div>
-
-            <!-- Comparison View -->
-            <div class="comparison-container" id="comparisonContainer">
-                <div class="comparison-content" id="comparisonContent">
-                    <!-- Comparison content will be dynamically generated -->
+            <div class="question-section">
+                <h3>Question: How should this passage be segmented?</h3>
+                <div id="optionsContainer">
+                    <div class="loading">Loading options...</div>
                 </div>
             </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn submit-btn" id="submitBtn">Submit Answer</button>
+        </div>
+
+        <!-- Results Container -->
+        <div class="results-container" id="resultsContainer">
+            <!-- Results will be dynamically generated -->
         </div>
     </div>
 

@@ -1,355 +1,334 @@
-﻿// Embedded quiz data with chunk breaks
+﻿// Embedded quiz data with multiple choice options
 const QUIZ_DATA = {
-  sentences: [
-    { id: 0, text: '"What about a story?" I said.' },
-    { id: 1, text: '"Could you very sweetly tell Winnie-the-Pooh one?"' },
-    { id: 2, text: '"I suppose I could," I said. "What sort of stories does he like?"' },
-    { id: 3, text: '"About himself. Because he\'s that sort of Bear."' },
-    { id: 4, text: '"Oh, I see."' },
-    { id: 5, text: '"So could you very sweetly?"' },
-    { id: 6, text: '"I\'ll try," I said.' },
-    { id: 7, text: 'So I tried.' },
-    { id: 8, text: 'Once upon a time, a very long time ago now, about last Friday, Winnie-the-Pooh lived in a forest all by himself under the name of Sanders.' },
-    { id: 9, text: '"What does \'under the name\' mean?" asked Christopher Robin.' }
+  passage: [
+    '"What about a story?" I said.',
+    '"Could you very sweetly tell Winnie-the-Pooh one?"',
+    '"I suppose I could," I said. "What sort of stories does he like?"',
+    '"About himself. Because he\'s that sort of Bear."',
+    '"Oh, I see."',
+    '"So could you very sweetly?"',
+    '"I\'ll try," I said.',
+    'So I tried.',
+    'Once upon a time, a very long time ago now, about last Friday, Winnie-the-Pooh lived in a forest all by himself under the name of Sanders.',
+    '"What does \'under the name\' mean?" asked Christopher Robin.'
   ],
-  // Model's answer: breaks after sentences 7 (creating 2 chunks)
-  modelBreaks: [7],
-  chunks: [
+  question: "How should this passage be segmented for optimal semantic chunking?",
+  options: [
     {
-      id: 1,
-      name: "Dialogue Setup",
-      sentences: [0, 1, 2, 3, 4, 5, 6, 7],
-      reasoning: "These sentences form a complete dialogue where Christopher Robin asks for a story about Winnie-the-Pooh. They establish the context and setup for what follows, showing the conversational flow from request to agreement."
+      id: 'A',
+      label: 'Split after every sentence (10 chunks)',
+      breaks: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+      chunks: [
+        { sentences: [0], name: "Chunk 1" },
+        { sentences: [1], name: "Chunk 2" },
+        { sentences: [2], name: "Chunk 3" },
+        { sentences: [3], name: "Chunk 4" },
+        { sentences: [4], name: "Chunk 5" },
+        { sentences: [5], name: "Chunk 6" },
+        { sentences: [6], name: "Chunk 7" },
+        { sentences: [7], name: "Chunk 8" },
+        { sentences: [8], name: "Chunk 9" },
+        { sentences: [9], name: "Chunk 10" }
+      ],
+      feedback: "This creates too many tiny chunks! Each sentence is isolated, losing the semantic connections between related dialogue. This approach would make retrieval inefficient and fail to capture the conversational flow."
     },
     {
-      id: 2,
-      name: "Story Beginning",
-      sentences: [8, 9],
-      reasoning: "These sentences transition from the setup dialogue into the actual storytelling. The narrator begins the story with a classic fairy tale opening, immediately followed by Christopher Robin's interruption with a question about the story."
+      id: 'B',
+      label: 'Keep everything together (1 chunk)',
+      breaks: [],
+      chunks: [
+        { sentences: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], name: "Entire Passage" }
+      ],
+      feedback: "This treats the entire passage as one chunk, mixing two distinct sections: the dialogue setup and the story beginning. The shift from meta-conversation to storytelling represents a clear semantic boundary that should be captured."
+    },
+    {
+      id: 'C',
+      label: 'Split between dialogue and story (2 chunks)',
+      breaks: [7],
+      chunks: [
+        { 
+          sentences: [0, 1, 2, 3, 4, 5, 6, 7], 
+          name: "Dialogue Setup",
+          reasoning: "These sentences form a complete dialogue where Christopher Robin asks for a story about Winnie-the-Pooh. They establish the context and setup for what follows, showing the conversational flow from request to agreement."
+        },
+        { 
+          sentences: [8, 9], 
+          name: "Story Beginning",
+          reasoning: "These sentences transition from the setup dialogue into the actual storytelling. The narrator begins the story with a classic fairy tale opening, immediately followed by Christopher Robin's interruption with a question about the story."
+        }
+      ],
+      feedback: "Correct! This segmentation recognizes the semantic boundary between the meta-dialogue (discussing what story to tell) and the actual storytelling. The first chunk captures the complete request-and-agreement exchange, while the second chunk begins the narrative with its classic opening and immediate interruption.",
+      isCorrect: true
     }
-  ]
+  ],
+  correctAnswer: 'C'
 };
 
 class TextChunkingQuiz {
   constructor() {
     this.quizData = QUIZ_DATA;
-    this.userBreaks = new Set(); // Stores indices where user placed breaks
+    this.selectedOption = null;
+    this.hasSubmitted = false;
     this.init();
   }
 
   init() {
-    this.renderInterface();
+    this.renderQuiz();
     this.setupEventListeners();
   }
 
-  renderInterface() {
-    this.renderSentences();
+  renderQuiz() {
+    this.renderPassage();
+    this.renderOptions();
   }
 
-  renderSentences() {
-    const container = d3.select('#sentencesContainer');
+  renderPassage() {
+    const container = d3.select('#passageContainer');
     container.selectAll('*').remove();
 
-    this.quizData.sentences.forEach((sentence, index) => {
-      // Add sentence
-      container.append('div')
-        .attr('class', 'sentence')
-        .attr('data-id', sentence.id)
-        .text(sentence.text);
-
-      // Add break indicator after sentence (except last one)
-      if (index < this.quizData.sentences.length - 1) {
-        const breakDiv = container.append('div')
-          .attr('class', 'break-indicator')
-          .attr('data-after-id', sentence.id);
-
-        breakDiv.append('div')
-          .attr('class', 'break-line')
-          .on('click', () => this.toggleBreak(sentence.id));
-
-        breakDiv.append('div')
-          .attr('class', 'break-button')
-          .html('···')
-          .on('click', () => this.toggleBreak(sentence.id));
-      }
+    this.quizData.passage.forEach((sentence, index) => {
+      container.append('p')
+        .attr('class', 'passage-sentence')
+        .attr('data-id', index)
+        .text(sentence);
     });
-
-    this.updateBreakStyles();
   }
 
-  toggleBreak(afterSentenceId) {
-    if (this.userBreaks.has(afterSentenceId)) {
-      this.userBreaks.delete(afterSentenceId);
-    } else {
-      this.userBreaks.add(afterSentenceId);
-    }
-    this.updateBreakStyles();
-  }
+  renderOptions() {
+    const container = d3.select('#optionsContainer');
+    container.selectAll('*').remove();
 
-  updateBreakStyles() {
-    d3.selectAll('.break-indicator').each((d, i, nodes) => {
-      const element = d3.select(nodes[i]);
-      const afterId = parseInt(element.attr('data-after-id'));
-      
-      if (this.userBreaks.has(afterId)) {
-        element.classed('active', true);
-      } else {
-        element.classed('active', false);
-      }
-    });
+    this.quizData.options.forEach(option => {
+      const optionDiv = container.append('div')
+        .attr('class', 'option-card')
+        .attr('data-option-id', option.id)
+        .on('click', () => this.selectOption(option.id));
 
-    // Update chunk highlighting
-    const chunks = this.getUserChunks();
-    d3.selectAll('.sentence').each((d, i, nodes) => {
-      const element = d3.select(nodes[i]);
-      const sentenceId = parseInt(element.attr('data-id'));
-      
-      // Remove all chunk classes
-      element.attr('class', 'sentence');
-      
-      // Find which chunk this sentence belongs to
-      chunks.forEach((chunk, chunkIndex) => {
-        if (chunk.includes(sentenceId)) {
-          element.classed(`chunk-${chunkIndex + 1}`, true);
-        }
+      const header = optionDiv.append('div')
+        .attr('class', 'option-header');
+
+      header.append('input')
+        .attr('type', 'radio')
+        .attr('name', 'chunking-option')
+        .attr('id', `option-${option.id}`)
+        .attr('value', option.id)
+        .property('checked', this.selectedOption === option.id);
+
+      header.append('label')
+        .attr('for', `option-${option.id}`)
+        .html(`<strong>Option ${option.id}:</strong> ${option.label}`);
+
+      // Preview chunks
+      const preview = optionDiv.append('div')
+        .attr('class', 'chunk-preview');
+
+      option.chunks.forEach((chunk, idx) => {
+        const chunkDiv = preview.append('div')
+          .attr('class', `chunk-preview-item chunk-${(idx % 5) + 1}`);
+
+        chunkDiv.append('div')
+          .attr('class', 'chunk-name')
+          .text(chunk.name);
+
+        const sentences = chunkDiv.append('div')
+          .attr('class', 'chunk-sentences-preview');
+
+        chunk.sentences.forEach(sentenceIdx => {
+          sentences.append('p')
+            .attr('class', 'preview-sentence')
+            .text(this.quizData.passage[sentenceIdx]);
+        });
       });
     });
   }
 
-  getUserChunks() {
-    const chunks = [];
-    let currentChunk = [];
+  selectOption(optionId) {
+    // Allow selection change at any time
+    this.selectedOption = optionId;
     
-    this.quizData.sentences.forEach((sentence, index) => {
-      currentChunk.push(sentence.id);
-      
-      // If there's a break after this sentence, start new chunk
-      if (this.userBreaks.has(sentence.id)) {
-        chunks.push([...currentChunk]);
-        currentChunk = [];
-      }
-    });
+    // Update visual selection
+    d3.selectAll('.option-card').classed('selected', false);
+    d3.select(`.option-card[data-option-id="${optionId}"]`).classed('selected', true);
     
-    // Add remaining sentences as final chunk
-    if (currentChunk.length > 0) {
-      chunks.push(currentChunk);
+    // Update radio button
+    d3.selectAll('input[name="chunking-option"]').property('checked', false);
+    d3.select(`#option-${optionId}`).property('checked', true);
+    
+    // If already submitted, automatically resubmit with new selection
+    if (this.hasSubmitted) {
+      this.hasSubmitted = false;
+      this.submitAnswer();
     }
-    
-    return chunks;
-  }
-
-  getModelChunks() {
-    const chunks = [];
-    let currentChunk = [];
-    
-    this.quizData.sentences.forEach((sentence, index) => {
-      currentChunk.push(sentence.id);
-      
-      // If there's a break after this sentence in model's answer
-      if (this.quizData.modelBreaks.includes(sentence.id)) {
-        chunks.push([...currentChunk]);
-        currentChunk = [];
-      }
-    });
-    
-    // Add remaining sentences as final chunk
-    if (currentChunk.length > 0) {
-      chunks.push(currentChunk);
-    }
-    
-    return chunks;
   }
 
   setupEventListeners() {
-    d3.select('#checkBtn').on('click', () => this.showComparison());
-    d3.select('#resetBtn').on('click', () => this.resetQuiz());
+    d3.select('#submitBtn').on('click', () => this.submitAnswer());
   }
 
-  showComparison() {
-    const container = d3.select('#comparisonContainer');
-    const content = d3.select('#comparisonContent');
-    const sentencesContainer = d3.select('#sentencesContainer');
+  submitAnswer() {
+    if (!this.selectedOption) {
+      alert('Please select an option before submitting!');
+      return;
+    }
+
+    if (this.hasSubmitted) return; // Already submitted
+
+    this.hasSubmitted = true;
+    this.showResults();
+  }
+
+  showResults() {
+    const resultsContainer = d3.select('#resultsContainer');
+    const quizContent = d3.select('.quiz-content');
     const controls = d3.select('.controls');
-    
-    // Start fade out animation
-    sentencesContainer.classed('fade-out', true);
+
+    // Fade out quiz
+    quizContent.classed('fade-out', true);
     controls.classed('fade-out', true);
-    
-    // Wait for fade out to complete, then switch content
+
     setTimeout(() => {
-      // Hide quiz interface
-      sentencesContainer.classed('hidden', true);
+      quizContent.classed('hidden', true);
       controls.classed('hidden', true);
-      
-      // Clear and prepare comparison content
-      content.selectAll('*').remove();
 
-    const userChunks = this.getUserChunks();
-    const modelChunks = this.getModelChunks();
+      // Clear and build results
+      resultsContainer.selectAll('*').remove();
 
-    // Create comparison header
-    const header = content.append('div')
-      .attr('class', 'comparison-summary');
-    
-    header.append('p')
-      .html(`<strong>Your chunking:</strong> ${userChunks.length} chunks<br><strong>Model's chunking:</strong> ${modelChunks.length} chunks`);
+      const selectedOptionData = this.quizData.options.find(opt => opt.id === this.selectedOption);
+      const isCorrect = selectedOptionData.isCorrect || false;
 
-    // Show side-by-side comparison
-    const row = content.append('div')
-      .attr('class', 'comparison-row');
+      // Result header
+      const header = resultsContainer.append('div')
+        .attr('class', `result-header ${isCorrect ? 'correct' : 'incorrect'}`);
 
-    // Your chunks column
-    const userCol = row.append('div')
-      .attr('class', 'comparison-col');
-    userCol.append('h3').text('Your Chunks');
-    
-    userChunks.forEach((chunk, index) => {
-      const chunkDiv = userCol.append('div')
-        .attr('class', `chunk-display user-chunk-${index + 1}`);
-      
-      chunkDiv.append('h4').text(`Chunk ${index + 1}`);
-      
-      const sentencesDiv = chunkDiv.append('div')
-        .attr('class', 'chunk-sentences');
-      
-      chunk.forEach(sentenceId => {
-        const sentence = this.quizData.sentences.find(s => s.id === sentenceId);
-        if (sentence) {
+      header.append('h2')
+        .text(isCorrect ? 'Correct!' : 'Not Quite');
+
+      header.append('p')
+        .text(isCorrect ? 
+          'You identified the optimal semantic segmentation!' : 
+          'Let\'s review why this segmentation isn\'t ideal.');
+
+      // Show selected answer
+      const selectedSection = resultsContainer.append('div')
+        .attr('class', 'result-section');
+
+      selectedSection.append('h3')
+        .html(`Your Answer: <span class="option-label">Option ${this.selectedOption}</span>`);
+
+      selectedSection.append('div')
+        .attr('class', 'feedback-box')
+        .html(selectedOptionData.feedback);
+
+      // Show selected option's chunks
+      const chunksDiv = selectedSection.append('div')
+        .attr('class', 'chunks-display');
+
+      selectedOptionData.chunks.forEach((chunk, idx) => {
+        const chunkDiv = chunksDiv.append('div')
+          .attr('class', 'chunk-display');
+
+        chunkDiv.append('h4')
+          .text(chunk.name);
+
+        const sentencesDiv = chunkDiv.append('div')
+          .attr('class', 'chunk-sentences');
+
+        chunk.sentences.forEach(sentenceIdx => {
           sentencesDiv.append('p')
-            .attr('class', 'chunk-sentence')
-            .text(sentence.text);
-        }
-      });
-    });
+            .attr('class', `chunk-sentence chunk-${(idx % 5) + 1}`)
+            .text(this.quizData.passage[sentenceIdx]);
+        });
 
-    // Model's chunks column
-    const modelCol = row.append('div')
-      .attr('class', 'comparison-col');
-    modelCol.append('h3').text('Model\'s Chunks');
-    
-    modelChunks.forEach((chunk, index) => {
-      const chunkDiv = modelCol.append('div')
-        .attr('class', `chunk-display model-chunk-${index + 1}`);
-      
-      const chunkInfo = this.quizData.chunks[index];
-      chunkDiv.append('h4').text(`Chunk ${index + 1}: ${chunkInfo.name}`);
-      
-      const sentencesDiv = chunkDiv.append('div')
-        .attr('class', 'chunk-sentences');
-      
-      chunk.forEach(sentenceId => {
-        const sentence = this.quizData.sentences.find(s => s.id === sentenceId);
-        if (sentence) {
-          sentencesDiv.append('p')
-            .attr('class', 'chunk-sentence')
-            .text(sentence.text);
+        if (chunk.reasoning) {
+          chunkDiv.append('div')
+            .attr('class', 'reasoning-box')
+            .html(`<strong>Why these belong together:</strong><br>${chunk.reasoning}`);
         }
       });
 
-      // Add reasoning
-      if (chunkInfo.reasoning) {
-        chunkDiv.append('div')
-          .attr('class', 'reasoning-box')
-          .html(`<strong>Why these belong together:</strong><br>${chunkInfo.reasoning}`);
+      // If wrong, show correct answer
+      if (!isCorrect) {
+        const correctSection = resultsContainer.append('div')
+          .attr('class', 'result-section correct-answer-section');
+
+        correctSection.append('h3')
+          .html(`Correct Answer: <span class="option-label">Option ${this.quizData.correctAnswer}</span>`);
+
+        const correctOption = this.quizData.options.find(opt => opt.id === this.quizData.correctAnswer);
+
+        correctSection.append('div')
+          .attr('class', 'feedback-box correct-feedback')
+          .html(correctOption.feedback);
+
+        // Show correct chunks
+        const correctChunksDiv = correctSection.append('div')
+          .attr('class', 'chunks-display');
+
+        correctOption.chunks.forEach((chunk, idx) => {
+          const chunkDiv = correctChunksDiv.append('div')
+            .attr('class', 'chunk-display');
+
+          chunkDiv.append('h4')
+            .text(chunk.name);
+
+          const sentencesDiv = chunkDiv.append('div')
+            .attr('class', 'chunk-sentences');
+
+          chunk.sentences.forEach(sentenceIdx => {
+            sentencesDiv.append('p')
+              .attr('class', `chunk-sentence chunk-${(idx % 5) + 1}`)
+              .text(this.quizData.passage[sentenceIdx]);
+          });
+
+          if (chunk.reasoning) {
+            chunkDiv.append('div')
+              .attr('class', 'reasoning-box')
+              .html(`<strong>Why these belong together:</strong><br>${chunk.reasoning}`);
+          }
+        });
       }
-    });
 
-    // Calculate accuracy
-    const accuracy = this.calculateAccuracy(userChunks, modelChunks);
-    
-    content.append('div')
-      .attr('class', 'accuracy-box')
-      .html(`<h4>Match Score: ${accuracy}%</h4><p>This shows how closely your chunking matches the model's segmentation.</p>`);
-
-      // Add back button at the bottom
-      const bottomButton = content.append('div')
+      // Back button
+      const backButton = resultsContainer.append('div')
         .attr('class', 'action-buttons')
-        .style('margin-top', '20px')
+        .style('margin-top', '30px')
         .style('text-align', 'center');
-      
-      bottomButton.append('button')
+
+      backButton.append('button')
         .attr('class', 'btn back-btn')
         .text('← Back to Quiz')
-        .on('click', () => this.hideComparison());
+        .on('click', () => this.hideResults());
 
-      // Show container and trigger fade in
-      container.classed('show', true);
-      
-      // Trigger fade in animation
+      // Show results with fade in
+      resultsContainer.classed('show', true);
       setTimeout(() => {
-        container.classed('fade-in', true);
+        resultsContainer.classed('fade-in', true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 50);
-    }, 400); // Match the CSS transition duration (400ms)
+    }, 400);
   }
 
-  hideComparison() {
-    const container = d3.select('#comparisonContainer');
-    const sentencesContainer = d3.select('#sentencesContainer');
+  hideResults() {
+    const resultsContainer = d3.select('#resultsContainer');
+    const quizContent = d3.select('.quiz-content');
     const controls = d3.select('.controls');
-    
-    // Start fade out of comparison
-    container.classed('fade-in', false);
-    
+
+    // Fade out results
+    resultsContainer.classed('fade-in', false);
+
     setTimeout(() => {
-      // Hide comparison
-      container.classed('show', false);
-      
-      // Show quiz interface
-      sentencesContainer.classed('hidden', false);
+      resultsContainer.classed('show', false);
+
+      // Show quiz
+      quizContent.classed('hidden', false);
       controls.classed('hidden', false);
-      
-      // Remove fade-out classes to trigger fade in
+
       setTimeout(() => {
-        sentencesContainer.classed('fade-out', false);
+        quizContent.classed('fade-out', false);
         controls.classed('fade-out', false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 50);
-    }, 400); // Match the CSS transition duration
-  }
-
-  calculateAccuracy(userChunks, modelChunks) {
-    // Simple accuracy: check if breaks are in same positions
-    const userBreakSet = new Set(this.userBreaks);
-    const modelBreakSet = new Set(this.quizData.modelBreaks);
-    
-    const totalPossibleBreaks = this.quizData.sentences.length - 1;
-    let correctBreaks = 0;
-    
-    for (let i = 0; i < this.quizData.sentences.length - 1; i++) {
-      const sentenceId = this.quizData.sentences[i].id;
-      const userHasBreak = userBreakSet.has(sentenceId);
-      const modelHasBreak = modelBreakSet.has(sentenceId);
-      
-      if (userHasBreak === modelHasBreak) {
-        correctBreaks++;
-      }
-    }
-    
-    return Math.round((correctBreaks / totalPossibleBreaks) * 100);
-  }
-
-  resetQuiz() {
-    const container = d3.select('#comparisonContainer');
-    const sentencesContainer = d3.select('#sentencesContainer');
-    const controls = d3.select('.controls');
-    
-    // If comparison is showing, hide it first
-    if (container.classed('show')) {
-      this.hideComparison();
-      // Wait for animation to complete before resetting
-      setTimeout(() => {
-        this.userBreaks.clear();
-        this.updateBreakStyles();
-      }, 500);
-    } else {
-      // Just reset normally
-      this.userBreaks.clear();
-      container.classed('show', false).classed('fade-in', false);
-      sentencesContainer.classed('hidden', false).classed('fade-out', false);
-      controls.classed('hidden', false).classed('fade-out', false);
-      this.updateBreakStyles();
-    }
+    }, 400);
   }
 }
 
@@ -357,3 +336,4 @@ class TextChunkingQuiz {
 document.addEventListener('DOMContentLoaded', () => {
   new TextChunkingQuiz();
 });
+
