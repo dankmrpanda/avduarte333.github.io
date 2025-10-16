@@ -238,6 +238,9 @@
             <h1 class="title is-1 publication-title">
               LumberChunker: Long-Form Narrative Document Segmentation
             </h1>
+            <p style="font-size: 1.1rem; color: #666; margin-bottom: 1rem;">
+              Blog created by Raymond Jiang
+            </p>
             <div class="is-size-5 publication-authors">
               <span class="author-block">
                 <a href="#">André V. Duarte</a><sup>1</sup>,
@@ -303,41 +306,47 @@
   </section>
 
   
-  <!-- Abstract Section -->
-  <section class="section">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-left">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">Introduction</h2>
-          <div class="content has-text-justified">
-            <p>
-              Large Language Models (LLMs) are nowadays taking on a lark tasks , but they are still prone to hallulcinations when information is lacking. Retrieval-Augmented Generation (RAG) helps by importing in relevant passages from external sources to provide more context. Within this process, an cruicial and often-overlooked step is how we split long documents into chunks LumberChunker is a new segmentation method for long-form narrative text that consistently boosts retrieval and downstream QA on a 100-book benchmark.
-            </p>
-            <p>
-                <span style="font-weight: 600;">So the natural question is: what kind of chunking actually preserves narrative flow—and how does LumberChunker find those boundaries?</span>
-            </p>
-          
-          <h2 class="title is-4">The Challenge:</h2>
-            <p>
-              Traditional chunking approaches face a fundamental tension. Consider the landscape:
-              <ul>
-                <li>
-                  <span style="font-weight: 600;">Fixed-size methods are fast but semantically oblivious.</span> Splitting text at fixed token or character boundaries often severs semantic units mid-sentence or mid-thought, degrading retrieval quality.
-                </li>
-                <li>
-                  <span style="font-weight: 600;">Semantic methods respect meaning but incur prohibitive computational costs.</span> Existing approaches that merge based on semantic similarity require recomputing embeddings after each merge operation, resulting in quadratic complexity.
-                </li>
-              </ul>
-              LumberChunker resolves this tension through a deceptively simple insight: <em>defer the merge</em>. By separating the embedding step from the merging decision, we achieve semantic-aware segmentation with linear complexity—computing each embedding exactly once while enabling arbitrarily many merging operations.
-            </p>
-            <p>
-              If you are still unsure about this idea, below you'll find an interactive tool where you can attempt the same segmentation task. Can you identify semantic boundaries as effectively as LumberChunker?
-            </p>
-          </div>
+<!-- Introduction & Key Idea -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-left">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Introduction</h2>
+        <div class="content has-text-justified">
+          <p>
+            Long-form narratives (novels, memoirs, transcripts) don’t break cleanly at fixed token counts. If we split them poorly, Retrieval-Augmented Generation (RAG) pipelines surface the wrong passages and LLMs start guessing. Structure-only chunkers (fixed tokens, paragraphs) are fast but blind to scene and topic flow; purely similarity-driven heuristics can fragment dialogue, miss coreference, and drift as context grows.
+          </p>
+          <p>
+            <span style="font-weight: 600;">So how do we preserve the story’s flow and still keep chunking practical?</span>
+          </p>
+
+          <h2 class="title is-4">The Key Idea</h2>
+          <p>
+            Treat segmentation as <em>boundary finding</em>. LumberChunker reads a rolling window of consecutive paragraphs (up to a token count <code>θ</code>) and asks an LLM to return the <strong>earliest paragraph where the content clearly shifts</strong> from what came before. That paragraph marks a boundary; the next chunk starts there. Repeat until the document ends.
+          </p>
+          <p>
+            This simple prompt design yields reliable, human-like cuts because:
+          </p>
+          <ul>
+            <li>
+              <strong>Low false positives when no shift exists.</strong> Without a genuine topic/scene turn, the model rarely flags a boundary, so chunks don’t fracture mid-thought.
+            </li>
+            <li>
+              <strong>High hit-rate when a shift does exist.</strong> When the narrative pivots (new scene, entity, objective), the model consistently identifies the earliest turning point, preserving coherence.
+            </li>
+          </ul>
+          <p>
+            In practice, sweeping the window size shows a sweet spot around <strong>θ ≈ 550 tokens</strong>: enough context to recognize transitions, but not so much that the signal gets diluted.
+          </p>
+
+          <p>
+            Want to get a feel for it? Try the interactive demo below and place boundaries yourself, then compare with LumberChunker’s cuts. Can you spot the same turns the model does? 👀
+          </p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
 
   <!-- Interactive Quiz Section -->
@@ -363,75 +372,91 @@
   </section>
 
 
-  <!-- Method Section -->
-  <section class="section">
+  <!-- Method Section (Updated to LumberChunker style) -->
+  <section class="section" id="method">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-left">
         <div class="column is-four-fifths">
           <h2 class="title is-3">The LumberChunker Method</h2>
           <div class="content has-text-justified">
+
             <p>
-              LumberChunker operates through a three-phase pipeline that decouples segmentation from embedding computation:
+              LumberChunker treats document segmentation as a <em>boundary-finding</em> problem. Instead of cutting by fixed tokens or paragraphs, we ask an LLM to read a rolling window of consecutive paragraphs and return the <strong>first paragraph where the content clearly shifts</strong>. That cut becomes the end of the current chunk and the start of the next, which yields variable-length, semantically coherent segments that track narrative flow.
             </p>
 
-            <h3 class="title is-4">1. Sequential Split</h3>
+            <h3 class="title is-4">1) Paragraphize</h3>
             <p>
-              The first phase applies a fast, rule-based segmentation to create an initial set of fine-grained chunks. While various splitting strategies are possible (fixed-size windows, paragraphs, etc.), our experiments demonstrate that sentence-level splitting provides optimal results. This granular initial segmentation ensures we never inappropriately merge text that should remain separate—we can only combine, never subdivide.
-            </p>
-
-            <div class="algorithm-box">
-              <strong>Phase 1: Initial Segmentation</strong><br>
-              <code>chunks = split_by_sentences(document)</code><br>
-              Result: Fine-grained, semantically meaningful units<br>
-              Complexity: O(n) where n = document length
-            </div>
-
-            <h3 class="title is-4">2. Embed Once</h3>
-            <p>
-              The second phase computes dense vector representations for each initial chunk exactly once. This single-pass embedding strategy stands in stark contrast to iterative merging approaches, which must recompute embeddings after each merge operation. These embeddings serve as semantic fingerprints that enable subsequent similarity computations without revisiting the embedding model—a critical efficiency gain.
+              Cleanly split the book into paragraphs and assign stable IDs (<code>p1, p2, …</code>). This preserves the document’s natural discourse units and gives us safe candidate boundaries.
             </p>
 
             <div class="algorithm-box">
-              <strong>Phase 2: Single-Pass Embedding</strong><br>
-              <code>embeddings = [embedding_model(chunk) for chunk in chunks]</code><br>
-              Complexity: O(m · d) where m = number of chunks, d = model dimension<br>
-              Note: Each embedding computed exactly once
+              <strong>Step 1: Paragraph Extraction</strong><br>
+              <code>paragraphs = extract_paragraphs(document)</code><br>
+              Output: <code>[(id: p1, text), (id: p2, text), ...]</code>
             </div>
 
-            <h3 class="title is-4">3. Late Merging</h3>
+            <h3 class="title is-4">2) Grow a window</h3>
             <p>
-              The final phase iteratively merges adjacent chunks whose semantic similarity exceeds a learned threshold. Crucially, these merging decisions leverage the pre-computed embeddings from Phase 2—no additional embedding computations are required. The merged chunk's representation is computed as the mean of its constituents' embeddings, maintaining constant-time complexity per merge operation.
+              Build a rolling group <code>G<sub>i</sub></code> by appending paragraphs until the group’s length reaches a token budget <code>θ</code>. This provides enough context for the model to judge when a topic/scene actually shifts.
             </p>
 
             <div class="algorithm-box">
-              <strong>Phase 3: Similarity-Based Merging</strong><br>
-              <code>for i in range(len(chunks)-1):</code><br>
-              <code>&nbsp;&nbsp;sim = cosine_similarity(embeddings[i], embeddings[i+1])</code><br>
-              <code>&nbsp;&nbsp;if sim > threshold:</code><br>
-              <code>&nbsp;&nbsp;&nbsp;&nbsp;chunks[i] = merge(chunks[i], chunks[i+1])</code><br>
-              <code>&nbsp;&nbsp;&nbsp;&nbsp;embeddings[i] = mean(embeddings[i], embeddings[i+1])</code><br>
-              Complexity: O(m) comparisons using cached embeddings
+              <strong>Step 2: Group Builder</strong><br>
+              <code>G = []</code><br>
+              <code>while tokens(G) &lt;= θ: G.append(next_paragraph())</code><br>
+              Output: contextual span <code>G<sub>i</sub></code> with IDs and text
             </div>
 
+            <h3 class="title is-4">3) Ask the LLM for the earliest shift</h3>
             <p>
-              The elegance of late merging lies in its computational profile: embeddings are computed once in Phase 2, yet arbitrarily many merging decisions can be made in Phase 3 using simple similarity computations. This contrasts sharply with early-merge approaches, where each merge necessitates recomputing the merged chunk's embedding through the embedding model—a costly operation that scales quadratically with document length.
+              Prompt the model with the paragraphs in <code>G<sub>i</sub></code> and ask it to return the <em>first</em> paragraph (not the very first in the group) where content clearly changes relative to what came before. Use that returned ID as the chunk boundary; start the next group at that paragraph and repeat to the end of the book.
             </p>
+
+            <div class="algorithm-box">
+              <strong>Step 3: Boundary Selection</strong><br>
+              <code>boundary_id = LLM_earliest_shift(G)</code><br>
+              <code>emit_chunk(start_id .. boundary_id-1)</code><br>
+              <code>next_start = boundary_id</code>
+            </div>
+
+            <h3 class="title is-4">Choosing the context size (θ)</h3>
+            <p>
+              We sweep <code>θ ∈ [450, 1000]</code> tokens and find that <strong>θ ≈ 550</strong> consistently maximizes retrieval quality: large enough for context, small enough to keep the model focused on the current turn in the story.
+            </p>
+
+            <!-- <div class="notification is-info is-light">
+              <strong>Include Figure 2 here (full-width):</strong> DCG@k across different <code>θ</code>, with <code>θ=550</code> highlighted as the sweet spot.
+            </div> -->
+            <div class="image-wrapper" style="display: flex; justify-content: center; align-items: center;">
+            <img src="dcg token.png" alt="LumberChunker Pipeline" style="max-width: 80%; border-radius: 8px;">
+            </div>
+            <h3 class="title is-5">Why this works</h3>
+            <p>
+              Narratives work off of topic turns, scene changes, and discourse shifts, not uniform token distances. By explicitly locating the earliest meaningful change inside a window, LumberChunker produces variable-length chunks that keep entities and events intact, improving retrieval quality downstream.
+            </p>
+
           </div>
         </div>
       </div>
     </div>
   </section>
 
-
-  <!-- Results Section -->
-  <section class="section" style="margin-top: -2rem;">
+  <!-- Results Section: GutenQA -->
+  <section class="section" id="gutenqa">
     <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-centered">
+      <div class="columns is-centered has-text-left">
         <div class="column is-four-fifths">
+          <h2 class="title is-3">GutenQA: Movie-style results, but for books</h2>
           <div class="content has-text-justified">
-            <h2 class="title is-3">Key Findings</h2>
-            
-            <h3 class="title is-4">Superior Performance with Lower Cost</h3>
+
+            <p>
+              To evaluate chunking where it matters, we introduce <strong>GutenQA</strong>, a benchmark of <strong>100</strong> carefully cleaned public-domain books paired with <strong>3,000</strong> needle-in-a-haystack QA items (short, verifiable answers). This lets us measure <em>passage retrieval</em> precisely and then see how that lift translates into <em>RAG QA</em>.
+            </p>
+
+            <h3 class="title is-4">Retrieval: LumberChunker leads ⭐</h3>
+            <p>
+              Across DCG@k and Recall@k, LumberChunker ranks first. At <code>k=20</code>, it reaches <strong>DCG ≈ 62.1</strong> and <strong>Recall ≈ 77.9%</strong>, outperforming strong baselines like Recursive, Paragraph, Semantic, and Proposition chunking.
+            </p>
 
             <div style="text-align: center; margin-bottom: 1rem;">
               <p style="font-weight: 600; font-size: 1.15rem; color: #464646; margin-bottom: 0.25rem;">Retrieval Performance Comparison</p>
@@ -604,202 +629,239 @@
               });
             </script>
 
-            <article class="message is-info">
-              <div class="message-body">
-                <strong>Key Insight:</strong> LumberChunker achieves state-of-the-art retrieval performance while requiring 4x fewer embeddings than early-merge semantic chunking—matching the computational cost of simple sentence-based methods while delivering semantic-aware segmentation.
-              </div>
-            </article>
-
-            <p style="margin-top: 1.5rem;">
-              On the NarrativeQA benchmark, LumberChunker demonstrates clear advantages:
-            </p>
-            <ul>
-              <li>
-                <strong>1.9% relative improvement</strong> over early-merge semantic chunking (0.694 vs. 0.681 NDCG@5)
-              </li>
-              <li>
-                <strong>13.4% relative improvement</strong> over fixed-size chunking (0.694 vs. 0.612)
-              </li>
-              <li>
-                <strong>75% reduction</strong> in embedding computations compared to early-merge methods (312 vs. 1,247 embeddings per document)
-              </li>
-              <li>
-                <strong>Identical computational cost</strong> to simple sentence-based chunking, yet with significantly better retrieval quality
-              </li>
-            </ul>
-
-            <h3 class="title is-4" style="margin-top: 2rem;">Consistent Across Domains</h3>
+            <h3 class="title is-4">Downstream QA: targeted retrieval beats giant context</h3>
             <p>
-              LumberChunker's effectiveness generalizes across diverse narrative document collections. We evaluated on three benchmarks spanning different domains and document lengths:
+              Plugging chunks into a standard RAG pipeline (on autobiographies), <strong>RAG-LumberChunker</strong> surpasses <strong>RAG-Recursive</strong> and trails only <strong>RAG-Manual</strong> (hand-segmented ground truth). Notably, an “open-book” non-retrieval setting with huge context windows still underperforms RAG. (<em>targeted passages beat raw context size</em>.)
             </p>
 
-            <div class="table-card">
+            <!-- <div class="notification is-warning is-light">
+              <strong>Include Figure 3 here (full-width):</strong> QA accuracy comparison (RAG-LumberChunker, RAG-Recursive, RAG-Manual, and non-RAG open-book).
+            </div> -->
+
+            <div class="image-wrapper" style="display: flex; justify-content: center; align-items: center;">
+            <img src="qa acc.png" alt="LumberChunker Pipeline" style="max-width: 80%; border-radius: 8px;">
+            </div>
+
+            <h3 class="title is-4">Closer to human boundaries</h3>
+            <p>
+              Compared against manual chunks, LumberChunker achieves <strong>ROUGE-L ≈ 0.709</strong> vs. <strong>≈ 0.689</strong> for Recursive chunks, which is evidence that its boundaries align with how readers naturally perceive topic shifts.
+            </p>
+
+            <!-- Table 2: Similarity to manual segmentation (ROUGE-L) -->
+            <div class="table-card" aria-labelledby="table2-caption">
               <table class="table is-bordered is-hoverable">
-                <caption>Cross-Domain Performance<br><span style="font-weight: 200;">NDCG@5 Scores</span></caption>
+                <caption id="table2-caption">Table 2: Average ROUGE-L scores of methods compared to Manual Chunks.</caption>
                 <thead>
                   <tr>
-                    <th>Dataset</th>
-                    <th>Fixed-Size</th>
-                    <th>LumberChunker</th>
-                    <th>Improvement</th>
+                    <th style="text-align: left;">Method</th>
+                    <th>Average ROUGE-L Score</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <th>NarrativeQA</th>
-                    <td>0.612</td>
-                    <td>0.694</td>
-                    <td>+13.4%</td>
+                    <td style="text-align: left;">LumberChunker</td>
+                    <td>0.709</td>
                   </tr>
                   <tr>
-                    <th>QuALITY</th>
-                    <td>0.584</td>
-                    <td>0.658</td>
-                    <td>+12.7%</td>
-                  </tr>
-                  <tr>
-                    <th>QMSum</th>
-                    <td>0.547</td>
-                    <td>0.621</td>
-                    <td>+13.5%</td>
+                    <td style="text-align: left;">Recursive Chunks</td>
+                    <td>0.689</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <h3 class="title is-4" style="margin-top: 2rem;">Computational Efficiency Analysis ⚡</h3>
+            <h3 class="title is-4">Granularity that “feels right”</h3>
             <p>
-              One of LumberChunker's major advantages is its computational profile. While early-merge semantic chunking requires recalculating embeddings after each merge operation, LumberChunker computes embeddings just once.
+              Average chunk sizes (tokens) on the 100-book corpus: Paragraph ~79, Semantic ~185, Recursive ~399, <strong>LumberChunker ~334</strong>, Proposition ~12. Even with <code>θ=550</code>, the model frequently finds earlier shifts, yielding compact, on-topic chunks and reducing “lost-in-the-middle” effects.
             </p>
 
-            <div class="algorithm-box">
-              <strong>Complexity Comparison:</strong><br><br>
-              <strong>Early Merge (Traditional):</strong><br>
-              • Embeddings per merge: O(n²)<br>
-              • Total operations: O(n² × d) where d = embedding dimension<br><br>
-              <strong>LumberChunker (proposed):</strong><br>
-              • Embeddings per merge: O(n)<br>
-              • Total operations: O(n × d)<br><br>
-              <strong>Speedup: ~n times faster</strong> (typically 4-10x in practice)
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+            <!-- Table 10: Average tokens and total chunks per method -->
 
-
-  <!-- Ablation Studies Section -->
-  <section class="section" style="margin-top: -2rem;">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered has-text-left">
-        <div class="column is-four-fifths">
-          <h2 class="title is-3">Ablation Studies</h2>
-          <div class="content has-text-justified">
-            <h3 class="title is-4">Impact of Initial Split Strategy</h3>
-            <p>
-              We investigated how different initial segmentation methods affect final performance:
-            </p>
-
-            <div class="table-card">
+            <!-- Accessible HTML table fallback (renders even if image is missing) -->
+            <div class="table-card" aria-labelledby="table10-caption">
               <table class="table is-bordered is-hoverable">
-                <caption>Initial Split Strategy Comparison</caption>
+                <caption id="table10-caption">Table 10: The average number of tokens per chunk and the total number of chunks after segmenting each book in the GutenQA.</caption>
                 <thead>
                   <tr>
-                    <th>Initial Split Method</th>
-                    <th>Avg. Initial Chunks</th>
-                    <th>Final NDCG@5</th>
-                    <th>Avg. Final Chunks</th>
+                    <th style="text-align: left;">Method</th>
+                    <th>Avg. #Tokens / Chunk</th>
+                    <th>Total #Chunks</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <th>Fixed 128 tokens</th>
-                    <td>145</td>
-                    <td>0.673</td>
-                    <td>89</td>
+                    <td style="text-align: left;">Semantic Chunking</td>
+                    <td>185 tokens</td>
+                    <td>191059</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Paragraph Level</td>
+                    <td>79 tokens</td>
+                    <td>248307</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Recursive Chunking</td>
+                    <td>399 tokens</td>
+                    <td>31787</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Proposition-Level</td>
+                    <td>12 tokens</td>
+                    <td>914493</td>
                   </tr>
                   <tr style="background-color: #f0f8ff;">
-                    <th>Sentence-based</th>
-                    <td>312</td>
-                    <td><strong>0.694</strong></td>
-                    <td>127</td>
-                  </tr>
-                  <tr>
-                    <th>Fixed 64 tokens</th>
-                    <td>289</td>
-                    <td>0.687</td>
-                    <td>156</td>
-                  </tr>
-                  <tr>
-                    <th>Paragraph-based</th>
-                    <td>84</td>
-                    <td>0.651</td>
-                    <td>58</td>
+                    <td style="text-align: left;">LumberChunker</td>
+                    <td><strong>334 tokens</strong></td>
+                    <td><strong>36917</strong></td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
+            <h3 class="title is-4">Practicality: predictable time &amp; cost ⚡</h3>
             <p>
-              <strong>Key Finding:</strong> Sentence-level initial segmentation achieves the best performance. Sentences provide natural semantic units with appropriate granularity—fine enough to enable flexible merging, yet coarse enough to maintain computational efficiency. Starting with overly coarse units (paragraphs) limits merging flexibility, while overly fine units (fixed small windows) sacrifice semantic coherence.
+              LumberChunker requires LLM calls, but costs scale linearly with book length and are one-time. Examples: <em>A Christmas Carol</em> (~710 paragraphs) ≈ <strong>95 s</strong>, ≈ <strong>$0.03</strong>; <em>The Count of Monte Cristo</em> (~14,339 paragraphs) ≈ <strong>1628 s</strong>, ≈ <strong>$0.40</strong> (pricing at paper time).
             </p>
 
-            <h3 class="title is-4" style="margin-top: 2rem;">Similarity Threshold Sensitivity</h3>
-            <p>
-              The similarity threshold governs merge decisions. We systematically evaluated performance across a range of threshold values to characterize this sensitivity:
-            </p>
+            <div class="columns">
+              <div class="column">
+                <!-- Table 11: Runtime (seconds per book) -->
 
-            <ul>
-              <li><strong>Threshold = 0.70:</strong> Aggressive merging produces larger, less focused chunks, degrading retrieval precision (NDCG@5 = 0.661)</li>
-              <li><strong>Threshold = 0.80:</strong> Optimal operating point, balancing chunk coherence with retrieval accuracy (NDCG@5 = 0.694)</li>
-              <li><strong>Threshold = 0.90:</strong> Conservative merging retains near-sentence-level granularity, underutilizing semantic information (NDCG@5 = 0.642)</li>
-            </ul>
+                <!-- Accessible HTML table fallback for Table 11 -->
+                <div class="table-card" aria-labelledby="table11-caption">
+                  <table class="table is-bordered is-hoverable">
+                    <caption id="table11-caption">Table 11: The time required to apply LumberChunker or baselines on each book.</caption>
+                    <thead>
+                      <tr>
+                        <th style="text-align: left;">Method</th>
+                        <th>A Christmas Carol<br><span style="font-weight: 400;">(710 Paragraphs)</span></th>
+                        <th>The Count of Monte Cristo<br><span style="font-weight: 400;">(14339 Paragraphs)</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style="text-align: left;">Semantic Chunking</td>
+                        <td>212 seconds</td>
+                        <td>4978 seconds</td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: left;">Recursive Chunking</td>
+                        <td>0.1 seconds</td>
+                        <td>0.6 seconds</td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: left;">HyDE</td>
+                        <td>75 seconds</td>
+                        <td>79 seconds</td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: left;">Proposition-Level</td>
+                        <td>633 seconds</td>
+                        <td>10302 seconds</td>
+                      </tr>
+                      <tr style="background-color: #f0f8ff;">
+                        <td style="text-align: left;">LumberChunker</td>
+                        <td><strong>95 seconds</strong></td>
+                        <td><strong>1628 seconds</strong></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="column">
+                <!-- Table 12: Segmentation cost (per book) -->
 
-            <p>
-              The optimal threshold around 0.80 cosine similarity suggests that moderate semantic coherence requirements produce the most effective chunks for retrieval. Too loose a threshold creates overly broad chunks that dilute relevant content, while too strict a threshold fails to capture meaningful semantic groupings.
-            </p>
+                <!-- Accessible HTML table fallback for Table 12 -->
+                <div class="table-card" aria-labelledby="table12-caption">
+                  <table class="table is-bordered is-hoverable">
+                    <caption id="table12-caption">Table 12: Cost comparison of segmenting two books with significantly different lengths.</caption>
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>A Christmas Carol</th>
+                        <th>The Count of Monte Cristo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th style="text-align: left;">Length</th>
+                        <td>28k words</td>
+                        <td>450k words</td>
+                      </tr>
+                      <tr>
+                        <th style="text-align: left;">#LumberChunker Chunks</th>
+                        <td>92</td>
+                        <td>1476</td>
+                      </tr>
+                      <tr>
+                        <th style="text-align: left;">Cost</th>
+                        <td>$0.03</td>
+                        <td>$0.40</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+
           </div>
         </div>
       </div>
     </div>
   </section>
 
-
-  <!-- Conclusion Section -->
+  <!-- Conclusion & Limitations Section -->
   <section class="section" style="margin-top: -2rem;">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-left">
         <div class="column is-four-fifths">
-          <h2 class="title is-3">Conclusion</h2>
+          <h2 class="title is-3">Conclusion & Limitations</h2>
           <div class="content has-text-justified">
             <p>
-              LumberChunker demonstrates that semantic-aware document segmentation need not incur prohibitive computational costs. By decoupling embedding computation from merge decisions—computing embeddings once, then performing arbitrarily many merges—we achieve:
+              LumberChunker shows that <strong>LLM-guided narrative segmentation</strong> can strike a rare balance of preserving story flow without demanding massive compute or retraining. 
+              By letting an LLM detect <em>where meaning actually shifts</em> inside rolling paragraph windows, we obtain chunks that feel natural to humans and perform better for machines.
             </p>
-            <ul>
-              <li><strong>State-of-the-art retrieval performance</strong> across multiple narrative document benchmarks, outperforming both fixed-size and early-merge semantic methods</li>
-              <li><strong>Linear computational complexity</strong> with 75% fewer embedding computations than iterative early-merge approaches</li>
-              <li><strong>Robust generalization</strong> across diverse domains and document characteristics</li>
-              <li><strong>Practical efficiency</strong> matching the cost of simple sentence-based methods while delivering semantic coherence</li>
-            </ul>
+
             <p>
-              The proposed approach introduces a new design space for document segmentation. Future directions include:
+              On the <strong>GutenQA benchmark</strong>, LumberChunker consistently improves retrieval and downstream QA over traditional fixed-size and recursive methods,
+              approaching the quality of manual, human-curated segmentations. Its efficiency, roughly linear in paragraph count, makes it practical for large-scale preprocessing in RAG pipelines.
+            </p>
+
+            <p>
+              Still, there are tradeoffs worth noting:
             </p>
             <ul>
-              <li>Hierarchical segmentation through recursive late merging</li>
-              <li>Learned threshold adaptation conditioned on document properties</li>
-              <li>Query-aware chunking by incorporating retrieval objectives during merging</li>
-              <li>Extension to structured and multi-modal documents</li>
+              <li>
+                <strong>LLM dependency:</strong> Each segmentation call requires an LLM inference. While cost scales predictably with document length, it remains slower than rule-based or embedding-only approaches.
+              </li>
+              <li>
+                <strong>Domain sensitivity:</strong> LumberChunker excels in long-form narratives, but structured or highly repetitive texts (legal, scientific, or instructional) may not benefit as much.
+              </li>
+              <li>
+                <strong>Scaling limits:</strong> For extremely large corpora, iterative prompting adds latency, though the cost remains a one-time preprocessing step.
+              </li>
             </ul>
+
+            <p>
+              These limitations also point toward future directions:
+            </p>
+            <ul>
+              <li>Developing <strong>hybrid models</strong> that blend structural cues with learned semantic boundaries.</li>
+              <li>Adapting thresholds dynamically based on <strong>document style and length</strong>.</li>
+              <li>Exploring <strong>query-aware chunking</strong> to tailor segmentation directly to retrieval goals.</li>
+            </ul>
+
             <p style="margin-top: 1.5rem;">
-              As RAG systems become increasingly central to AI applications, effective document segmentation emerges as a critical bottleneck. LumberChunker provides a principled solution that respects both semantic coherence and computational constraints—making high-quality retrieval accessible at scale.
+              As RAG systems continue to scale, <strong>effective document segmentation</strong> will remain a key frontier.
+              LumberChunker offers a practical step forward—one that respects both meaning and efficiency, making
+              long-form understanding more accessible to modern language models.
             </p>
           </div>
         </div>
       </div>
     </div>
   </section>
-
 
   <!-- Citation Section -->
   <section class="section" style="background-color: #f8f9fa; margin-top: 2rem; padding: 2rem 0;">
