@@ -21,7 +21,7 @@ jobs:
       # Upload EXACTLY the subfolder; nothing else is published
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: main/projects/lumberchunker
+          path: projects/lumberchunker
 
       - id: deployment
         uses: actions/deploy-pages@v4
