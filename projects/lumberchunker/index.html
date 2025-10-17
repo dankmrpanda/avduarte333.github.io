@@ -239,7 +239,7 @@
               LumberChunker: Long-Form Narrative Document Segmentation
             </h1>
             <p style="font-size: 1.1rem; color: #666; margin-bottom: 1rem;">
-              Blog created by Raymond Jiang
+              Blog created by Raymond Jiang<sup>3</sup>
             </p>
             <div class="is-size-5 publication-authors">
               <span class="author-block">
@@ -347,22 +347,10 @@
   </div>
 </section>
 
-
   <!-- Interactive Quiz Section -->
   <section class="section" id="quiz" style="margin-top: -2rem; margin-bottom: -2.5rem;">
     <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered">
-        Text Segmentation Knowledge Check
-      </h2>
       <div class="quiz-section">
-        <div class="content has-text-justified" style="margin-bottom: 1.5rem;">
-          <p>
-            Test your understanding of semantic chunking with this interactive quiz. You'll be presented with a passage and three different segmentation strategies.
-          </p>
-          <p>
-            <strong>Instructions:</strong> Read the passage carefully, then select which segmentation approach you think best captures the semantic boundaries. Submit your answer to see detailed feedback explaining why each approach works or doesn't work, and compare your choice with LumberChunker's optimal segmentation.
-          </p>
-        </div>
         <div class="quiz-iframe-container">
           <iframe src="quiz.html" title="Text Segmentation Quiz"></iframe>
         </div>
@@ -383,39 +371,43 @@
               LumberChunker treats document segmentation as a <em>boundary-finding</em> problem. Instead of cutting by fixed tokens or paragraphs, we ask an LLM to read a rolling window of consecutive paragraphs and return the <strong>first paragraph where the content clearly shifts</strong>. That cut becomes the end of the current chunk and the start of the next, which yields variable-length, semantically coherent segments that track narrative flow.
             </p>
 
-            <h3 class="title is-4">1) Paragraphize</h3>
+            <h3 class="title is-4" id="step1-extraction">1) Document i Paragraph Extraction</h3>
             <p>
               Cleanly split the book into paragraphs and assign stable IDs (<code>p1, p2, …</code>). This preserves the document’s natural discourse units and gives us safe candidate boundaries.
             </p>
 
             <div class="algorithm-box">
-              <strong>Step 1: Paragraph Extraction</strong><br>
-              <code>paragraphs = extract_paragraphs(document)</code><br>
-              Output: <code>[(id: p1, text), (id: p2, text), ...]</code>
+              <strong>Example:</strong> From a novel, we extract:<br><br>
+              <code>p1</code>: "The morning sun filtered through the dusty windows..."<br>
+              <code>p2</code>: "She walked slowly to the door, hesitating..."<br>
+              <code>p3</code>: "Meanwhile, across town, Detective Morrison reviewed the case files..."<br>
+              <code>p4</code>: "The previous night's events had left him puzzled..."<br><br>
+              Each paragraph gets a unique ID for tracking boundaries.
             </div>
 
-            <h3 class="title is-4">2) Grow a window</h3>
+            <h3 class="title is-4" id="step2-grouping">2) IDs Grouping (G<sub>i</sub>) for LLM</h3>
             <p>
               Build a rolling group <code>G<sub>i</sub></code> by appending paragraphs until the group’s length reaches a token budget <code>θ</code>. This provides enough context for the model to judge when a topic/scene actually shifts.
             </p>
 
             <div class="algorithm-box">
-              <strong>Step 2: Group Builder</strong><br>
-              <code>G = []</code><br>
-              <code>while tokens(G) &lt;= θ: G.append(next_paragraph())</code><br>
-              Output: contextual span <code>G<sub>i</sub></code> with IDs and text
+              <strong>Example:</strong> With <code>θ = 550</code> tokens, we build:<br><br>
+              <code>G<sub>1</sub></code> = [<code>p1</code>, <code>p2</code>, <code>p3</code>, <code>p4</code>, <code>p5</code>, <code>p6</code>]<br><br>
+              This window contains ~550 tokens spanning multiple paragraphs, giving the LLM enough context to detect where the narrative shifts—perhaps from the woman's scene to the detective's investigation.
             </div>
 
-            <h3 class="title is-4">3) Ask the LLM for the earliest shift</h3>
+            <h3 class="title is-4" id="step3-query">3) Gemini Query</h3>
             <p>
               Prompt the model with the paragraphs in <code>G<sub>i</sub></code> and ask it to return the <em>first</em> paragraph (not the very first in the group) where content clearly changes relative to what came before. Use that returned ID as the chunk boundary; start the next group at that paragraph and repeat to the end of the book.
             </p>
 
             <div class="algorithm-box">
-              <strong>Step 3: Boundary Selection</strong><br>
-              <code>boundary_id = LLM_earliest_shift(G)</code><br>
-              <code>emit_chunk(start_id .. boundary_id-1)</code><br>
-              <code>next_start = boundary_id</code>
+              <strong>Example:</strong> Given <code>G<sub>1</sub></code> = [<code>p1</code>, <code>p2</code>, <code>p3</code>, <code>p4</code>, <code>p5</code>, <code>p6</code>], the LLM responds:<br><br>
+              <em>"The content shifts at <code>p3</code>, where we transition from the woman's morning routine to Detective Morrison's investigation."</em><br><br>
+              <strong>Step 4: Answer Extraction</strong><br>
+              We extract <code>p3</code> as the boundary. This creates:<br>
+              • <strong>Chunk 1</strong>: [<code>p1</code>, <code>p2</code>] — Woman's scene<br>
+              • <strong>Next group starts at</strong> <code>p3</code> — Detective's investigation
             </div>
 
             <h3 class="title is-4">Choosing the context size (θ)</h3>
@@ -532,45 +524,6 @@
                     <td><strong>62.09</strong></td>
                   </tr>
                 </tbody>
-                <tfoot>
-                  <tr>
-                    <td colspan="6" style="background-color: #fafafa; padding: 1rem; border-top: 2px solid #e0e0e0;">
-                      <div style="text-align: center;">
-                        <p style="font-weight: 600; font-size: 0.9rem; color: #464646; margin-bottom: 0.5rem;">Chart Line Styles:</p>
-                        <div style="display: inline-flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; align-items: center;">
-                          <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
-                            <svg width="40" height="16" style="vertical-align: middle;">
-                              <line x1="0" y1="8" x2="40" y2="8" stroke="#2563eb" stroke-width="2.5" />
-                              <circle cx="20" cy="8" r="3.5" fill="#2563eb" stroke="white" stroke-width="1.5" />
-                            </svg>
-                            <span style="font-size: 0.85rem; color: #424242; font-weight: 500;">LumberChunker</span>
-                          </div>
-                          <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
-                            <svg width="40" height="16" style="vertical-align: middle;">
-                              <line x1="0" y1="8" x2="40" y2="8" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="8,4" />
-                              <circle cx="20" cy="8" r="2.5" fill="#dc2626" stroke="white" stroke-width="1.5" />
-                            </svg>
-                            <span style="font-size: 0.85rem; color: #424242;">Recursive</span>
-                          </div>
-                          <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
-                            <svg width="40" height="16" style="vertical-align: middle;">
-                              <line x1="0" y1="8" x2="40" y2="8" stroke="#059669" stroke-width="2.5" stroke-dasharray="4,4" />
-                              <circle cx="20" cy="8" r="2.5" fill="#059669" stroke="white" stroke-width="1.5" />
-                            </svg>
-                            <span style="font-size: 0.85rem; color: #424242;">Paragraph</span>
-                          </div>
-                          <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
-                            <svg width="40" height="16" style="vertical-align: middle;">
-                              <line x1="0" y1="8" x2="40" y2="8" stroke="#9333ea" stroke-width="2.5" stroke-dasharray="2,2" />
-                              <circle cx="20" cy="8" r="2.5" fill="#9333ea" stroke="white" stroke-width="1.5" />
-                            </svg>
-                            <span style="font-size: 0.85rem; color: #424242;">Semantic</span>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                </tfoot>
               </table>
             </div>
 
@@ -847,12 +800,12 @@
     </div>
   </section>
 
-  <!-- Conclusion & Limitations Section -->
+  <!-- Conclusion Section -->
   <section class="section" style="margin-top: -2rem;">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-left">
         <div class="column is-four-fifths">
-          <h2 class="title is-3">Conclusion & Limitations</h2>
+          <h2 class="title is-3">Conclusion</h2>
           <div class="content has-text-justified">
             <p>
               LumberChunker shows that <strong>LLM-guided narrative segmentation</strong> can strike a rare balance of preserving story flow without demanding massive compute or retraining. 
@@ -863,30 +816,6 @@
               On the <strong>GutenQA benchmark</strong>, LumberChunker consistently improves retrieval and downstream QA over traditional fixed-size and recursive methods,
               approaching the quality of manual, human-curated segmentations. Its efficiency, roughly linear in paragraph count, makes it practical for large-scale preprocessing in RAG pipelines.
             </p>
-
-            <p>
-              Still, there are tradeoffs worth noting:
-            </p>
-            <ul>
-              <li>
-                <strong>LLM dependency:</strong> Each segmentation call requires an LLM inference. While cost scales predictably with document length, it remains slower than rule-based or embedding-only approaches.
-              </li>
-              <li>
-                <strong>Domain sensitivity:</strong> LumberChunker excels in long-form narratives, but structured or highly repetitive texts (legal, scientific, or instructional) may not benefit as much.
-              </li>
-              <li>
-                <strong>Scaling limits:</strong> For extremely large corpora, iterative prompting adds latency, though the cost remains a one-time preprocessing step.
-              </li>
-            </ul>
-
-            <p>
-              These limitations also point toward future directions:
-            </p>
-            <ul>
-              <li>Developing <strong>hybrid models</strong> that blend structural cues with learned semantic boundaries.</li>
-              <li>Adapting thresholds dynamically based on <strong>document style and length</strong>.</li>
-              <li>Exploring <strong>query-aware chunking</strong> to tailor segmentation directly to retrieval goals.</li>
-            </ul>
 
             <p style="margin-top: 1.5rem;">
               As RAG systems continue to scale, <strong>effective document segmentation</strong> will remain a key frontier.
@@ -954,15 +883,144 @@
       
       const img = new Image();
       img.onload = function() {
-        svg.attr('viewBox', `0 0 ${this.width} ${this.height}`)
+        const imgWidth = this.width;
+        const imgHeight = this.height;
+        
+        svg.attr('viewBox', `0 0 ${imgWidth} ${imgHeight}`)
            .attr('preserveAspectRatio', 'xMidYMid meet');
         
+        // Add the image
         svg.append('image')
           .attr('href', 'LumberChunker_pipeline.png')
           .attr('x', 0)
           .attr('y', 0)
-          .attr('width', this.width)
-          .attr('height', this.height);
+          .attr('width', imgWidth)
+          .attr('height', imgHeight);
+        
+        // Define clickable areas for each pipeline step
+        // Precisely matched to the vertical dividers in the pipeline image
+        const clickableAreas = [
+          {
+            // Step 1: Document i Paragraph Extraction (leftmost section)
+            x: imgWidth * 0.01,
+            y: 0,
+            width: imgWidth * 0.20, // First vertical line divider
+            height: imgHeight,
+            targetId: 'step1-extraction',
+            section: 'Document i Paragraph Extraction'
+          },
+          {
+            // Step 2: IDs Grouping (Gi) for LLM (second section)
+            x: imgWidth * 0.21,
+            y: 0,
+            width: imgWidth * 0.30, // Largest section with the grouping boxes
+            height: imgHeight,
+            targetId: 'step2-grouping',
+            section: 'IDs Grouping (Gi) for LLM'
+          },
+          {
+            // Step 3: Gemini Query (third section with Google logo)
+            x: imgWidth * 0.54,
+            y: 0,
+            width: imgWidth * 0.24, // Section with Gemini Query text
+            height: imgHeight,
+            targetId: 'step3-query',
+            section: 'Gemini Query'
+          },
+          {
+            // Step 4: Answer Extraction (rightmost section)
+            x: imgWidth * 0.79,
+            y: 0,
+            width: imgWidth * 0.19, // Final section with answer IDs
+            height: imgHeight,
+            targetId: 'step3-query', // Links to step 3 section as step 4 is within the same example box
+            section: 'Answer Extraction'
+          }
+        ];
+        
+        // Add clickable rectangles with hover effects
+        clickableAreas.forEach((area, index) => {
+          const group = svg.append('g')
+            .style('cursor', 'pointer');
+          
+          // Invisible clickable rectangle
+          const rect = group.append('rect')
+            .attr('x', area.x)
+            .attr('y', area.y)
+            .attr('width', area.width)
+            .attr('height', area.height)
+            .attr('fill', 'transparent')
+            .attr('stroke', 'none')
+            .on('click', function() {
+              // Smooth scroll to the corresponding section header
+              const targetElement = document.querySelector(`#${area.targetId}`);
+              if (targetElement) {
+                const elementTop = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                window.scrollTo({
+                  top: elementTop - 120, // Offset for fixed header
+                  behavior: 'smooth'
+                });
+              }
+            })
+            .on('mouseover', function() {
+              // Add highlight overlay on hover
+              d3.select(this)
+                .attr('fill', '#ffa726')
+                .attr('fill-opacity', 0.15)
+                .attr('stroke', '#ff9800')
+                .attr('stroke-width', 4)
+                .attr('stroke-dasharray', '8,4');
+              
+              // Show tooltip with section name
+              const tooltipGroup = svg.append('g')
+                .attr('class', `tooltip-${index}`)
+                .style('pointer-events', 'none');
+              
+              // Calculate responsive font size based on image dimensions (much larger)
+              const fontSize = Math.max(60, Math.min(40, imgWidth * 0.03));
+              const centerX = area.x + area.width / 2;
+              const centerY = imgHeight / 2;
+              
+              // Add text first to get its dimensions
+              const tooltipText = tooltipGroup.append('text')
+                .attr('x', centerX)
+                .attr('y', centerY)
+                .attr('text-anchor', 'middle')
+                .attr('dominant-baseline', 'middle')
+                .style('font-size', `${fontSize}px`)
+                .style('font-weight', '600')
+                .style('fill', '#ff6f00')
+                .style('font-family', "'Roboto', sans-serif")
+                .text('Go To Section');
+              
+              // Get text bounding box for background
+              const bbox = tooltipText.node().getBBox();
+              const padding = 8;
+              
+              // Add background rectangle behind text (insert before text)
+              const tooltipBg = tooltipGroup.insert('rect', 'text')
+                .attr('x', bbox.x - padding)
+                .attr('y', bbox.y - padding)
+                .attr('width', bbox.width + padding * 2)
+                .attr('height', bbox.height + padding * 2)
+                .attr('rx', 6)
+                .attr('ry', 6)
+                .attr('fill', 'rgba(255, 255, 255, 0.95)')
+                .attr('stroke', '#ffa726')
+                .attr('stroke-width', 2)
+                .style('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))');
+            })
+            .on('mouseout', function() {
+              // Remove highlight
+              d3.select(this)
+                .attr('fill', 'transparent')
+                .attr('fill-opacity', 0)
+                .attr('stroke', 'none');
+              
+              // Remove tooltip
+              svg.selectAll(`.tooltip-${index}`).remove();
+            });
+        });
       };
       img.src = 'LumberChunker_pipeline.png';
     }
@@ -1442,6 +1500,8 @@
         .text('Accuracy (%)');
       
       // Draw bars (without animation initially)
+      let isAnimating = false;
+      
       const bars = g.selectAll('.bar')
         .data(data)
         .join('rect')
@@ -1455,16 +1515,22 @@
         .attr('stroke-width', 1.5)
         .style('cursor', 'pointer')
         .on('mouseover', function(event, d) {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('opacity', 0.8);
+          // Only allow hover effect if not currently animating
+          if (!isAnimating) {
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr('opacity', 0.8);
+          }
         })
         .on('mouseout', function() {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('opacity', 1);
+          // Only allow hover effect if not currently animating
+          if (!isAnimating) {
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr('opacity', 1);
+          }
         });
       
       // Add value labels (hidden initially)
@@ -1480,6 +1546,37 @@
         .style('fill', '#000')
         .attr('opacity', 0)
         .text(d => d.accuracy.toFixed(2));
+      
+      // Add method labels at bottom of each bar
+      const bottomLabels = g.selectAll('.bottom-label')
+        .data(data)
+        .join('text')
+        .attr('class', 'bottom-label')
+        .attr('x', (d, i) => x(i) + x.bandwidth() / 2)
+        .attr('y', height + 15)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '13px')
+        .style('font-weight', '500')
+        .style('fill', '#000')
+        .each(function(d, i) {
+          const text = d3.select(this);
+          const words = d.label.split(' - ');
+          
+          if (words.length > 1) {
+            // Multi-line label for methods with " - "
+            text.append('tspan')
+              .attr('x', x(i) + x.bandwidth() / 2)
+              .attr('dy', '0')
+              .text(words[0]);
+            text.append('tspan')
+              .attr('x', x(i) + x.bandwidth() / 2)
+              .attr('dy', '1.1em')
+              .text(words[1]);
+          } else {
+            // Single line label
+            text.text(d.label);
+          }
+        });
       
       // Add legend in top-left corner
       const legendGroup = g.append('g')
@@ -1531,6 +1628,7 @@
         entries.forEach(entry => {
           if (entry.isIntersecting && !hasAnimated) {
             hasAnimated = true;
+            isAnimating = true;
             
             // Animate bars sliding up
             bars.transition()
@@ -1538,7 +1636,13 @@
               .duration(1000)
               .ease(d3.easeCubicOut)
               .attr('y', d => y(d.accuracy))
-              .attr('height', d => height - y(d.accuracy));
+              .attr('height', d => height - y(d.accuracy))
+              .on('end', function(d, i) {
+                // Re-enable hover effects after the last bar finishes animating
+                if (i === data.length - 1) {
+                  isAnimating = false;
+                }
+              });
             
             // Animate labels fading in
             labels.transition()

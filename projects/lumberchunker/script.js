@@ -73,8 +73,48 @@ class TextChunkingQuiz {
   }
 
   init() {
+    this.renderProgressIndicator();
     this.renderQuiz();
     this.setupEventListeners();
+  }
+  
+  renderProgressIndicator() {
+    const container = d3.select('#progressIndicator');
+    
+    // Create SVG for progress indicator
+    const width = 300;
+    const height = 8;
+    
+    const svg = container.append('svg')
+      .attr('width', width)
+      .attr('height', height)
+      .style('display', 'block')
+      .style('margin', '0 auto');
+    
+    // Background track
+    svg.append('rect')
+      .attr('width', width)
+      .attr('height', height)
+      .attr('rx', 4)
+      .attr('fill', '#e0e0e0');
+    
+    // Progress bar
+    this.progressBar = svg.append('rect')
+      .attr('width', 0)
+      .attr('height', height)
+      .attr('rx', 4)
+      .attr('fill', '#464646');
+  }
+  
+  updateProgress(percent) {
+    if (!this.progressBar) return;
+    
+    const width = 300;
+    this.progressBar
+      .transition()
+      .duration(500)
+      .ease(d3.easeCubicOut)
+      .attr('width', width * percent);
   }
 
   renderQuiz() {
@@ -84,75 +124,177 @@ class TextChunkingQuiz {
 
   renderPassage() {
     const container = d3.select('#passageContainer');
-    container.selectAll('*').remove();
-
-    this.quizData.passage.forEach((sentence, index) => {
-      container.append('p')
-        .attr('class', 'passage-sentence')
-        .attr('data-id', index)
-        .text(sentence);
-    });
+    
+    // Remove loading text
+    container.selectAll('.loading').remove();
+    
+    // Use d3 data join pattern
+    const sentences = container.selectAll('.passage-sentence')
+      .data(this.quizData.passage);
+    
+    // Enter new sentences
+    sentences.enter()
+      .append('p')
+      .attr('class', 'passage-sentence')
+      .attr('data-id', (d, i) => i)
+      .style('opacity', 0)
+      .style('transform', 'translateY(20px)')
+      .text(d => d)
+      .transition()
+      .duration(600)
+      .delay((d, i) => i * 80)
+      .style('opacity', 1)
+      .style('transform', 'translateY(0)');
+    
+    // Remove old sentences
+    sentences.exit()
+      .transition()
+      .duration(300)
+      .style('opacity', 0)
+      .remove();
   }
 
   renderOptions() {
     const container = d3.select('#optionsContainer');
-    container.selectAll('*').remove();
+    
+    // Remove loading text
+    container.selectAll('.loading').remove();
+    
+    // Use d3 data join pattern
+    const options = container.selectAll('.option-card')
+      .data(this.quizData.options, d => d.id);
+    
+    // Exit old options
+    options.exit()
+      .transition()
+      .duration(300)
+      .style('opacity', 0)
+      .remove();
+    
+    // Enter new options
+    const optionsEnter = options.enter()
+      .append('div')
+      .attr('class', 'option-card')
+      .attr('data-option-id', d => d.id)
+      .style('opacity', 0)
+      .style('transform', 'scale(0.95)')
+      .on('click', (event, d) => this.selectOption(d.id));
+    
+    // Animate entrance
+    optionsEnter
+      .transition()
+      .duration(500)
+      .delay((d, i) => 800 + i * 150)
+      .style('opacity', 1)
+      .style('transform', 'scale(1)');
+    
+    // Build option structure
+    const header = optionsEnter.append('div')
+      .attr('class', 'option-header');
 
-    this.quizData.options.forEach(option => {
-      const optionDiv = container.append('div')
-        .attr('class', 'option-card')
-        .attr('data-option-id', option.id)
-        .on('click', () => this.selectOption(option.id));
+    header.append('input')
+      .attr('type', 'radio')
+      .attr('name', 'chunking-option')
+      .attr('id', d => `option-${d.id}`)
+      .attr('value', d => d.id)
+      .property('checked', d => this.selectedOption === d.id);
 
-      const header = optionDiv.append('div')
-        .attr('class', 'option-header');
+    header.append('label')
+      .attr('for', d => `option-${d.id}`)
+      .html(d => `<strong>Option ${d.id}:</strong> ${d.label}`);
 
-      header.append('input')
-        .attr('type', 'radio')
-        .attr('name', 'chunking-option')
-        .attr('id', `option-${option.id}`)
-        .attr('value', option.id)
-        .property('checked', this.selectedOption === option.id);
+    // Preview chunks
+    const preview = optionsEnter.append('div')
+      .attr('class', 'chunk-preview');
 
-      header.append('label')
-        .attr('for', `option-${option.id}`)
-        .html(`<strong>Option ${option.id}:</strong> ${option.label}`);
+    // Create chunk previews using nested data binding
+    optionsEnter.each((option, i, nodes) => {
+      const optionNode = d3.select(nodes[i]);
+      const previewContainer = optionNode.select('.chunk-preview');
+      
+      const chunks = previewContainer.selectAll('.chunk-preview-item')
+        .data(option.chunks);
+      
+      const chunksEnter = chunks.enter()
+        .append('div')
+        .attr('class', (d, idx) => `chunk-preview-item chunk-${(idx % 5) + 1}`)
+        .style('opacity', 0)
+        .style('transform', 'translateX(-10px)');
+      
+      // Animate chunk preview entrance
+      chunksEnter
+        .transition()
+        .duration(400)
+        .delay((d, idx) => 1200 + i * 150 + idx * 100)
+        .style('opacity', 1)
+        .style('transform', 'translateX(0)');
+      
+      chunksEnter.append('div')
+        .attr('class', 'chunk-name')
+        .text(d => d.name);
 
-      // Preview chunks
-      const preview = optionDiv.append('div')
-        .attr('class', 'chunk-preview');
+      const sentences = chunksEnter.append('div')
+        .attr('class', 'chunk-sentences-preview');
 
-      option.chunks.forEach((chunk, idx) => {
-        const chunkDiv = preview.append('div')
-          .attr('class', `chunk-preview-item chunk-${(idx % 5) + 1}`);
-
-        chunkDiv.append('div')
-          .attr('class', 'chunk-name')
-          .text(chunk.name);
-
-        const sentences = chunkDiv.append('div')
-          .attr('class', 'chunk-sentences-preview');
-
-        chunk.sentences.forEach(sentenceIdx => {
-          sentences.append('p')
-            .attr('class', 'preview-sentence')
-            .text(this.quizData.passage[sentenceIdx]);
-        });
+      chunksEnter.each((chunk, j, chunkNodes) => {
+        const chunkNode = d3.select(chunkNodes[j]);
+        const sentencesContainer = chunkNode.select('.chunk-sentences-preview');
+        
+        const sentenceElements = sentencesContainer.selectAll('.preview-sentence')
+          .data(chunk.sentences);
+        
+        sentenceElements.enter()
+          .append('p')
+          .attr('class', 'preview-sentence')
+          .text(sentenceIdx => this.quizData.passage[sentenceIdx]);
       });
     });
+    
+    // Update existing options (if any)
+    options.classed('selected', d => this.selectedOption === d.id);
   }
 
   selectOption(optionId) {
     // Allow selection change at any time
     this.selectedOption = optionId;
     
-    // Update visual selection
-    d3.selectAll('.option-card').classed('selected', false);
-    d3.select(`.option-card[data-option-id="${optionId}"]`).classed('selected', true);
+    // Update progress to 50% when option selected
+    this.updateProgress(0.5);
     
-    // Update radio button
-    d3.selectAll('input[name="chunking-option"]').property('checked', false);
-    d3.select(`#option-${optionId}`).property('checked', true);
+    // Update visual selection with smooth transition
+    d3.selectAll('.option-card')
+      .transition()
+      .duration(300)
+      .style('border-color', function() {
+        return d3.select(this).attr('data-option-id') === optionId ? '#464646' : '#e0e0e0';
+      })
+      .style('background-color', function() {
+        return d3.select(this).attr('data-option-id') === optionId ? '#f8f9fa' : 'white';
+      })
+      .style('box-shadow', function() {
+        return d3.select(this).attr('data-option-id') === optionId ? 
+          '0 4px 12px rgba(70,70,70,0.15)' : 'none';
+      });
+    
+    d3.selectAll('.option-card')
+      .classed('selected', false);
+    d3.select(`.option-card[data-option-id="${optionId}"]`)
+      .classed('selected', true);
+    
+    // Update radio button with animation
+    d3.selectAll('input[name="chunking-option"]')
+      .property('checked', false)
+      .transition()
+      .duration(200);
+    
+    d3.select(`#option-${optionId}`)
+      .property('checked', true)
+      .transition()
+      .duration(200)
+      .style('transform', 'scale(1.1)')
+      .transition()
+      .duration(200)
+      .style('transform', 'scale(1)');
     
     // If already submitted, automatically resubmit with new selection
     if (this.hasSubmitted) {
@@ -162,16 +304,79 @@ class TextChunkingQuiz {
   }
 
   setupEventListeners() {
-    d3.select('#submitBtn').on('click', () => this.submitAnswer());
+    const submitBtn = d3.select('#submitBtn');
+    
+    // Click animation
+    submitBtn.on('click', () => {
+      // Pulse animation on click
+      submitBtn
+        .transition()
+        .duration(100)
+        .style('transform', 'scale(0.95)')
+        .transition()
+        .duration(100)
+        .style('transform', 'scale(1)');
+      
+      this.submitAnswer();
+    });
+    
+    // Hover effects
+    submitBtn.on('mouseenter', function() {
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .style('transform', 'translateY(-2px) scale(1.02)');
+    });
+    
+    submitBtn.on('mouseleave', function() {
+      d3.select(this)
+        .transition()
+        .duration(200)
+        .style('transform', 'translateY(0) scale(1)');
+    });
   }
 
   submitAnswer() {
     if (!this.selectedOption) {
+      // Show error message with d3 animation
+      const submitBtn = d3.select('#submitBtn');
+      
+      submitBtn
+        .transition()
+        .duration(100)
+        .style('background-color', '#e57373')
+        .style('border-color', '#e57373')
+        .transition()
+        .duration(100)
+        .style('background-color', '#464646')
+        .style('border-color', '#464646')
+        .transition()
+        .duration(100)
+        .style('background-color', '#e57373')
+        .style('border-color', '#e57373')
+        .transition()
+        .duration(100)
+        .style('background-color', '#464646')
+        .style('border-color', '#464646');
+      
       alert('Please select an option before submitting!');
       return;
     }
 
     if (this.hasSubmitted) return; // Already submitted
+
+    // Update progress to 100% on submit
+    this.updateProgress(1.0);
+    
+    // Success animation on selected card
+    const selectedCard = d3.select(`.option-card[data-option-id="${this.selectedOption}"]`);
+    selectedCard
+      .transition()
+      .duration(200)
+      .style('transform', 'scale(1.03)')
+      .transition()
+      .duration(200)
+      .style('transform', 'scale(1)');
 
     this.hasSubmitted = true;
     this.showResults();
@@ -182,9 +387,16 @@ class TextChunkingQuiz {
     const quizContent = d3.select('.quiz-content');
     const controls = d3.select('.controls');
 
-    // Fade out quiz
-    quizContent.classed('fade-out', true);
-    controls.classed('fade-out', true);
+    // Fade out quiz with d3 transition
+    quizContent
+      .transition()
+      .duration(400)
+      .style('opacity', 0);
+    
+    controls
+      .transition()
+      .duration(400)
+      .style('opacity', 0);
 
     setTimeout(() => {
       quizContent.classed('hidden', true);
@@ -196,9 +408,11 @@ class TextChunkingQuiz {
       const selectedOptionData = this.quizData.options.find(opt => opt.id === this.selectedOption);
       const isCorrect = selectedOptionData.isCorrect || false;
 
-      // Result header
+      // Result header with animation
       const header = resultsContainer.append('div')
-        .attr('class', `result-header ${isCorrect ? 'correct' : 'incorrect'}`);
+        .attr('class', `result-header ${isCorrect ? 'correct' : 'incorrect'}`)
+        .style('opacity', 0)
+        .style('transform', 'translateY(-20px)');
 
       header.append('h2')
         .text(isCorrect ? 'Correct!' : 'Not Quite');
@@ -207,10 +421,17 @@ class TextChunkingQuiz {
         .text(isCorrect ? 
           'You identified the optimal semantic segmentation!' : 
           'Let\'s review why this segmentation isn\'t ideal.');
+      
+      // Animate header entrance
+      header.transition()
+        .duration(600)
+        .style('opacity', 1)
+        .style('transform', 'translateY(0)');
 
-      // Show selected answer
+      // Show selected answer with data-driven approach
       const selectedSection = resultsContainer.append('div')
-        .attr('class', 'result-section');
+        .attr('class', 'result-section')
+        .style('opacity', 0);
 
       selectedSection.append('h3')
         .html(`Your Answer: <span class="option-label">Option ${this.selectedOption}</span>`);
@@ -219,37 +440,75 @@ class TextChunkingQuiz {
         .attr('class', 'feedback-box')
         .html(selectedOptionData.feedback);
 
-      // Show selected option's chunks
+      // Animate section entrance
+      selectedSection
+        .transition()
+        .duration(600)
+        .delay(300)
+        .style('opacity', 1);
+
+      // Show selected option's chunks using data binding
       const chunksDiv = selectedSection.append('div')
         .attr('class', 'chunks-display');
 
-      selectedOptionData.chunks.forEach((chunk, idx) => {
-        const chunkDiv = chunksDiv.append('div')
-          .attr('class', 'chunk-display');
+      const chunks = chunksDiv.selectAll('.chunk-display')
+        .data(selectedOptionData.chunks);
+      
+      const chunksEnter = chunks.enter()
+        .append('div')
+        .attr('class', 'chunk-display')
+        .style('opacity', 0)
+        .style('transform', 'translateY(20px)');
 
-        chunkDiv.append('h4')
-          .text(chunk.name);
+      chunksEnter.append('h4')
+        .text(d => d.name);
 
-        const sentencesDiv = chunkDiv.append('div')
-          .attr('class', 'chunk-sentences');
+      const sentencesDiv = chunksEnter.append('div')
+        .attr('class', 'chunk-sentences');
 
-        chunk.sentences.forEach(sentenceIdx => {
-          sentencesDiv.append('p')
-            .attr('class', `chunk-sentence chunk-${(idx % 5) + 1}`)
-            .text(this.quizData.passage[sentenceIdx]);
-        });
-
+      chunksEnter.each((chunk, idx, nodes) => {
+        const chunkNode = d3.select(nodes[idx]);
+        const sentencesContainer = chunkNode.select('.chunk-sentences');
+        
+        const sentences = sentencesContainer.selectAll('.chunk-sentence')
+          .data(chunk.sentences);
+        
+        sentences.enter()
+          .append('p')
+          .attr('class', `chunk-sentence chunk-${(idx % 5) + 1}`)
+          .text(sentenceIdx => this.quizData.passage[sentenceIdx])
+          .style('opacity', 0)
+          .transition()
+          .duration(400)
+          .delay((d, i) => 900 + idx * 200 + i * 100)
+          .style('opacity', 1);
+        
         if (chunk.reasoning) {
-          chunkDiv.append('div')
+          chunkNode.append('div')
             .attr('class', 'reasoning-box')
-            .html(`<strong>Why these belong together:</strong><br>${chunk.reasoning}`);
+            .html(`<strong>Why these belong together:</strong><br>${chunk.reasoning}`)
+            .style('opacity', 0)
+            .transition()
+            .duration(400)
+            .delay(1200 + idx * 200)
+            .style('opacity', 1);
         }
       });
+      
+      // Animate chunks
+      chunksEnter
+        .transition()
+        .duration(500)
+        .delay((d, i) => 600 + i * 150)
+        .style('opacity', 1)
+        .style('transform', 'translateY(0)');
 
       // If wrong, show correct answer
       if (!isCorrect) {
         const correctSection = resultsContainer.append('div')
-          .attr('class', 'result-section correct-answer-section');
+          .attr('class', 'result-section correct-answer-section')
+          .style('opacity', 0)
+          .style('transform', 'scale(0.95)');
 
         correctSection.append('h3')
           .html(`Correct Answer: <span class="option-label">Option ${this.quizData.correctAnswer}</span>`);
@@ -260,49 +519,76 @@ class TextChunkingQuiz {
           .attr('class', 'feedback-box correct-feedback')
           .html(correctOption.feedback);
 
-        // Show correct chunks
+        // Show correct chunks using data binding
         const correctChunksDiv = correctSection.append('div')
           .attr('class', 'chunks-display');
 
-        correctOption.chunks.forEach((chunk, idx) => {
-          const chunkDiv = correctChunksDiv.append('div')
-            .attr('class', 'chunk-display');
+        const correctChunks = correctChunksDiv.selectAll('.chunk-display')
+          .data(correctOption.chunks);
+        
+        const correctChunksEnter = correctChunks.enter()
+          .append('div')
+          .attr('class', 'chunk-display');
 
-          chunkDiv.append('h4')
-            .text(chunk.name);
+        correctChunksEnter.append('h4')
+          .text(d => d.name);
 
-          const sentencesDiv = chunkDiv.append('div')
-            .attr('class', 'chunk-sentences');
+        correctChunksEnter.append('div')
+          .attr('class', 'chunk-sentences');
 
-          chunk.sentences.forEach(sentenceIdx => {
-            sentencesDiv.append('p')
-              .attr('class', `chunk-sentence chunk-${(idx % 5) + 1}`)
-              .text(this.quizData.passage[sentenceIdx]);
-          });
-
+        correctChunksEnter.each((chunk, idx, nodes) => {
+          const chunkNode = d3.select(nodes[idx]);
+          const sentencesContainer = chunkNode.select('.chunk-sentences');
+          
+          const sentences = sentencesContainer.selectAll('.chunk-sentence')
+            .data(chunk.sentences);
+          
+          sentences.enter()
+            .append('p')
+            .attr('class', `chunk-sentence chunk-${(idx % 5) + 1}`)
+            .text(sentenceIdx => this.quizData.passage[sentenceIdx]);
+          
           if (chunk.reasoning) {
-            chunkDiv.append('div')
+            chunkNode.append('div')
               .attr('class', 'reasoning-box')
               .html(`<strong>Why these belong together:</strong><br>${chunk.reasoning}`);
           }
         });
+        
+        // Animate correct section
+        correctSection
+          .transition()
+          .duration(700)
+          .delay(1500)
+          .style('opacity', 1)
+          .style('transform', 'scale(1)');
       }
 
-      // Back button
+      // Back button with animation
       const backButton = resultsContainer.append('div')
         .attr('class', 'action-buttons')
         .style('margin-top', '30px')
-        .style('text-align', 'center');
+        .style('text-align', 'center')
+        .style('opacity', 0);
 
       backButton.append('button')
         .attr('class', 'btn back-btn')
         .text('← Back to Quiz')
         .on('click', () => this.hideResults());
+      
+      backButton
+        .transition()
+        .duration(500)
+        .delay(2000)
+        .style('opacity', 1);
 
       // Show results with fade in
       resultsContainer.classed('show', true);
       setTimeout(() => {
-        resultsContainer.classed('fade-in', true);
+        resultsContainer
+          .transition()
+          .duration(400)
+          .style('opacity', 1);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 50);
     }, 400);
@@ -313,19 +599,36 @@ class TextChunkingQuiz {
     const quizContent = d3.select('.quiz-content');
     const controls = d3.select('.controls');
 
-    // Fade out results
-    resultsContainer.classed('fade-in', false);
+    // Reset progress
+    this.updateProgress(this.selectedOption ? 0.5 : 0);
+    
+    // Fade out results with d3 transition
+    resultsContainer
+      .transition()
+      .duration(400)
+      .style('opacity', 0);
 
     setTimeout(() => {
       resultsContainer.classed('show', false);
+      this.hasSubmitted = false;
 
       // Show quiz
-      quizContent.classed('hidden', false);
-      controls.classed('hidden', false);
+      quizContent.classed('hidden', false).style('opacity', 0);
+      controls.classed('hidden', false).style('opacity', 0);
 
       setTimeout(() => {
-        quizContent.classed('fade-out', false);
-        controls.classed('fade-out', false);
+        // Fade in quiz with staggered animation
+        quizContent
+          .transition()
+          .duration(500)
+          .style('opacity', 1);
+        
+        controls
+          .transition()
+          .duration(500)
+          .delay(200)
+          .style('opacity', 1);
+        
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 50);
     }, 400);
