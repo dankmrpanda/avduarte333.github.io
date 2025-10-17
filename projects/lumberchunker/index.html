@@ -418,6 +418,14 @@
             <!-- <div class="notification is-info is-light">
               <strong>Include Figure 2 here (full-width):</strong> DCG@k across different <code>θ</code>, with <code>θ=550</code> highlighted as the sweet spot.
             </div> -->
+            <div style="margin-bottom: 20px;">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 15px;">
+                <label for="theta-slider" style="font-weight: 600; font-size: 16px;">θ (Token Budget):</label>
+                <input type="range" id="theta-slider" min="450" max="1000" value="550" step="50" 
+                       style="width: 300px; cursor: pointer;">
+                <span id="theta-value" style="font-weight: 700; font-size: 18px; color: #ffa726; min-width: 60px;">550</span>
+              </div>
+            </div>
             <div class="image-wrapper" id="dcg-image-wrapper" style="display: flex; justify-content: center; align-items: center;">
             </div>
             <h3 class="title is-5">Why this works</h3>
@@ -836,15 +844,36 @@
           <h2 class="title is-3">Citation</h2>
           <div class="content">
             <p>If you find LumberChunker useful in your research, please consider citing:</p>
-            <pre style="background-color: #ffffff; padding: 1rem; border-radius: 5px; overflow-x: auto;"><code>@misc{duarte2024lumberchunker,
-      title={LumberChunker: Long-Form Narrative Document Segmentation}, 
-      author={André V. Duarte and João Marques and Miguel Graça and Miguel Freire and Lei Li and Arlindo L. Oliveira},
-      year={2024},
-      eprint={2406.17526},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2406.17526}, 
+            <div style="position: relative;">
+              <button id="copy-citation-btn" style="position: absolute; top: 10px; right: 10px; padding: 8px 16px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 500; transition: background-color 0.3s; z-index: 10; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.backgroundColor='#1976D2'" onmouseout="this.style.backgroundColor='#2196F3'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span id="copy-btn-text">Copy</span>
+              </button>
+              <pre id="citation-text" style="background-color: #ffffff; padding: 1rem; padding-top: 2.5rem; border-radius: 5px; overflow-x: auto;"><code>@inproceedings{duarte-etal-2024-lumberchunker,
+    title = "{L}umber{C}hunker: Long-Form Narrative Document Segmentation",
+    author = "Duarte, Andr{\'e} V.  and
+      Marques, Jo{\~a}o DS  and
+      Gra{\c{c}}a, Miguel  and
+      Freire, Miguel  and
+      Li, Lei  and
+      Oliveira, Arlindo L.",
+    editor = "Al-Onaizan, Yaser  and
+      Bansal, Mohit  and
+      Chen, Yun-Nung",
+    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2024",
+    month = nov,
+    year = "2024",
+    address = "Miami, Florida, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-emnlp.377/",
+    doi = "10.18653/v1/2024.findings-emnlp.377",
+    pages = "6473--6486",
+    abstract = "Modern NLP tasks increasingly rely on dense retrieval methods to access up-to-date and relevant contextual information. We are motivated by the premise that retrieval benefits from segments that can vary in size such that a content{'}s semantic independence is better captured. We propose LumberChunker, a method leveraging an LLM to dynamically segment documents, which iteratively prompts the LLM to identify the point within a group of sequential passages where the content begins to shift. To evaluate our method, we introduce GutenQA, a benchmark with 3000 ``needle in a haystack'' type of question-answer pairs derived from 100 public domain narrative books available on Project Gutenberg. Our experiments show that LumberChunker not only outperforms the most competitive baseline by 7.37{\%} in retrieval performance (DCG@20) but also that, when integrated into a RAG pipeline, LumberChunker proves to be more effective than other chunking methods and competitive baselines, such as the Gemini 1.5M Pro."
 }</code></pre>
+            </div>
           </div>
         </div>
       </div>
@@ -1025,67 +1054,78 @@
       img.src = 'LumberChunker_pipeline.png';
     }
 
+    // Function to interpolate DCG values for any theta
+    function interpolateDCGData(theta) {
+      // Known data points
+      const knownThetas = [450, 550, 650, 1000];
+      const knownData = {
+        450: [
+          { k: 1, dcg: 0.47 },
+          { k: 2, dcg: 0.533 },
+          { k: 5, dcg: 0.576 },
+          { k: 10, dcg: 0.595 },
+          { k: 20, dcg: 0.606 }
+        ],
+        550: [
+          { k: 1, dcg: 0.483 },
+          { k: 2, dcg: 0.549 },
+          { k: 5, dcg: 0.594 },
+          { k: 10, dcg: 0.610 },
+          { k: 20, dcg: 0.621 }
+        ],
+        650: [
+          { k: 1, dcg: 0.447 },
+          { k: 2, dcg: 0.518 },
+          { k: 5, dcg: 0.565 },
+          { k: 10, dcg: 0.583 },
+          { k: 20, dcg: 0.596 }
+        ],
+        1000: [
+          { k: 1, dcg: 0.420 },
+          { k: 2, dcg: 0.487 },
+          { k: 5, dcg: 0.538 },
+          { k: 10, dcg: 0.562 },
+          { k: 20, dcg: 0.573 }
+        ]
+      };
+
+      // If theta is exactly a known value, return it directly
+      if (knownData[theta]) {
+        return knownData[theta];
+      }
+
+      // Find bracketing theta values
+      let lowerTheta = knownThetas[0];
+      let upperTheta = knownThetas[knownThetas.length - 1];
+      
+      for (let i = 0; i < knownThetas.length - 1; i++) {
+        if (theta >= knownThetas[i] && theta <= knownThetas[i + 1]) {
+          lowerTheta = knownThetas[i];
+          upperTheta = knownThetas[i + 1];
+          break;
+        }
+      }
+
+      // Linear interpolation
+      const t = (theta - lowerTheta) / (upperTheta - lowerTheta);
+      const lowerData = knownData[lowerTheta];
+      const upperData = knownData[upperTheta];
+
+      return lowerData.map((point, i) => ({
+        k: point.k,
+        dcg: point.dcg + t * (upperData[i].dcg - point.dcg)
+      }));
+    }
+
     // Function to render DCG line chart showing different theta values
     function renderDCGChart() {
       const container = d3.select('#dcg-image-wrapper');
       container.selectAll('*').remove();
       
-      // Data: DCG values for different theta (θ) values across k
-      // Using LumberChunker's DCG@k values and estimating values for different theta
-      const thetaConfigs = [
-        {
-          theta: 450,
-          color: '#1e88e5',
-          dashArray: 'none',
-          marker: 'circle',
-          values: [
-            { k: 1, dcg: 0.47 },
-            { k: 2, dcg: 0.533 },
-            { k: 5, dcg: 0.576 },
-            { k: 10, dcg: 0.595 },
-            { k: 20, dcg: 0.606 }
-          ]
-        },
-        {
-          theta: 550,
-          color: '#ffa726',
-          dashArray: '8,4',
-          marker: 'square',
-          values: [
-            { k: 1, dcg: 0.483 },
-            { k: 2, dcg: 0.549 },
-            { k: 5, dcg: 0.594 },
-            { k: 10, dcg: 0.610 },
-            { k: 20, dcg: 0.621 }
-          ]
-        },
-        {
-          theta: 650,
-          color: '#26a69a',
-          dashArray: '12,4,4,4',
-          marker: 'diamond',
-          values: [
-            { k: 1, dcg: 0.447 },
-            { k: 2, dcg: 0.518 },
-            { k: 5, dcg: 0.565 },
-            { k: 10, dcg: 0.583 },
-            { k: 20, dcg: 0.596 }
-          ]
-        },
-        {
-          theta: 1000,
-          color: '#ff7043',
-          dashArray: '2,3',
-          marker: 'triangle',
-          values: [
-            { k: 1, dcg: 0.420 },
-            { k: 2, dcg: 0.487 },
-            { k: 5, dcg: 0.538 },
-            { k: 10, dcg: 0.562 },
-            { k: 20, dcg: 0.573 }
-          ]
-        }
-      ];
+      // Get initial theta value from slider
+      const slider = document.getElementById('theta-slider');
+      const thetaValueDisplay = document.getElementById('theta-value');
+      let currentTheta = parseInt(slider.value);
       
       // Dimensions
       const margin = { top: 50, right: 40, bottom: 60, left: 70 };
@@ -1208,108 +1248,209 @@
         .y(d => y(d.dcg))
         .curve(d3.curveMonotoneX);
       
-      // Symbol generators for different markers
-      const symbols = {
-        circle: d3.symbol().type(d3.symbolCircle).size(80),
-        square: d3.symbol().type(d3.symbolSquare).size(100),
-        diamond: d3.symbol().type(d3.symbolDiamond).size(120),
-        triangle: d3.symbol().type(d3.symbolTriangle).size(100)
-      };
+      // All reference theta values to show as transparent lines
+      const referenceThetaValues = [
+        { theta: 450, color: '#1e88e5', dashArray: '4,2' },
+        { theta: 550, color: '#ffa726', dashArray: '8,4' },
+        { theta: 650, color: '#26a69a', dashArray: '6,3' },
+        { theta: 1000, color: '#ff7043', dashArray: '2,3' }
+      ];
       
-      // Draw lines for each theta (without animation initially)
-      const paths = [];
-      thetaConfigs.forEach((config, index) => {
-        const path = g.append('path')
-          .datum(config.values)
+      // Create a group for all reference lines
+      const referenceLinesGroup = g.append('g').attr('class', 'reference-lines-group');
+      
+      // Draw all reference lines as transparent
+      referenceThetaValues.forEach((refConfig, index) => {
+        const refData = interpolateDCGData(refConfig.theta);
+        
+        // Reference line
+        const refLine = referenceLinesGroup.append('path')
+          .datum(refData)
+          .attr('class', `reference-line-${refConfig.theta}`)
           .attr('fill', 'none')
-          .attr('stroke', config.color)
-          .attr('stroke-width', 2.5)
-          .attr('stroke-dasharray', config.dashArray)
+          .attr('stroke', refConfig.color)
+          .attr('stroke-width', 2)
+          .attr('stroke-dasharray', refConfig.dashArray)
+          .attr('opacity', 0.2)
           .attr('d', line);
         
-        const pathLength = path.node().getTotalLength();
-        
-        // Store path info for later animation
-        paths.push({
-          path: path,
-          pathLength: pathLength,
-          config: config,
-          index: index
-        });
-        
-        // Set initial state (hidden)
-        path
-          .attr('stroke-dasharray', config.dashArray === 'none' ? pathLength + ' ' + pathLength : config.dashArray + ' ' + pathLength)
-          .attr('stroke-dashoffset', pathLength);
-      });
-      
-      // Add markers for each data point (hidden initially)
-      const markers = [];
-      thetaConfigs.forEach((config, configIndex) => {
-        const markerGroup = g.selectAll(`.marker-${configIndex}`)
-          .data(config.values)
-          .join('path')
-          .attr('class', `marker-${configIndex}`)
-          .attr('transform', d => `translate(${x(d.k)},${y(d.dcg)})`)
-          .attr('d', symbols[config.marker])
+        // Reference markers
+        referenceLinesGroup.selectAll(`.reference-marker-${refConfig.theta}`)
+          .data(refData)
+          .join('circle')
+          .attr('class', `reference-marker-${refConfig.theta}`)
+          .attr('cx', d => x(d.k))
+          .attr('cy', d => y(d.dcg))
+          .attr('r', 3)
           .attr('fill', 'white')
-          .attr('stroke', config.color)
-          .attr('stroke-width', 2.5)
-          .style('cursor', 'pointer')
-          .attr('opacity', 0);
-        
-        markers.push({ markers: markerGroup, config: config, index: configIndex });
+          .attr('stroke', refConfig.color)
+          .attr('stroke-width', 1.5)
+          .attr('opacity', 0.2);
       });
       
-      // Add legend box in bottom right corner of chart
-      const legendGroup = g.append('g')
-        .attr('transform', `translate(${width - 165}, ${height - 125})`)
-        .attr('opacity', 0);
+      // Active line (changes with slider)
+      const activeLine = g.append('path')
+        .attr('class', 'active-line')
+        .attr('fill', 'none')
+        .attr('stroke', '#2196F3')
+        .attr('stroke-width', 3)
+        .attr('d', line(interpolateDCGData(currentTheta)));
       
-      // Legend background box
+      // Active markers
+      const activeMarkersGroup = g.append('g').attr('class', 'active-markers-group');
+      
+      function updateActiveMarkers(theta) {
+        const data = interpolateDCGData(theta);
+        
+        const markers = activeMarkersGroup.selectAll('.active-marker')
+          .data(data);
+        
+        // Exit
+        markers.exit().remove();
+        
+        // Enter + Update
+        const markersEnter = markers.enter()
+          .append('circle')
+          .attr('class', 'active-marker')
+          .attr('r', 5)
+          .attr('fill', 'white')
+          .attr('stroke', '#2196F3')
+          .attr('stroke-width', 2.5)
+          .style('cursor', 'pointer');
+        
+        markers.merge(markersEnter)
+          .transition()
+          .duration(300)
+          .attr('cx', d => x(d.k))
+          .attr('cy', d => y(d.dcg));
+        
+        // Hover effects
+        activeMarkersGroup.selectAll('.active-marker')
+          .on('mouseover', function(event, d) {
+            d3.select(this)
+              .transition()
+              .duration(150)
+              .attr('r', 7);
+            
+            // Show tooltip
+            const tooltip = g.append('text')
+              .attr('class', 'dcg-tooltip')
+              .attr('x', x(d.k))
+              .attr('y', y(d.dcg) - 15)
+              .attr('text-anchor', 'middle')
+              .style('font-size', '13px')
+              .style('font-weight', '700')
+              .style('fill', '#2196F3')
+              .text(`θ=${theta}: ${d.dcg.toFixed(3)}`);
+          })
+          .on('mouseout', function() {
+            d3.select(this)
+              .transition()
+              .duration(150)
+              .attr('r', 5);
+            
+            g.selectAll('.dcg-tooltip').remove();
+          });
+      }
+      
+      // Initial markers
+      updateActiveMarkers(currentTheta);
+      
+      // Add legend
+      const legendGroup = g.append('g')
+        .attr('transform', `translate(${width - 200}, 20)`);
+      
       legendGroup.append('rect')
-        .attr('x', -12)
-        .attr('y', -12)
-        .attr('width', 155)
-        .attr('height', 110)
+        .attr('x', -10)
+        .attr('y', -10)
+        .attr('width', 185)
+        .attr('height', 155)
         .attr('fill', 'white')
         .attr('stroke', '#000')
         .attr('stroke-width', 1.5)
-        .attr('rx', 2);
+        .attr('rx', 4);
       
-      // Legend items
-      thetaConfigs.forEach((config, i) => {
-        const legendRow = legendGroup.append('g')
-          .attr('transform', `translate(5, ${i * 24 + 5})`)
-          .style('cursor', 'pointer');
+      // Current theta legend item
+      const currentLegend = legendGroup.append('g')
+        .attr('transform', 'translate(0, 0)');
+      
+      currentLegend.append('line')
+        .attr('x1', 0)
+        .attr('x2', 30)
+        .attr('y1', 0)
+        .attr('y2', 0)
+        .attr('stroke', '#2196F3')
+        .attr('stroke-width', 3);
+      
+      currentLegend.append('circle')
+        .attr('cx', 15)
+        .attr('cy', 0)
+        .attr('r', 5)
+        .attr('fill', 'white')
+        .attr('stroke', '#2196F3')
+        .attr('stroke-width', 2.5);
+      
+      const currentLabel = currentLegend.append('text')
+        .attr('x', 40)
+        .attr('y', 0)
+        .attr('dy', '0.32em')
+        .style('font-size', '13px')
+        .style('font-weight', '600')
+        .style('fill', '#000')
+        .text(`Current θ: ${currentTheta}`);
+      
+      // Reference theta legend items
+      referenceThetaValues.forEach((refConfig, i) => {
+        const refLegend = legendGroup.append('g')
+          .attr('transform', `translate(0, ${(i + 1) * 28})`);
         
-        // Line sample
-        legendRow.append('line')
+        refLegend.append('line')
           .attr('x1', 0)
-          .attr('x2', 32)
+          .attr('x2', 30)
           .attr('y1', 0)
           .attr('y2', 0)
-          .attr('stroke', config.color)
-          .attr('stroke-width', 2.5)
-          .attr('stroke-dasharray', config.dashArray);
+          .attr('stroke', refConfig.color)
+          .attr('stroke-width', 2)
+          .attr('stroke-dasharray', refConfig.dashArray)
+          .attr('opacity', 0.5);
         
-        // Marker sample
-        legendRow.append('path')
-          .attr('transform', `translate(16, 0)`)
-          .attr('d', symbols[config.marker])
+        refLegend.append('circle')
+          .attr('cx', 15)
+          .attr('cy', 0)
+          .attr('r', 3)
           .attr('fill', 'white')
-          .attr('stroke', config.color)
-          .attr('stroke-width', 2.5);
+          .attr('stroke', refConfig.color)
+          .attr('stroke-width', 1.5)
+          .attr('opacity', 0.5);
         
-        // Label
-        legendRow.append('text')
-          .attr('x', 42)
+        refLegend.append('text')
+          .attr('x', 40)
           .attr('y', 0)
           .attr('dy', '0.32em')
-          .style('font-size', '13px')
-          .style('font-weight', '500')
-          .style('fill', '#000')
-          .text(`θ: ${config.theta}`);
+          .style('font-size', '12px')
+          .style('font-weight', '400')
+          .style('fill', '#666')
+          .text(`θ: ${refConfig.theta}`);
+      });
+      
+      // Slider interaction
+      slider.addEventListener('input', function() {
+        const newTheta = parseInt(this.value);
+        currentTheta = newTheta;
+        thetaValueDisplay.textContent = newTheta;
+        
+        // Update the active line
+        const newData = interpolateDCGData(newTheta);
+        activeLine
+          .transition()
+          .duration(300)
+          .attr('d', line(newData));
+        
+        // Update markers
+        updateActiveMarkers(newTheta);
+        
+        // Update legend
+        currentLabel.text(`Current θ: ${newTheta}`);
       });
       
       // Set up Intersection Observer for scroll-triggered animation
@@ -1321,65 +1462,62 @@
           if (entry.isIntersecting && !hasAnimatedDCG) {
             hasAnimatedDCG = true;
             
-            // Animate lines drawing in
-            paths.forEach(({ path, pathLength, config, index }) => {
-              path.transition()
-                .duration(1800)
-                .delay(index * 200)
+            // Animate all reference lines
+            referenceThetaValues.forEach((refConfig, index) => {
+              const refLine = referenceLinesGroup.select(`.reference-line-${refConfig.theta}`);
+              const refPath = refLine.node();
+              const refLength = refPath.getTotalLength();
+              
+              refLine
+                .attr('stroke-dasharray', `${refConfig.dashArray},${refLength}`)
+                .attr('stroke-dashoffset', refLength)
+                .transition()
+                .duration(1500)
+                .delay(index * 150)
                 .ease(d3.easeQuadInOut)
                 .attr('stroke-dashoffset', 0)
                 .on('end', function() {
-                  if (config.dashArray !== 'none') {
-                    d3.select(this).attr('stroke-dasharray', config.dashArray);
-                  } else {
-                    d3.select(this).attr('stroke-dasharray', 'none');
-                  }
+                  d3.select(this).attr('stroke-dasharray', refConfig.dashArray);
                 });
-            });
-            
-            // Animate markers appearing
-            markers.forEach(({ markers: markerGroup, config, index: configIndex }) => {
-              markerGroup.transition()
-                .delay((d, i) => configIndex * 200 + i * 250 + 1400)
+              
+              // Animate reference markers
+              referenceLinesGroup.selectAll(`.reference-marker-${refConfig.theta}`)
+                .attr('opacity', 0)
+                .transition()
+                .delay(1500 + index * 150)
                 .duration(400)
-                .attr('opacity', 1);
+                .attr('opacity', 0.2);
             });
             
-            // Add hover effects after animation
-            setTimeout(() => {
-              thetaConfigs.forEach((config, configIndex) => {
-                g.selectAll(`.marker-${configIndex}`)
-                  .on('mouseover', function(event, d) {
-                    d3.select(this)
-                      .transition()
-                      .duration(200)
-                      .attr('d', d3.symbol().type(d3[`symbol${config.marker.charAt(0).toUpperCase() + config.marker.slice(1)}`]).size(150));
-                    
-                    // Show tooltip
-                    g.append('text')
-                      .attr('class', 'tooltip')
-                      .attr('x', x(d.k))
-                      .attr('y', y(d.dcg) - 20)
-                      .attr('text-anchor', 'middle')
-                      .style('font-size', '13px')
-                      .style('font-weight', '700')
-                      .style('fill', config.color)
-                      .text(`θ=${config.theta}: ${d.dcg.toFixed(3)}`);
-                  })
-                  .on('mouseout', function(event, d) {
-                    d3.select(this)
-                      .transition()
-                      .duration(200)
-                      .attr('d', symbols[config.marker]);
-                    
-                    g.selectAll('.tooltip').remove();
-                  });
-              });
-            }, 3000);
+            // Animate active line
+            const activePath = activeLine.node();
+            const activeLength = activePath.getTotalLength();
             
-            // Animate legend appearance
-            legendGroup.transition()
-              .delay(2200)
+            activeLine
+              .attr('stroke-dasharray', activeLength)
+              .attr('stroke-dashoffset', activeLength)
+              .transition()
+              .duration(1800)
+              .delay(800)
+              .ease(d3.easeQuadInOut)
+              .attr('stroke-dashoffset', 0)
+              .on('end', function() {
+                d3.select(this).attr('stroke-dasharray', 'none');
+              });
+            
+            // Animate active markers
+            activeMarkersGroup.selectAll('.active-marker')
+              .attr('opacity', 0)
+              .transition()
+              .delay((d, i) => 2600 + i * 150)
+              .duration(400)
+              .attr('opacity', 1);
+            
+            // Animate legend
+            legendGroup
+              .attr('opacity', 0)
+              .transition()
+              .delay(3000)
               .duration(600)
               .attr('opacity', 1);
           }
@@ -1672,6 +1810,58 @@
       renderPipelineImage();
       renderDCGChart();
       renderQAChart();
+      
+      // Copy citation button functionality
+      const copyBtn = document.getElementById('copy-citation-btn');
+      const citationText = document.getElementById('citation-text');
+      const btnText = document.getElementById('copy-btn-text');
+      
+      if (copyBtn && citationText) {
+        copyBtn.addEventListener('click', function() {
+          // Get the text content from the citation
+          const textToCopy = citationText.textContent.trim();
+          
+          // Copy to clipboard
+          navigator.clipboard.writeText(textToCopy).then(function() {
+            // Success feedback
+            btnText.textContent = 'Copied!';
+            copyBtn.style.backgroundColor = '#4CAF50';
+            
+            // Reset after 2 seconds
+            setTimeout(function() {
+              btnText.textContent = 'Copy';
+              copyBtn.style.backgroundColor = '#2196F3';
+            }, 2000);
+          }).catch(function(err) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = textToCopy;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+              document.execCommand('copy');
+              btnText.textContent = 'Copied!';
+              copyBtn.style.backgroundColor = '#4CAF50';
+              
+              setTimeout(function() {
+                btnText.textContent = 'Copy';
+                copyBtn.style.backgroundColor = '#2196F3';
+              }, 2000);
+            } catch (err) {
+              console.error('Failed to copy text: ', err);
+              btnText.textContent = 'Failed';
+              setTimeout(function() {
+                btnText.textContent = 'Copy';
+              }, 2000);
+            }
+            
+            document.body.removeChild(textArea);
+          });
+        });
+      }
     });
   </script>
 
