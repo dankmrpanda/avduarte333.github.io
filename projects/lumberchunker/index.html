@@ -56,8 +56,8 @@
   <style>
     /* Slightly increase the base font size */
     body {
-        font-size: 20px;
-        color: #424242 !important;
+      font-size: 20px;
+      color: #424242 !important;
     }
 
     p {
@@ -71,7 +71,7 @@
       }
     }
 
-    .title.is-3{
+    .title.is-3 {
       color: #3e3e3e !important;
       font-weight: bold;
       margin-top: -2rem;
@@ -83,7 +83,7 @@
       margin-bottom: 0.5rem;
     }
 
-    .image-wrapper{
+    .image-wrapper {
       justify-content: center;
       align-items: center;
       margin-bottom: 20px;
@@ -106,20 +106,309 @@
       margin: 2rem 0;
     }
 
-    .quiz-iframe-container {
-      width: 100%;
-      height: 800px;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      overflow: hidden;
+    .quiz-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
       background: white;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      min-height: 500px;
     }
 
-    .quiz-iframe-container iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    @media (max-width: 1024px) {
+      .quiz-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+
+    /* Left Side - Passage */
+    .passage-section {
+      background-color: #f8f9fa;
+      border-left: 4px solid #626161;
+      padding: 20px;
+      border-radius: 6px;
+      height: fit-content;
+    }
+
+    .passage-section h4 {
+      color: #464646;
+      margin-bottom: 15px;
+      font-size: 1.1em;
+      font-weight: 600;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .passage-sentence {
+      margin: 3px 0;
+      padding: 6px 10px;
+      line-height: 1.4;
+      color: #424242;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+      font-size: 0.85em;
+    }
+
+    /* Chunk highlighting colors - combined chunks */
+    .chunk-group {
+      margin: 4px 0;
+      padding: 8px;
+      border-radius: 6px;
+      border-left: 4px solid;
+      transition: all 0.3s ease;
+    }
+
+    .chunk-group.chunk-1 { 
+      background-color: #fff5f5; 
+      border-left-color: #e57373;
+    }
+    .chunk-group.chunk-2 { 
+      background-color: #f0f8ff; 
+      border-left-color: #64b5f6;
+    }
+    .chunk-group.chunk-3 { 
+      background-color: #fffef0; 
+      border-left-color: #ffd54f;
+    }
+
+    .chunk-group .chunk-sentence {
+      margin: 2px 0;
+      padding: 2px 0;
+      border-left: none;
+      background: transparent;
+      font-size: 0.85em;
+      line-height: 1.4;
+    }
+
+    /* Right Side - Interaction */
+    .interaction-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .interaction-section h4 {
+      color: #3e3e3e;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .answer-phase, .solution-phase {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .solution-phase {
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+    }
+
+    .solution-phase.show {
+      opacity: 1;
+    }
+
+    /* Options Styling */
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 25px;
+      flex: 1;
+    }
+
+    .option-card {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: white;
+    }
+
+    .option-card:hover {
+      border-color: #9e9e9e;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+
+    .option-card.selected {
+      border-color: #464646;
+      background-color: #f8f9fa;
+      box-shadow: 0 4px 12px rgba(70,70,70,0.15);
+    }
+
+    .option-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .option-header input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .option-header label {
+      flex: 1;
+      cursor: pointer;
+      font-size: 1em;
+      color: #424242;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .option-header label strong {
+      color: #3e3e3e;
+      font-weight: 600;
+    }
+
+    /* Solution Styling */
+    .solution-content {
+      flex: 1;
+    }
+
+    .result-header {
+      text-align: center;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .result-header.correct {
+      background-color: #f1f8f4;
+      border: 2px solid #81c784;
+    }
+
+    .result-header.incorrect {
+      background-color: #fff5f5;
+      border: 2px solid #e57373;
+    }
+
+    .result-header h3 {
+      font-size: 1.5em;
+      margin-bottom: 8px;
+      color: #3e3e3e;
+      font-weight: 600;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .result-header p {
+      font-size: 1em;
+      color: #424242;
+    }
+
+    .feedback-box {
+      background-color: #f8f9fa;
+      border-left: 4px solid #626161;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-size: 0.95em;
+      line-height: 1.6;
+    }
+
+    .correct-feedback {
+      background-color: #f1f8f4;
+      border-left-color: #81c784;
+    }
+
+    .chunk-display {
+      background-color: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .chunk-display h5 {
+      color: #464646;
+      margin-bottom: 10px;
+      font-size: 1em;
+      font-weight: 600;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .chunk-sentences {
+      margin-bottom: 10px;
+    }
+
+    .chunk-sentence-item {
+      padding: 6px 10px;
+      margin: 3px 0;
+      border-radius: 4px;
+      border-left: 3px solid;
+      line-height: 1.4;
+      font-size: 0.9em;
+    }
+
+    .chunk-sentence-item.chunk-1 { background-color: #fff5f5; border-left-color: #e57373; }
+    .chunk-sentence-item.chunk-2 { background-color: #f0f8ff; border-left-color: #64b5f6; }
+    .chunk-sentence-item.chunk-3 { background-color: #fffef0; border-left-color: #ffd54f; }
+
+    .reasoning-box {
+      background-color: #fffef0;
+      border-left: 4px solid #ffd54f;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      line-height: 1.5;
+    }
+
+    .reasoning-box strong {
+      color: #3e3e3e;
+      font-weight: 600;
+    }
+
+    /* Controls */
+    .quiz-controls {
+      margin-top: auto;
+      padding-top: 20px;
+    }
+
+    .quiz-btn {
+      padding: 12px 28px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.25s ease;
+      font-size: 1em;
+      font-family: 'Roboto', sans-serif;
+      background-color: #ffffff;
+      color: #464646;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .quiz-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    }
+
+    .submit-btn {
+      background-color: #464646;
+      color: white;
+      border-color: #464646;
+    }
+
+    .submit-btn:hover {
+      background-color: #3e3e3e;
+      border-color: #3e3e3e;
+    }
+
+    .back-btn {
+      background-color: #464646;
+      color: white;
+      border-color: #464646;
+    }
+
+    .back-btn:hover {
+      background-color: #3e3e3e;
+      border-color: #3e3e3e;
     }
 
     /* Custom Tab Styling */
@@ -176,7 +465,8 @@
     table.table {
       width: 100% !important;
       font-family: 'Roboto', sans-serif !important;
-      border-collapse: collapse !important;
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
     }
 
     table.table caption {
@@ -191,10 +481,13 @@
     table.table th,
     table.table td {
       padding: 0.75rem !important;
-      border: 1px solid #f0f0f0 !important;
       text-align: center !important;
       font-size: clamp(0.65rem, 2vw, 1rem) !important;
       color: #464646 !important;
+      border-left: 1px solid #424242 !important;
+      border-bottom: 1px solid #424242 !important;
+      border-top: 1px solid #d0d0d0 !important;
+      border-right: 1px solid #d0d0d0 !important;
     }
 
     table.table th {
@@ -202,10 +495,61 @@
       vertical-align: middle !important;
     }
 
+    /* Remove duplicate borders at intersections */
+    table.table th:first-child,
+    table.table td:first-child {
+      border-left: 1px solid #424242 !important;
+    }
+
+    table.table tr:first-child th,
+    table.table tr:first-child td {
+      border-top: 1px solid #424242 !important;
+    }
+
+    table.table th:last-child,
+    table.table td:last-child {
+      border-right: 1px solid #d0d0d0 !important;
+    }
+
+    table.table tr:last-child th,
+    table.table tr:last-child td {
+      border-bottom: 1px solid #424242 !important;
+    }
+
     .table-card table.table th:first-child,
     .table-card table.table td:first-child {
       white-space: nowrap !important;
       text-align: left !important;
+    }
+
+    /* Tables 2, 10, 11, 12 and GutenQA - fully black borders */
+    #table2-caption ~ table th,
+    #table2-caption ~ table td,
+    #table10-caption ~ table th,
+    #table10-caption ~ table td,
+    #table11-caption ~ table th,
+    #table11-caption ~ table td,
+    #table12-caption ~ table th,
+    #table12-caption ~ table td {
+      border: 1px solid #000 !important;
+    }
+
+    [aria-labelledby="table2-caption"] table.table th,
+    [aria-labelledby="table2-caption"] table.table td,
+    [aria-labelledby="table10-caption"] table.table th,
+    [aria-labelledby="table10-caption"] table.table td,
+    [aria-labelledby="table11-caption"] table.table th,
+    [aria-labelledby="table11-caption"] table.table td,
+    [aria-labelledby="table12-caption"] table.table th,
+    [aria-labelledby="table12-caption"] table.table td,
+    #table-container-ndcg table.table th,
+    #table-container-ndcg table.table td,
+    #table-container-recall table.table th,
+    #table-container-recall table.table td {
+      border-left: 1px solid #000 !important;
+      border-bottom: 1px solid #000 !important;
+      border-top: 1px solid #000 !important;
+      border-right: 1px solid #000 !important;
     }
 
     /* Algorithm box styling */
@@ -222,6 +566,35 @@
       padding: 0.2rem 0.4rem;
       border-radius: 3px;
       font-size: 0.9em;
+    }
+
+    /* Custom styling for theta slider */
+    #theta-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      background: #ddd;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    #theta-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #808080;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    #theta-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #808080;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
     }
 
   </style>
@@ -351,8 +724,43 @@
   <section class="section" id="quiz" style="margin-top: -2rem; margin-bottom: -2.5rem;">
     <div class="container is-max-desktop">
       <div class="quiz-section">
-        <div class="quiz-iframe-container">
-          <iframe src="quiz.html" title="Text Segmentation Quiz"></iframe>
+        <div class="quiz-header">
+          <h3 style="color: #3e3e3e; font-size: 1.4em; margin-bottom: 8px; font-weight: 600; text-align: center;">Text Segmentation Quiz</h3>
+          <p style="color: #686868; font-size: 0.9em; text-align: center; margin-bottom: 20px;">Choose the best way to segment this passage into semantic chunks</p>
+        </div>
+        
+        <div class="quiz-container" id="quizContainer">
+          <!-- Left Side - Passage -->
+          <div class="passage-section">
+            <h4>Passage:</h4>
+            <div id="passageContainer">
+              <!-- Passage sentences will be inserted here -->
+            </div>
+          </div>
+
+          <!-- Right Side - Options/Solution -->
+          <div class="interaction-section">
+            <!-- Answer Selection Phase -->
+            <div class="answer-phase" id="answerPhase">
+              <h4>How should this passage be segmented?</h4>
+              <div id="optionsContainer">
+                <!-- Options will be inserted here -->
+              </div>
+              <div class="quiz-controls">
+                <button class="quiz-btn submit-btn" id="submitBtn">Submit Answer</button>
+              </div>
+            </div>
+
+            <!-- Solution Phase (initially hidden) -->
+            <div class="solution-phase" id="solutionPhase" style="display: none;">
+              <div id="solutionContent">
+                <!-- Solution content will be inserted here -->
+              </div>
+              <div class="quiz-controls">
+                <button class="quiz-btn back-btn" id="backBtn">← Try Again</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -421,7 +829,7 @@
             <div style="margin-bottom: 20px;">
               <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 15px;">
                 <label for="theta-slider" style="font-weight: 600; font-size: 16px;">θ (Token Budget):</label>
-                <input type="range" id="theta-slider" min="450" max="1000" value="550" step="50" 
+                <input type="range" id="theta-slider" min="0" max="3" value="1" step="1" 
                        style="width: 300px; cursor: pointer;">
                 <span id="theta-value" style="font-weight: 700; font-size: 18px; color: #ffa726; min-width: 60px;">550</span>
               </div>
@@ -458,7 +866,7 @@
 
             <div style="text-align: center; margin-bottom: 1rem;">
               <p style="font-weight: 600; font-size: 1.15rem; color: #464646; margin-bottom: 0.25rem;">Retrieval Performance Comparison</p>
-              <p style="font-weight: 200; font-size: 1rem; color: #666;">NarrativeQA</p>
+              <p style="font-weight: 200; font-size: 1rem; color: #666;">GutenQA</p>
             </div>
 
             <!-- Custom Tab Interface -->
@@ -715,92 +1123,6 @@
               </table>
             </div>
 
-            <h3 class="title is-4">Practicality: predictable time &amp; cost ⚡</h3>
-            <p>
-              LumberChunker requires LLM calls, but costs scale linearly with book length and are one-time. Examples: <em>A Christmas Carol</em> (~710 paragraphs) ≈ <strong>95 s</strong>, ≈ <strong>$0.03</strong>; <em>The Count of Monte Cristo</em> (~14,339 paragraphs) ≈ <strong>1628 s</strong>, ≈ <strong>$0.40</strong> (pricing at paper time).
-            </p>
-
-            <div class="columns">
-              <div class="column">
-                <!-- Table 11: Runtime (seconds per book) -->
-
-                <!-- Accessible HTML table fallback for Table 11 -->
-                <div class="table-card" aria-labelledby="table11-caption">
-                  <table class="table is-bordered is-hoverable">
-                    <caption id="table11-caption">Table 11: The time required to apply LumberChunker or baselines on each book.</caption>
-                    <thead>
-                      <tr>
-                        <th style="text-align: left;">Method</th>
-                        <th>A Christmas Carol<br><span style="font-weight: 400;">(710 Paragraphs)</span></th>
-                        <th>The Count of Monte Cristo<br><span style="font-weight: 400;">(14339 Paragraphs)</span></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td style="text-align: left;">Semantic Chunking</td>
-                        <td>212 seconds</td>
-                        <td>4978 seconds</td>
-                      </tr>
-                      <tr>
-                        <td style="text-align: left;">Recursive Chunking</td>
-                        <td>0.1 seconds</td>
-                        <td>0.6 seconds</td>
-                      </tr>
-                      <tr>
-                        <td style="text-align: left;">HyDE</td>
-                        <td>75 seconds</td>
-                        <td>79 seconds</td>
-                      </tr>
-                      <tr>
-                        <td style="text-align: left;">Proposition-Level</td>
-                        <td>633 seconds</td>
-                        <td>10302 seconds</td>
-                      </tr>
-                      <tr style="background-color: #f0f8ff;">
-                        <td style="text-align: left;">LumberChunker</td>
-                        <td><strong>95 seconds</strong></td>
-                        <td><strong>1628 seconds</strong></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div class="column">
-                <!-- Table 12: Segmentation cost (per book) -->
-
-                <!-- Accessible HTML table fallback for Table 12 -->
-                <div class="table-card" aria-labelledby="table12-caption">
-                  <table class="table is-bordered is-hoverable">
-                    <caption id="table12-caption">Table 12: Cost comparison of segmenting two books with significantly different lengths.</caption>
-                    <thead>
-                      <tr>
-                        <th></th>
-                        <th>A Christmas Carol</th>
-                        <th>The Count of Monte Cristo</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th style="text-align: left;">Length</th>
-                        <td>28k words</td>
-                        <td>450k words</td>
-                      </tr>
-                      <tr>
-                        <th style="text-align: left;">#LumberChunker Chunks</th>
-                        <td>92</td>
-                        <td>1476</td>
-                      </tr>
-                      <tr>
-                        <th style="text-align: left;">Cost</th>
-                        <td>$0.03</td>
-                        <td>$0.40</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
 
           </div>
         </div>
@@ -1037,7 +1359,7 @@
                 .attr('fill', 'rgba(255, 255, 255, 0.95)')
                 .attr('stroke', '#ffa726')
                 .attr('stroke-width', 2)
-                .style('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))');
+                .style('filter', 'none');
             })
             .on('mouseout', function() {
               // Remove highlight
@@ -1125,12 +1447,13 @@
       // Get initial theta value from slider
       const slider = document.getElementById('theta-slider');
       const thetaValueDisplay = document.getElementById('theta-value');
-      let currentTheta = parseInt(slider.value);
+      const thetaValues = [450, 550, 650, 1000];
+      let currentTheta = thetaValues[parseInt(slider.value)];
       
-      // Dimensions
-      const margin = { top: 50, right: 40, bottom: 60, left: 70 };
-      const width = 900 - margin.left - margin.right;
-      const height = 500 - margin.top - margin.bottom;
+      // Dimensions - increased size
+      const margin = { top: 60, right: 50, bottom: 70, left: 80 };
+      const width = 1100 - margin.left - margin.right;
+      const height = 650 - margin.top - margin.bottom;
       
       // Create SVG
       const svg = container.append('svg')
@@ -1138,12 +1461,12 @@
         .attr('height', '100%')
         .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
         .attr('preserveAspectRatio', 'xMidYMid meet')
-        .style('max-width', '80%')
+        .style('max-width', '95%')
         .style('display', 'block')
         .style('margin', '0 auto')
         .style('background-color', 'white')
         .style('border-radius', '8px')
-        .style('box-shadow', '0 2px 8px rgba(0,0,0,0.1)');
+        .style('box-shadow', 'none');
       
       const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
@@ -1154,72 +1477,101 @@
         .range([0, width]);
       
       const y = d3.scaleLinear()
-        .domain([0.40, 0.65])
+        .domain([0.40, 0.665]) // reduced buffer zone by half
         .range([height, 0]);
       
-      // Grid lines
+      // Grid lines (disco style)
+      // Horizontal grid lines
+      const yTicks = y.ticks(6).filter(t => t !== y.domain()[0] && t !== y.domain()[1]);
       g.append('g')
-        .attr('class', 'grid')
-        .attr('opacity', 0.2)
-        .selectAll('line.horizontal')
-        .data(y.ticks(6))
+        .attr('class', 'grid horizontal-grid')
+        .selectAll('line')
+        .data(yTicks)
         .join('line')
-        .attr('class', 'horizontal')
         .attr('x1', 0)
         .attr('x2', width)
         .attr('y1', d => y(d))
         .attr('y2', d => y(d))
-        .attr('stroke', '#ccc')
-        .attr('stroke-width', 1);
+        .attr('stroke', 'lightgray')
+        .attr('stroke-dasharray', '5')
+        .attr('stroke-width', 2);
       
+      // Vertical grid lines
+      const xTicks = [1, 2, 5, 10, 20];
       g.append('g')
-        .attr('class', 'grid')
-        .attr('opacity', 0.2)
-        .selectAll('line.vertical')
-        .data([1, 2, 5, 10, 20])
+        .attr('class', 'grid vertical-grid')
+        .selectAll('line')
+        .data(xTicks)
         .join('line')
-        .attr('class', 'vertical')
         .attr('x1', d => x(d))
         .attr('x2', d => x(d))
         .attr('y1', 0)
         .attr('y2', height)
-        .attr('stroke', '#ccc')
-        .attr('stroke-width', 1);
+        .attr('stroke', 'lightgray')
+        .attr('stroke-dasharray', '5')
+        .attr('stroke-width', 2);
       
       // Axes with black borders
       const xAxis = g.append('g')
         .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickValues([1, 2, 5, 10, 20]).tickFormat(d => d))
-        .style('font-size', '14px');
+        .call(d3.axisBottom(x).tickValues([1, 2, 5, 10, 20]).tickFormat(d => d).tickSize(0).tickSizeOuter(0))
+        .style('font-size', '18px');
       
       xAxis.selectAll('text')
-        .style('fill', '#000')
-        .style('font-weight', '500');
+        .style('fill', '#464646')
+        .style('font-weight', '500')
+        .style('font-family', "'Roboto', sans-serif");
       
-      xAxis.select('.domain')
-        .attr('stroke', '#000')
-        .attr('stroke-width', 2);
+      // Remove the x-axis domain line
+      xAxis.select('.domain').remove();
       
       const yAxis = g.append('g')
-        .call(d3.axisLeft(y).ticks(6).tickFormat(d => d.toFixed(2)))
-        .style('font-size', '14px');
+        .call(d3.axisLeft(y).ticks(6).tickFormat(d => d.toFixed(2)).tickSize(0).tickSizeOuter(0))
+        .style('font-size', '18px');
       
       yAxis.selectAll('text')
-        .style('fill', '#000')
-        .style('font-weight', '500');
+        .style('fill', '#464646')
+        .style('font-weight', '500')
+        .style('font-family', "'Roboto', sans-serif");
       
-      yAxis.select('.domain')
-        .attr('stroke', '#000')
+      // Remove the y-axis domain line
+      yAxis.select('.domain').remove();
+      
+      // Add border frame (disco style)
+      // Top border (light grey)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', 0)
+        .attr('y2', 0)
+        .attr('stroke', 'lightgray')
         .attr('stroke-width', 2);
       
-      // Add border frame
-      g.append('rect')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', width)
-        .attr('height', height)
-        .attr('fill', 'none')
-        .attr('stroke', '#000')
+      // Right border (light grey)
+      g.append('line')
+        .attr('x1', width)
+        .attr('x2', width)
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', 'lightgray')
+        .attr('stroke-width', 2);
+      
+      // Left border (dark)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', 0)
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', '#36454F')
+        .attr('stroke-width', 2);
+      
+      // Bottom border (dark)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', height)
+        .attr('y2', height)
+        .attr('stroke', '#36454F')
         .attr('stroke-width', 2);
       
       // Axis labels
@@ -1227,9 +1579,10 @@
         .attr('x', (width + margin.left + margin.right) / 2)
         .attr('y', height + margin.top + 45)
         .attr('text-anchor', 'middle')
-        .style('font-size', '18px')
+        .style('font-size', '22px')
         .style('font-weight', '600')
-        .style('fill', '#000')
+        .style('fill', '#464646')
+        .style('font-family', "'Roboto', sans-serif")
         .text('k');
       
       svg.append('text')
@@ -1237,9 +1590,10 @@
         .attr('x', -(height + margin.top + margin.bottom) / 2 + 30)
         .attr('y', 20)
         .attr('text-anchor', 'middle')
-        .style('font-size', '18px')
+        .style('font-size', '22px')
         .style('font-weight', '600')
-        .style('fill', '#000')
+        .style('fill', '#464646')
+        .style('font-family', "'Roboto', sans-serif")
         .text('DCG');
       
       // Line generator
@@ -1255,6 +1609,10 @@
         { theta: 650, color: '#26a69a', dashArray: '6,3' },
         { theta: 1000, color: '#ff7043', dashArray: '2,3' }
       ];
+      
+      // Set initial color to match the theta value
+      const initialSliderIndex = parseInt(slider.value);
+      thetaValueDisplay.style.color = referenceThetaValues[initialSliderIndex].color;
       
       // Create a group for all reference lines
       const referenceLinesGroup = g.append('g').attr('class', 'reference-lines-group');
@@ -1292,14 +1650,14 @@
       const activeLine = g.append('path')
         .attr('class', 'active-line')
         .attr('fill', 'none')
-        .attr('stroke', '#2196F3')
+        .attr('stroke', referenceThetaValues[initialSliderIndex].color)
         .attr('stroke-width', 3)
         .attr('d', line(interpolateDCGData(currentTheta)));
       
       // Active markers
       const activeMarkersGroup = g.append('g').attr('class', 'active-markers-group');
       
-      function updateActiveMarkers(theta) {
+      function updateActiveMarkers(theta, color = '#2196F3') {
         const data = interpolateDCGData(theta);
         
         const markers = activeMarkersGroup.selectAll('.active-marker')
@@ -1314,7 +1672,7 @@
           .attr('class', 'active-marker')
           .attr('r', 5)
           .attr('fill', 'white')
-          .attr('stroke', '#2196F3')
+          .attr('stroke', color)
           .attr('stroke-width', 2.5)
           .style('cursor', 'pointer');
         
@@ -1322,7 +1680,8 @@
           .transition()
           .duration(300)
           .attr('cx', d => x(d.k))
-          .attr('cy', d => y(d.dcg));
+          .attr('cy', d => y(d.dcg))
+          .attr('stroke', color);
         
         // Hover effects
         activeMarkersGroup.selectAll('.active-marker')
@@ -1338,9 +1697,10 @@
               .attr('x', x(d.k))
               .attr('y', y(d.dcg) - 15)
               .attr('text-anchor', 'middle')
-              .style('font-size', '13px')
+              .style('font-size', '17px')
               .style('font-weight', '700')
-              .style('fill', '#2196F3')
+              .style('fill', color)
+              .style('font-family', "'Roboto', sans-serif")
               .text(`θ=${theta}: ${d.dcg.toFixed(3)}`);
           })
           .on('mouseout', function() {
@@ -1354,103 +1714,107 @@
       }
       
       // Initial markers
-      updateActiveMarkers(currentTheta);
+      updateActiveMarkers(currentTheta, referenceThetaValues[initialSliderIndex].color);
       
       // Add legend
       const legendGroup = g.append('g')
         .attr('transform', `translate(${width - 200}, 20)`);
       
+      // Calculate proper legend height based on number of items
+      const legendItemHeight = 28; // reduced spacing
+      const legendPadding = 20;
+      const totalItems = referenceThetaValues.length; // only reference items, no current
+      const legendHeight = (totalItems * legendItemHeight) + legendPadding;
+      
       legendGroup.append('rect')
-        .attr('x', -10)
-        .attr('y', -10)
-        .attr('width', 185)
-        .attr('height', 155)
+        .attr('x', -15)
+        .attr('y', -15)
+        .attr('width', 195)
+        .attr('height', legendHeight)
         .attr('fill', 'white')
-        .attr('stroke', '#000')
+        .attr('stroke', '#464646')
         .attr('stroke-width', 1.5)
         .attr('rx', 4);
       
-      // Current theta legend item
-      const currentLegend = legendGroup.append('g')
-        .attr('transform', 'translate(0, 0)');
-      
-      currentLegend.append('line')
-        .attr('x1', 0)
-        .attr('x2', 30)
-        .attr('y1', 0)
-        .attr('y2', 0)
-        .attr('stroke', '#2196F3')
-        .attr('stroke-width', 3);
-      
-      currentLegend.append('circle')
-        .attr('cx', 15)
-        .attr('cy', 0)
-        .attr('r', 5)
-        .attr('fill', 'white')
-        .attr('stroke', '#2196F3')
-        .attr('stroke-width', 2.5);
-      
-      const currentLabel = currentLegend.append('text')
-        .attr('x', 40)
-        .attr('y', 0)
+      // Legend title
+      legendGroup.append('text')
+        .attr('x', 0)
+        .attr('y', -5)
         .attr('dy', '0.32em')
-        .style('font-size', '13px')
+        .style('font-family', "'Roboto', sans-serif")
+        .style('font-size', '17px')
         .style('font-weight', '600')
-        .style('fill', '#000')
-        .text(`Current θ: ${currentTheta}`);
+        .style('fill', '#464646')
+        .text('Theta Values');
+      
+      // Store references to legend text elements for updating
+      const legendTexts = [];
       
       // Reference theta legend items
       referenceThetaValues.forEach((refConfig, i) => {
         const refLegend = legendGroup.append('g')
-          .attr('transform', `translate(0, ${(i + 1) * 28})`);
+          .attr('transform', `translate(5, ${20 + i * legendItemHeight})`); // removed +1 offset
         
         refLegend.append('line')
           .attr('x1', 0)
-          .attr('x2', 30)
+          .attr('x2', 25)
           .attr('y1', 0)
           .attr('y2', 0)
           .attr('stroke', refConfig.color)
           .attr('stroke-width', 2)
           .attr('stroke-dasharray', refConfig.dashArray)
-          .attr('opacity', 0.5);
+          .attr('opacity', 0.7);
         
         refLegend.append('circle')
-          .attr('cx', 15)
+          .attr('cx', 12.5)
           .attr('cy', 0)
           .attr('r', 3)
           .attr('fill', 'white')
           .attr('stroke', refConfig.color)
           .attr('stroke-width', 1.5)
-          .attr('opacity', 0.5);
+          .attr('opacity', 0.7);
         
-        refLegend.append('text')
-          .attr('x', 40)
+        const legendText = refLegend.append('text')
+          .attr('x', 35)
           .attr('y', 0)
           .attr('dy', '0.32em')
-          .style('font-size', '12px')
-          .style('font-weight', '400')
-          .style('fill', '#666')
+          .style('font-family', "'Roboto', sans-serif")
+          .style('font-size', '16px')
+          .style('font-weight', refConfig.theta === currentTheta ? '600' : '400')
+          .style('fill', refConfig.theta === currentTheta ? '#464646' : '#666')
           .text(`θ: ${refConfig.theta}`);
+        
+        // Store reference for updating
+        legendTexts.push({ element: legendText, theta: refConfig.theta });
       });
       
-      // Slider interaction
+      // Slider interaction - map slider positions to predefined theta values
       slider.addEventListener('input', function() {
-        const newTheta = parseInt(this.value);
+        const sliderIndex = parseInt(this.value);
+        const newTheta = thetaValues[sliderIndex];
+        const newColor = referenceThetaValues[sliderIndex].color;
         currentTheta = newTheta;
         thetaValueDisplay.textContent = newTheta;
+        thetaValueDisplay.style.color = newColor;
         
         // Update the active line
         const newData = interpolateDCGData(newTheta);
         activeLine
           .transition()
           .duration(300)
-          .attr('d', line(newData));
+          .attr('d', line(newData))
+          .attr('stroke', newColor);
         
         // Update markers
-        updateActiveMarkers(newTheta);
+        updateActiveMarkers(newTheta, newColor);
         
-        // Update legend
-        currentLabel.text(`Current θ: ${newTheta}`);
+        // Update legend - bold the selected theta value
+        legendTexts.forEach(({ element, theta }) => {
+          const isSelected = theta === newTheta;
+          element
+            .style('font-weight', isSelected ? '600' : '400')
+            .style('fill', isSelected ? '#464646' : '#666');
+        });
       });
       
       // Set up Intersection Observer for scroll-triggered animation
@@ -1537,19 +1901,49 @@
       const container = d3.select('#qa-image-wrapper');
       container.selectAll('*').remove();
       
-      // Data: QA Accuracy percentages - matching the reference image exactly
+      // Data: QA Accuracy percentages with descriptions
       const data = [
-        { method: 'Closed-Book', accuracy: 26.43, color: '#7cb342', label: 'Closed-Book' },
-        { method: 'Open-Book', accuracy: 37.76, color: '#29b6f6', label: 'Open-Book' },
-        { method: 'RAG - Recursive Chunks', accuracy: 84.96, color: '#7986cb', label: 'RAG - Recursive Chunks' },
-        { method: 'RAG - LumberChunker', accuracy: 88.89, color: '#ffb74d', label: 'RAG - LumberChunker' },
-        { method: 'RAG - Manual Chunks', accuracy: 90.53, color: '#757575', label: 'RAG - Manual Chunks' }
+        { 
+          method: 'Closed-Book', 
+          accuracy: 26.43, 
+          color: '#FF6B6B', 
+          label: 'Closed-Book',
+          description: 'No context given to the model. The model must answer questions based solely on its pre-trained knowledge without access to any document passages.'
+        },
+        { 
+          method: 'Open-Book', 
+          accuracy: 37.76, 
+          color: '#4ECDC4', 
+          label: 'Open-Book',
+          description: 'All context is given to the model. The entire document is provided in the prompt, allowing the model to reference any part of the text.'
+        },
+        { 
+          method: 'RAG - Recursive Chunks', 
+          accuracy: 84.96, 
+          color: '#45B7D1', 
+          label: 'RAG - Recursive Chunks',
+          description: 'Retrieval-Augmented Generation using recursive chunking. Documents are split at fixed token boundaries using a recursive text splitter, then relevant chunks are retrieved for each query.'
+        },
+        { 
+          method: 'RAG - LumberChunker', 
+          accuracy: 88.89, 
+          color: '#96CEB4', 
+          label: 'RAG - LumberChunker',
+          description: 'Retrieval-Augmented Generation using LumberChunker. Documents are segmented at semantic boundaries identified by an LLM, creating variable-length chunks that preserve narrative flow.'
+        },
+        { 
+          method: 'RAG - Manual Chunks', 
+          accuracy: 90.53, 
+          color: '#FFEAA7', 
+          label: 'RAG - Manual Chunks',
+          description: 'Retrieval-Augmented Generation using manually curated chunks. Human experts segment documents at natural topic boundaries, representing the gold standard for semantic chunking.'
+        }
       ];
       
-      // Dimensions
-      const margin = { top: 50, right: 40, bottom: 70, left: 80 };
-      const width = 1000 - margin.left - margin.right;
-      const height = 500 - margin.top - margin.bottom;
+      // Dimensions - increased size
+      const margin = { top: 60, right: 60, bottom: 90, left: 100 };
+      const width = 1200 - margin.left - margin.right;
+      const height = 600 - margin.top - margin.bottom;
       
       // Create SVG
       const svg = container.append('svg')
@@ -1557,73 +1951,98 @@
         .attr('height', '100%')
         .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
         .attr('preserveAspectRatio', 'xMidYMid meet')
-        .style('max-width', '80%')
+        .style('max-width', '95%')
         .style('display', 'block')
         .style('margin', '0 auto')
         .style('background-color', 'white')
         .style('border-radius', '8px')
-        .style('box-shadow', '0 2px 8px rgba(0,0,0,0.1)');
+        .style('box-shadow', 'none');
       
       const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
+      
+      // Tooltip group for click interactions
+      let activeTooltip = null;
       
       // Scales
       const x = d3.scaleBand()
         .domain(data.map((d, i) => i))
         .range([0, width])
-        .padding(0.25);
+        .padding(0.4);
       
       const y = d3.scaleLinear()
-        .domain([0, 100])
+        .domain([0, 105]) // up to 105% for buffer zone like disco
         .range([height, 0]);
       
-      // Grid lines
+      // Dashed grid lines in background (disco style)
+      const yTicksQA = y.ticks(5).filter(t => t !== 0);
       g.append('g')
-        .attr('class', 'grid')
-        .attr('opacity', 0.2)
+        .attr('class', 'grid horizontal-grid')
         .selectAll('line')
-        .data(y.ticks(5))
+        .data(yTicksQA)
         .join('line')
         .attr('x1', 0)
         .attr('x2', width)
         .attr('y1', d => y(d))
         .attr('y2', d => y(d))
-        .attr('stroke', '#ccc')
-        .attr('stroke-width', 1);
+        .attr('stroke', 'lightgray')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5');
       
-      // Axes with black borders
+      // Axes with borders
       const xAxis = g.append('g')
         .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickFormat(() => ''))
-        .style('font-size', '14px');
+        .call(d3.axisBottom(x).tickFormat(() => '').tickSize(0).tickSizeOuter(0));
       
-      xAxis.select('.domain')
-        .attr('stroke', '#000')
-        .attr('stroke-width', 2);
-      
-      xAxis.selectAll('.tick')
-        .remove();
+      xAxis.select('.domain').remove();
+      xAxis.selectAll('.tick').remove();
       
       const yAxis = g.append('g')
-        .call(d3.axisLeft(y).ticks(5).tickFormat(d => d))
-        .style('font-size', '16px');
+        .call(d3.axisLeft(y).ticks(5).tickFormat(d => d).tickSize(0).tickSizeOuter(0));
       
       yAxis.selectAll('text')
-        .style('fill', '#000')
-        .style('font-weight', '500');
+        .style('fill', '#464646')
+        .style('font-size', '18px')
+        .style('font-weight', '500')
+        .style('font-family', "'Roboto', sans-serif");
       
-      yAxis.select('.domain')
-        .attr('stroke', '#000')
+      yAxis.select('.domain').remove();
+      
+      // Borders (disco style)
+      // Top border (light grey)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', 0)
+        .attr('y2', 0)
+        .attr('stroke', 'lightgray')
         .attr('stroke-width', 2);
       
-      // Add border frame
-      g.append('rect')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', width)
-        .attr('height', height)
-        .attr('fill', 'none')
-        .attr('stroke', '#000')
+      // Right border (light grey)
+      g.append('line')
+        .attr('x1', width)
+        .attr('x2', width)
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', 'lightgray')
+        .attr('stroke-width', 2);
+      
+      // Left border (dark)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', 0)
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', '#36454F')
+        .attr('stroke-width', 2);
+      
+      // Bottom border (dark)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', height)
+        .attr('y2', height)
+        .attr('stroke', '#36454F')
         .attr('stroke-width', 2);
       
       // Axis label
@@ -1632,9 +2051,10 @@
         .attr('x', -(height + margin.top + margin.bottom) / 2 + 30)
         .attr('y', 25)
         .attr('text-anchor', 'middle')
-        .style('font-size', '18px')
+        .style('font-size', '22px')
         .style('font-weight', '600')
-        .style('fill', '#000')
+        .style('font-family', "'Roboto', sans-serif")
+        .style('fill', '#464646')
         .text('Accuracy (%)');
       
       // Draw bars (without animation initially)
@@ -1651,6 +2071,7 @@
         .attr('fill', d => d.color)
         .attr('stroke', '#000')
         .attr('stroke-width', 1.5)
+        .attr('opacity', 0.7)
         .style('cursor', 'pointer')
         .on('mouseover', function(event, d) {
           // Only allow hover effect if not currently animating
@@ -1658,7 +2079,7 @@
             d3.select(this)
               .transition()
               .duration(200)
-              .attr('opacity', 0.8);
+              .attr('opacity', 0.5);
           }
         })
         .on('mouseout', function() {
@@ -1667,8 +2088,154 @@
             d3.select(this)
               .transition()
               .duration(200)
-              .attr('opacity', 1);
+              .attr('opacity', 0.7);
           }
+        })
+        .on('click', function(event, d) {
+          event.stopPropagation();
+          
+          // Remove existing tooltip if any
+          if (activeTooltip) {
+            activeTooltip.remove();
+            activeTooltip = null;
+          }
+          
+          // Get bar position
+          const barIndex = data.indexOf(d);
+          const barX = x(barIndex);
+          const barY = y(d.accuracy);
+          
+          // Create tooltip group
+          const tooltip = g.append('g')
+            .attr('class', 'info-tooltip')
+            .style('pointer-events', 'all');
+          
+          activeTooltip = tooltip;
+          
+          // Tooltip dimensions - increased size
+          const tooltipWidth = 340;
+          const tooltipHeight = 140;
+          const padding = 16;
+          
+          // Position tooltip to the right of the bar, or left if near edge
+          let tooltipX = barX + x.bandwidth() + 15;
+          if (tooltipX + tooltipWidth > width) {
+            tooltipX = barX - tooltipWidth - 15;
+          }
+          let tooltipY = barY - tooltipHeight / 2;
+          if (tooltipY < 0) tooltipY = 10;
+          if (tooltipY + tooltipHeight > height) tooltipY = height - tooltipHeight - 10;
+          
+          // Tooltip background
+          tooltip.append('rect')
+            .attr('x', tooltipX)
+            .attr('y', tooltipY)
+            .attr('width', tooltipWidth)
+            .attr('height', tooltipHeight)
+            .attr('fill', 'white')
+            .attr('stroke', d.color)
+            .attr('stroke-width', 2.5)
+            .attr('rx', 6)
+            .style('filter', 'none')
+            .attr('opacity', 0)
+            .transition()
+            .duration(200)
+            .attr('opacity', 1);
+          
+          // Close button - better positioned
+          const closeBtn = tooltip.append('g')
+            .attr('transform', `translate(${tooltipX + tooltipWidth - 24}, ${tooltipY + 14})`)
+            .style('cursor', 'pointer')
+            .attr('opacity', 0)
+            .on('click', function(e) {
+              e.stopPropagation();
+              tooltip.transition().duration(150).attr('opacity', 0).remove();
+              activeTooltip = null;
+            });
+          
+          closeBtn.append('circle')
+            .attr('r', 10)
+            .attr('fill', '#e0e0e0');
+          
+          closeBtn.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '0.35em')
+            .style('font-size', '16px')
+            .style('font-weight', 'bold')
+            .style('fill', '#424242')
+            .text('×');
+          
+          closeBtn.transition().duration(200).attr('opacity', 1);
+          
+          // Tooltip title - larger font
+          tooltip.append('text')
+            .attr('x', tooltipX + padding)
+            .attr('y', tooltipY + padding + 14)
+            .style('font-size', '18px')
+            .style('font-weight', '600')
+            .style('font-family', "'Roboto', sans-serif")
+            .style('fill', '#464646')
+            .attr('opacity', 0)
+            .text(d.label)
+            .transition()
+            .duration(200)
+            .attr('opacity', 1);
+          
+          // Tooltip description (wrapped text) - larger font
+          const words = d.description.split(' ');
+          let line = '';
+          let lineNumber = 0;
+          const lineHeight = 18;
+          const maxWidth = tooltipWidth - 2 * padding;
+          
+          const textY = tooltipY + padding + 38;
+          
+          words.forEach((word, i) => {
+            const testLine = line + word + ' ';
+            const testText = tooltip.append('text')
+              .attr('x', tooltipX + padding)
+              .attr('y', textY)
+              .style('font-size', '16px')
+              .style('font-family', "'Roboto', sans-serif")
+              .text(testLine);
+            
+            const testWidth = testText.node().getComputedTextLength();
+            testText.remove();
+            
+            if (testWidth > maxWidth && line !== '') {
+              tooltip.append('text')
+                .attr('x', tooltipX + padding)
+                .attr('y', textY + lineNumber * lineHeight)
+                .style('font-size', '16px')
+                .style('font-family', "'Roboto', sans-serif")
+                .style('fill', '#666')
+                .attr('opacity', 0)
+                .text(line.trim())
+                .transition()
+                .duration(200)
+                .attr('opacity', 1);
+              
+              line = word + ' ';
+              lineNumber++;
+            } else {
+              line = testLine;
+            }
+            
+            // Last word
+            if (i === words.length - 1) {
+              tooltip.append('text')
+                .attr('x', tooltipX + padding)
+                .attr('y', textY + lineNumber * lineHeight)
+                .style('font-size', '16px')
+                .style('font-family', "'Roboto', sans-serif")
+                .style('fill', '#666')
+                .attr('opacity', 0)
+                .text(line.trim())
+                .transition()
+                .duration(200)
+                .attr('opacity', 1);
+            }
+          });
         });
       
       // Add value labels (hidden initially)
@@ -1679,9 +2246,10 @@
         .attr('x', (d, i) => x(i) + x.bandwidth() / 2)
         .attr('y', d => y(d.accuracy) - 10)
         .attr('text-anchor', 'middle')
-        .style('font-size', '18px')
-        .style('font-weight', '700')
-        .style('fill', '#000')
+        .style('font-size', '20px')
+        .style('font-weight', 'bold')
+        .style('font-family', "'Roboto', sans-serif")
+        .style('fill', '#333')
         .attr('opacity', 0)
         .text(d => d.accuracy.toFixed(2));
       
@@ -1693,9 +2261,10 @@
         .attr('x', (d, i) => x(i) + x.bandwidth() / 2)
         .attr('y', height + 15)
         .attr('text-anchor', 'middle')
-        .style('font-size', '13px')
+        .style('font-size', '17px')
         .style('font-weight', '500')
-        .style('fill', '#000')
+        .style('font-family', "'Roboto', sans-serif")
+        .style('fill', '#464646')
         .each(function(d, i) {
           const text = d3.select(this);
           const words = d.label.split(' - ');
@@ -1726,16 +2295,19 @@
         .attr('x', -12)
         .attr('y', -12)
         .attr('width', 200)
-        .attr('height', 145)
+        .attr('height', 165)
         .attr('fill', 'white')
-        .attr('stroke', '#000')
+        .attr('stroke', '#464646')
         .attr('stroke-width', 1.5)
         .attr('rx', 2);
       
-      // Legend items
-      data.forEach((d, i) => {
+      // Legend items with compact formatting
+      let yOffset = 8;
+      
+      for (let i = 0; i < data.length; i++) {
+        const d = data[i];
         const legendRow = legendGroup.append('g')
-          .attr('transform', `translate(5, ${i * 26 + 5})`);
+          .attr('transform', `translate(5, ${yOffset})`);
         
         // Color box
         legendRow.append('rect')
@@ -1744,19 +2316,48 @@
           .attr('width', 18)
           .attr('height', 18)
           .attr('fill', d.color)
-          .attr('stroke', '#000')
+          .attr('stroke', '#464646')
           .attr('stroke-width', 1);
         
-        // Label
-        legendRow.append('text')
-          .attr('x', 25)
-          .attr('y', 0)
-          .attr('dy', '0.32em')
-          .style('font-size', '12.5px')
-          .style('font-weight', '400')
-          .style('fill', '#000')
-          .text(d.label);
-      });
+        // Check if this is a RAG method
+        if (d.label.startsWith('RAG - ')) {
+          const parts = d.label.split(' - ');
+          
+          // First line: "RAG"
+          legendRow.append('text')
+            .attr('x', 25)
+            .attr('y', -4)
+            .style('font-size', '16px')
+            .style('font-weight', '600')
+            .style('font-family', "'Roboto', sans-serif")
+            .style('fill', '#464646')
+            .text('RAG');
+          
+          // Second line: method name
+          legendRow.append('text')
+            .attr('x', 25)
+            .attr('y', 10)
+            .style('font-size', '16px')
+            .style('font-weight', '400')
+            .style('font-family', "'Roboto', sans-serif")
+            .style('fill', '#464646')
+            .text(parts[1]);
+          
+          yOffset += 32;
+        } else {
+          // Single line label
+          legendRow.append('text')
+            .attr('x', 25)
+            .attr('y', 3)
+            .style('font-size', '16px')
+            .style('font-weight', '600')
+            .style('font-family', "'Roboto', sans-serif")
+            .style('fill', '#464646')
+            .text(d.label);
+          
+          yOffset += 32;
+        }
+      }
       
       // Set up Intersection Observer for scroll-triggered animation
       const qaWrapper = document.getElementById('qa-image-wrapper');
@@ -1803,6 +2404,21 @@
       if (qaWrapper) {
         observer.observe(qaWrapper);
       }
+      
+      // Click outside to close tooltip
+      svg.on('click', function(event) {
+        if (activeTooltip && event.target.tagName === 'svg') {
+          activeTooltip.transition().duration(150).attr('opacity', 0).remove();
+          activeTooltip = null;
+        }
+      });
+      
+      g.on('click', function(event) {
+        if (activeTooltip && !event.target.classList.contains('bar')) {
+          activeTooltip.transition().duration(150).attr('opacity', 0).remove();
+          activeTooltip = null;
+        }
+      });
     }
 
     // Render all visualizations when DOM is ready
@@ -1861,6 +2477,307 @@
             document.body.removeChild(textArea);
           });
         });
+      }
+    });
+
+    // Embedded Quiz Functionality
+    const QUIZ_DATA = {
+      passage: [
+        '"What about a story?" I said.',
+        '"Could you very sweetly tell Winnie-the-Pooh one?"',
+        '"I suppose I could," I said. "What sort of stories does he like?"',
+        '"About himself. Because he\'s that sort of Bear."',
+        '"Oh, I see."',
+        '"So could you very sweetly?"',
+        '"I\'ll try," I said.',
+        'So I tried.',
+        'Once upon a time, a very long time ago now, about last Friday, Winnie-the-Pooh lived in a forest all by himself under the name of Sanders.',
+        '"What does \'under the name\' mean?" asked Christopher Robin.'
+      ],
+      options: [
+        {
+          id: 'A',
+          label: 'Split after every sentence (10 chunks)',
+          chunks: [
+            { sentences: [0], name: "Chunk 1" },
+            { sentences: [1], name: "Chunk 2" },
+            { sentences: [2], name: "Chunk 3" },
+            { sentences: [3], name: "Chunk 4" },
+            { sentences: [4], name: "Chunk 5" },
+            { sentences: [5], name: "Chunk 6" },
+            { sentences: [6], name: "Chunk 7" },
+            { sentences: [7], name: "Chunk 8" },
+            { sentences: [8], name: "Chunk 9" },
+            { sentences: [9], name: "Chunk 10" }
+          ],
+          feedback: "This creates too many tiny chunks! Each sentence is isolated, losing the semantic connections between related dialogue. This approach would make retrieval inefficient and fail to capture the conversational flow."
+        },
+        {
+          id: 'B',
+          label: 'Keep everything together (1 chunk)',
+          chunks: [
+            { sentences: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], name: "Entire Passage" }
+          ],
+          feedback: "This treats the entire passage as one chunk, mixing two distinct sections: the dialogue setup and the story beginning. The shift from meta-conversation to storytelling represents a clear semantic boundary that should be captured."
+        },
+        {
+          id: 'C',
+          label: 'Split between dialogue and story (2 chunks)',
+          chunks: [
+            {
+              sentences: [0, 1, 2, 3, 4, 5, 6, 7],
+              name: "Dialogue Setup",
+              reasoning: "These sentences form a complete dialogue where Christopher Robin asks for a story about Winnie-the-Pooh. They establish the context and setup for what follows, showing the conversational flow from request to agreement."
+            },
+            {
+              sentences: [8, 9],
+              name: "Story Beginning",
+              reasoning: "These sentences transition from the setup dialogue into the actual storytelling. The narrator begins the story with a classic fairy tale opening, immediately followed by Christopher Robin's interruption with a question about the story."
+            }
+          ],
+          feedback: "Correct! This segmentation recognizes the semantic boundary between the meta-dialogue (discussing what story to tell) and the actual storytelling. The first chunk captures the complete request-and-agreement exchange, while the second chunk begins the narrative with its classic opening and immediate interruption.",
+          isCorrect: true
+        }
+      ],
+      correctAnswer: 'C'
+    };
+
+    class EmbeddedQuiz {
+      constructor() {
+        this.selectedOption = null;
+        this.init();
+      }
+
+      init() {
+        this.renderPassage();
+        this.renderOptions();
+        this.setupEventListeners();
+      }
+
+      renderPassage() {
+        const container = document.getElementById('passageContainer');
+        container.innerHTML = '';
+        
+        QUIZ_DATA.passage.forEach((sentence, index) => {
+          const p = document.createElement('p');
+          p.className = 'passage-sentence';
+          p.setAttribute('data-id', index);
+          p.textContent = sentence;
+          container.appendChild(p);
+        });
+      }
+
+      renderOptions() {
+        const container = document.getElementById('optionsContainer');
+        container.className = 'options-container';
+        container.innerHTML = '';
+        
+        QUIZ_DATA.options.forEach(option => {
+          const card = document.createElement('div');
+          card.className = 'option-card';
+          card.setAttribute('data-option-id', option.id);
+          
+          const header = document.createElement('div');
+          header.className = 'option-header';
+          
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'chunking-option';
+          radio.id = `option-${option.id}`;
+          radio.value = option.id;
+          
+          const label = document.createElement('label');
+          label.setAttribute('for', `option-${option.id}`);
+          label.innerHTML = `<strong>Option ${option.id}:</strong> ${option.label}`;
+          
+          header.appendChild(radio);
+          header.appendChild(label);
+          card.appendChild(header);
+          
+          card.addEventListener('click', () => this.selectOption(option.id));
+          container.appendChild(card);
+        });
+      }
+
+      selectOption(optionId) {
+        this.selectedOption = optionId;
+        
+        // Update visual selection
+        document.querySelectorAll('.option-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        document.querySelector(`[data-option-id="${optionId}"]`).classList.add('selected');
+        
+        // Update radio button
+        document.querySelectorAll('input[name="chunking-option"]').forEach(radio => {
+          radio.checked = false;
+        });
+        document.getElementById(`option-${optionId}`).checked = true;
+        
+        // Highlight passage chunks
+        this.highlightPassageChunks(optionId);
+      }
+
+      highlightPassageChunks(optionId) {
+        // Clear existing highlights
+        const container = document.getElementById('passageContainer');
+        container.innerHTML = '';
+        
+        const selectedOption = QUIZ_DATA.options.find(opt => opt.id === optionId);
+        if (!selectedOption) return;
+        
+        // Group sentences by chunks and create combined highlights
+        selectedOption.chunks.forEach((chunk, chunkIndex) => {
+          const chunkDiv = document.createElement('div');
+          chunkDiv.className = `chunk-group chunk-${(chunkIndex % 3) + 1}`;
+          
+          chunk.sentences.forEach(sentenceIdx => {
+            const p = document.createElement('p');
+            p.className = 'chunk-sentence';
+            p.textContent = QUIZ_DATA.passage[sentenceIdx];
+            chunkDiv.appendChild(p);
+          });
+          
+          container.appendChild(chunkDiv);
+        });
+      }
+
+      setupEventListeners() {
+        document.getElementById('submitBtn').addEventListener('click', () => {
+          this.submitAnswer();
+        });
+        
+        document.getElementById('backBtn').addEventListener('click', () => {
+          this.resetQuiz();
+        });
+      }
+
+      submitAnswer() {
+        if (!this.selectedOption) {
+          alert('Please select an option before submitting!');
+          return;
+        }
+        
+        this.showSolution();
+      }
+
+      showSolution() {
+        const answerPhase = document.getElementById('answerPhase');
+        const solutionPhase = document.getElementById('solutionPhase');
+        const solutionContent = document.getElementById('solutionContent');
+        
+        const selectedOption = QUIZ_DATA.options.find(opt => opt.id === this.selectedOption);
+        const isCorrect = selectedOption.isCorrect || false;
+        
+        // Build solution content
+        solutionContent.innerHTML = '';
+        
+        // Result header
+        const header = document.createElement('div');
+        header.className = `result-header ${isCorrect ? 'correct' : 'incorrect'}`;
+        header.innerHTML = `
+          <h3>${isCorrect ? 'Correct!' : 'Not Quite'}</h3>
+          <p>${isCorrect ? 'You identified the optimal semantic segmentation!' : 'Let\'s review why this segmentation isn\'t ideal.'}</p>
+        `;
+        solutionContent.appendChild(header);
+        
+        // Your answer section
+        const yourAnswer = document.createElement('div');
+        yourAnswer.innerHTML = `
+          <h4 style="margin-bottom: 15px;">Your Answer: <span style="background-color: #464646; color: white; padding: 4px 12px; border-radius: 4px; font-weight: 600;">Option ${this.selectedOption}</span></h4>
+          <div class="feedback-box">${selectedOption.feedback}</div>
+        `;
+        solutionContent.appendChild(yourAnswer);
+        
+        // Show optimal segmentation (always show correct answer)
+        const correctOption = QUIZ_DATA.options.find(opt => opt.id === QUIZ_DATA.correctAnswer);
+        if (!isCorrect) {
+          const correctSection = document.createElement('div');
+          correctSection.style.marginTop = '25px';
+          correctSection.innerHTML = `
+            <h4 style="margin-bottom: 15px;">Correct Answer: <span style="background-color: #464646; color: white; padding: 4px 12px; border-radius: 4px; font-weight: 600;">Option ${QUIZ_DATA.correctAnswer}</span></h4>
+            <div class="feedback-box correct-feedback">${correctOption.feedback}</div>
+          `;
+          solutionContent.appendChild(correctSection);
+        }
+        
+        // Show optimal segmentation explanation
+        this.renderOptimalSegmentation(solutionContent, correctOption);
+        
+        // Highlight the correct segmentation on the left passage
+        this.highlightPassageChunks(QUIZ_DATA.correctAnswer);
+        
+        // Fade transition
+        answerPhase.style.opacity = '0';
+        setTimeout(() => {
+          answerPhase.style.display = 'none';
+          solutionPhase.style.display = 'flex';
+          setTimeout(() => {
+            solutionPhase.classList.add('show');
+          }, 50);
+        }, 400);
+      }
+
+      renderOptimalSegmentation(container, option) {
+        const chunksSection = document.createElement('div');
+        chunksSection.innerHTML = `<h4 style="margin: 20px 0 15px 0;">Optimal Segmentation:</h4>`;
+        
+        option.chunks.forEach((chunk, index) => {
+          const chunkDiv = document.createElement('div');
+          chunkDiv.className = 'chunk-display';
+          
+          const chunkTitle = document.createElement('h5');
+          chunkTitle.textContent = chunk.name;
+          chunkDiv.appendChild(chunkTitle);
+          
+          if (chunk.reasoning) {
+            const reasoningDiv = document.createElement('div');
+            reasoningDiv.className = 'reasoning-box';
+            reasoningDiv.innerHTML = `<strong>Why these belong together:</strong><br>${chunk.reasoning}`;
+            chunkDiv.appendChild(reasoningDiv);
+          }
+          
+          chunksSection.appendChild(chunkDiv);
+        });
+        
+        container.appendChild(chunksSection);
+      }
+
+      resetQuiz() {
+        const answerPhase = document.getElementById('answerPhase');
+        const solutionPhase = document.getElementById('solutionPhase');
+        
+        // Reset state
+        this.selectedOption = null;
+        
+        // Clear selections
+        document.querySelectorAll('.option-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        document.querySelectorAll('input[name="chunking-option"]').forEach(radio => {
+          radio.checked = false;
+        });
+        
+        // Reset passage display
+        this.renderPassage();
+        
+        // Fade transition
+        solutionPhase.classList.remove('show');
+        setTimeout(() => {
+          solutionPhase.style.display = 'none';
+          answerPhase.style.display = 'flex';
+          setTimeout(() => {
+            answerPhase.style.opacity = '1';
+          }, 50);
+        }, 400);
+      }
+    }
+
+    // Initialize embedded quiz when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Only initialize if quiz container exists
+      if (document.getElementById('quizContainer')) {
+        new EmbeddedQuiz();
       }
     });
   </script>

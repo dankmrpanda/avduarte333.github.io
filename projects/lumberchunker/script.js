@@ -46,13 +46,13 @@ const QUIZ_DATA = {
       label: 'Split between dialogue and story (2 chunks)',
       breaks: [7],
       chunks: [
-        { 
-          sentences: [0, 1, 2, 3, 4, 5, 6, 7], 
+        {
+          sentences: [0, 1, 2, 3, 4, 5, 6, 7],
           name: "Dialogue Setup",
           reasoning: "These sentences form a complete dialogue where Christopher Robin asks for a story about Winnie-the-Pooh. They establish the context and setup for what follows, showing the conversational flow from request to agreement."
         },
-        { 
-          sentences: [8, 9], 
+        {
+          sentences: [8, 9],
           name: "Story Beginning",
           reasoning: "These sentences transition from the setup dialogue into the actual storytelling. The narrator begins the story with a classic fairy tale opening, immediately followed by Christopher Robin's interruption with a question about the story."
         }
@@ -77,27 +77,27 @@ class TextChunkingQuiz {
     this.renderQuiz();
     this.setupEventListeners();
   }
-  
+
   renderProgressIndicator() {
     const container = d3.select('#progressIndicator');
-    
+
     // Create SVG for progress indicator
     const width = 300;
     const height = 8;
-    
+
     const svg = container.append('svg')
       .attr('width', width)
       .attr('height', height)
       .style('display', 'block')
       .style('margin', '0 auto');
-    
+
     // Background track
     svg.append('rect')
       .attr('width', width)
       .attr('height', height)
       .attr('rx', 4)
       .attr('fill', '#e0e0e0');
-    
+
     // Progress bar
     this.progressBar = svg.append('rect')
       .attr('width', 0)
@@ -105,10 +105,10 @@ class TextChunkingQuiz {
       .attr('rx', 4)
       .attr('fill', '#464646');
   }
-  
+
   updateProgress(percent) {
     if (!this.progressBar) return;
-    
+
     const width = 300;
     this.progressBar
       .transition()
@@ -124,14 +124,14 @@ class TextChunkingQuiz {
 
   renderPassage() {
     const container = d3.select('#passageContainer');
-    
+
     // Remove loading text
     container.selectAll('.loading').remove();
-    
+
     // Use d3 data join pattern
     const sentences = container.selectAll('.passage-sentence')
       .data(this.quizData.passage);
-    
+
     // Enter new sentences
     sentences.enter()
       .append('p')
@@ -145,7 +145,7 @@ class TextChunkingQuiz {
       .delay((d, i) => i * 80)
       .style('opacity', 1)
       .style('transform', 'translateY(0)');
-    
+
     // Remove old sentences
     sentences.exit()
       .transition()
@@ -154,23 +154,45 @@ class TextChunkingQuiz {
       .remove();
   }
 
+  highlightPassageChunks(optionData) {
+    // Clear all existing chunk classes
+    d3.selectAll('.passage-sentence')
+      .attr('class', 'passage-sentence');
+
+    if (!optionData) return;
+
+    // Apply chunk highlighting based on selected option
+    optionData.chunks.forEach((chunk, chunkIndex) => {
+      chunk.sentences.forEach(sentenceIdx => {
+        d3.select(`.passage-sentence[data-id="${sentenceIdx}"]`)
+          .classed(`chunk-${(chunkIndex % 5) + 1}`, true)
+          .transition()
+          .duration(400)
+          .style('transform', 'scale(1.02)')
+          .transition()
+          .duration(200)
+          .style('transform', 'scale(1)');
+      });
+    });
+  }
+
   renderOptions() {
     const container = d3.select('#optionsContainer');
-    
+
     // Remove loading text
     container.selectAll('.loading').remove();
-    
+
     // Use d3 data join pattern
     const options = container.selectAll('.option-card')
       .data(this.quizData.options, d => d.id);
-    
+
     // Exit old options
     options.exit()
       .transition()
       .duration(300)
       .style('opacity', 0)
       .remove();
-    
+
     // Enter new options
     const optionsEnter = options.enter()
       .append('div')
@@ -179,7 +201,7 @@ class TextChunkingQuiz {
       .style('opacity', 0)
       .style('transform', 'scale(0.95)')
       .on('click', (event, d) => this.selectOption(d.id));
-    
+
     // Animate entrance
     optionsEnter
       .transition()
@@ -187,7 +209,7 @@ class TextChunkingQuiz {
       .delay((d, i) => 800 + i * 150)
       .style('opacity', 1)
       .style('transform', 'scale(1)');
-    
+
     // Build option structure
     const header = optionsEnter.append('div')
       .attr('class', 'option-header');
@@ -203,53 +225,6 @@ class TextChunkingQuiz {
       .attr('for', d => `option-${d.id}`)
       .html(d => `<strong>Option ${d.id}:</strong> ${d.label}`);
 
-    // Preview chunks
-    const preview = optionsEnter.append('div')
-      .attr('class', 'chunk-preview');
-
-    // Create chunk previews using nested data binding
-    optionsEnter.each((option, i, nodes) => {
-      const optionNode = d3.select(nodes[i]);
-      const previewContainer = optionNode.select('.chunk-preview');
-      
-      const chunks = previewContainer.selectAll('.chunk-preview-item')
-        .data(option.chunks);
-      
-      const chunksEnter = chunks.enter()
-        .append('div')
-        .attr('class', (d, idx) => `chunk-preview-item chunk-${(idx % 5) + 1}`)
-        .style('opacity', 0)
-        .style('transform', 'translateX(-10px)');
-      
-      // Animate chunk preview entrance
-      chunksEnter
-        .transition()
-        .duration(400)
-        .delay((d, idx) => 1200 + i * 150 + idx * 100)
-        .style('opacity', 1)
-        .style('transform', 'translateX(0)');
-      
-      chunksEnter.append('div')
-        .attr('class', 'chunk-name')
-        .text(d => d.name);
-
-      const sentences = chunksEnter.append('div')
-        .attr('class', 'chunk-sentences-preview');
-
-      chunksEnter.each((chunk, j, chunkNodes) => {
-        const chunkNode = d3.select(chunkNodes[j]);
-        const sentencesContainer = chunkNode.select('.chunk-sentences-preview');
-        
-        const sentenceElements = sentencesContainer.selectAll('.preview-sentence')
-          .data(chunk.sentences);
-        
-        sentenceElements.enter()
-          .append('p')
-          .attr('class', 'preview-sentence')
-          .text(sentenceIdx => this.quizData.passage[sentenceIdx]);
-      });
-    });
-    
     // Update existing options (if any)
     options.classed('selected', d => this.selectedOption === d.id);
   }
@@ -257,36 +232,40 @@ class TextChunkingQuiz {
   selectOption(optionId) {
     // Allow selection change at any time
     this.selectedOption = optionId;
-    
+
     // Update progress to 50% when option selected
     this.updateProgress(0.5);
-    
+
+    // Get the selected option data and highlight passage
+    const selectedOptionData = this.quizData.options.find(opt => opt.id === optionId);
+    this.highlightPassageChunks(selectedOptionData);
+
     // Update visual selection with smooth transition
     d3.selectAll('.option-card')
       .transition()
       .duration(300)
-      .style('border-color', function() {
+      .style('border-color', function () {
         return d3.select(this).attr('data-option-id') === optionId ? '#464646' : '#e0e0e0';
       })
-      .style('background-color', function() {
+      .style('background-color', function () {
         return d3.select(this).attr('data-option-id') === optionId ? '#f8f9fa' : 'white';
       })
-      .style('box-shadow', function() {
-        return d3.select(this).attr('data-option-id') === optionId ? 
+      .style('box-shadow', function () {
+        return d3.select(this).attr('data-option-id') === optionId ?
           '0 4px 12px rgba(70,70,70,0.15)' : 'none';
       });
-    
+
     d3.selectAll('.option-card')
       .classed('selected', false);
     d3.select(`.option-card[data-option-id="${optionId}"]`)
       .classed('selected', true);
-    
+
     // Update radio button with animation
     d3.selectAll('input[name="chunking-option"]')
       .property('checked', false)
       .transition()
       .duration(200);
-    
+
     d3.select(`#option-${optionId}`)
       .property('checked', true)
       .transition()
@@ -295,7 +274,7 @@ class TextChunkingQuiz {
       .transition()
       .duration(200)
       .style('transform', 'scale(1)');
-    
+
     // If already submitted, automatically resubmit with new selection
     if (this.hasSubmitted) {
       this.hasSubmitted = false;
@@ -305,7 +284,7 @@ class TextChunkingQuiz {
 
   setupEventListeners() {
     const submitBtn = d3.select('#submitBtn');
-    
+
     // Click animation
     submitBtn.on('click', () => {
       // Pulse animation on click
@@ -316,19 +295,19 @@ class TextChunkingQuiz {
         .transition()
         .duration(100)
         .style('transform', 'scale(1)');
-      
+
       this.submitAnswer();
     });
-    
+
     // Hover effects
-    submitBtn.on('mouseenter', function() {
+    submitBtn.on('mouseenter', function () {
       d3.select(this)
         .transition()
         .duration(200)
         .style('transform', 'translateY(-2px) scale(1.02)');
     });
-    
-    submitBtn.on('mouseleave', function() {
+
+    submitBtn.on('mouseleave', function () {
       d3.select(this)
         .transition()
         .duration(200)
@@ -340,7 +319,7 @@ class TextChunkingQuiz {
     if (!this.selectedOption) {
       // Show error message with d3 animation
       const submitBtn = d3.select('#submitBtn');
-      
+
       submitBtn
         .transition()
         .duration(100)
@@ -358,7 +337,7 @@ class TextChunkingQuiz {
         .duration(100)
         .style('background-color', '#464646')
         .style('border-color', '#464646');
-      
+
       alert('Please select an option before submitting!');
       return;
     }
@@ -367,7 +346,7 @@ class TextChunkingQuiz {
 
     // Update progress to 100% on submit
     this.updateProgress(1.0);
-    
+
     // Success animation on selected card
     const selectedCard = d3.select(`.option-card[data-option-id="${this.selectedOption}"]`);
     selectedCard
@@ -392,7 +371,7 @@ class TextChunkingQuiz {
       .transition()
       .duration(400)
       .style('opacity', 0);
-    
+
     controls
       .transition()
       .duration(400)
@@ -404,6 +383,11 @@ class TextChunkingQuiz {
 
       // Clear and build results
       resultsContainer.selectAll('*').remove();
+
+      // Trigger resize after clearing
+      if (window.sendHeightToParent) {
+        window.sendHeightToParent();
+      }
 
       const selectedOptionData = this.quizData.options.find(opt => opt.id === this.selectedOption);
       const isCorrect = selectedOptionData.isCorrect || false;
@@ -418,15 +402,20 @@ class TextChunkingQuiz {
         .text(isCorrect ? 'Correct!' : 'Not Quite');
 
       header.append('p')
-        .text(isCorrect ? 
-          'You identified the optimal semantic segmentation!' : 
+        .text(isCorrect ?
+          'You identified the optimal semantic segmentation!' :
           'Let\'s review why this segmentation isn\'t ideal.');
-      
+
       // Animate header entrance
       header.transition()
         .duration(600)
         .style('opacity', 1)
-        .style('transform', 'translateY(0)');
+        .style('transform', 'translateY(0)')
+        .on('end', () => {
+          if (window.sendHeightToParent) {
+            window.sendHeightToParent();
+          }
+        });
 
       // Show selected answer with data-driven approach
       const selectedSection = resultsContainer.append('div')
@@ -445,7 +434,12 @@ class TextChunkingQuiz {
         .transition()
         .duration(600)
         .delay(300)
-        .style('opacity', 1);
+        .style('opacity', 1)
+        .on('end', () => {
+          if (window.sendHeightToParent) {
+            window.sendHeightToParent();
+          }
+        });
 
       // Show selected option's chunks using data binding
       const chunksDiv = selectedSection.append('div')
@@ -453,7 +447,7 @@ class TextChunkingQuiz {
 
       const chunks = chunksDiv.selectAll('.chunk-display')
         .data(selectedOptionData.chunks);
-      
+
       const chunksEnter = chunks.enter()
         .append('div')
         .attr('class', 'chunk-display')
@@ -469,10 +463,10 @@ class TextChunkingQuiz {
       chunksEnter.each((chunk, idx, nodes) => {
         const chunkNode = d3.select(nodes[idx]);
         const sentencesContainer = chunkNode.select('.chunk-sentences');
-        
+
         const sentences = sentencesContainer.selectAll('.chunk-sentence')
           .data(chunk.sentences);
-        
+
         sentences.enter()
           .append('p')
           .attr('class', `chunk-sentence chunk-${(idx % 5) + 1}`)
@@ -482,7 +476,7 @@ class TextChunkingQuiz {
           .duration(400)
           .delay((d, i) => 900 + idx * 200 + i * 100)
           .style('opacity', 1);
-        
+
         if (chunk.reasoning) {
           chunkNode.append('div')
             .attr('class', 'reasoning-box')
@@ -494,14 +488,19 @@ class TextChunkingQuiz {
             .style('opacity', 1);
         }
       });
-      
+
       // Animate chunks
       chunksEnter
         .transition()
         .duration(500)
         .delay((d, i) => 600 + i * 150)
         .style('opacity', 1)
-        .style('transform', 'translateY(0)');
+        .style('transform', 'translateY(0)')
+        .on('end', () => {
+          if (window.sendHeightToParent) {
+            window.sendHeightToParent();
+          }
+        });
 
       // If wrong, show correct answer
       if (!isCorrect) {
@@ -525,7 +524,7 @@ class TextChunkingQuiz {
 
         const correctChunks = correctChunksDiv.selectAll('.chunk-display')
           .data(correctOption.chunks);
-        
+
         const correctChunksEnter = correctChunks.enter()
           .append('div')
           .attr('class', 'chunk-display');
@@ -539,29 +538,34 @@ class TextChunkingQuiz {
         correctChunksEnter.each((chunk, idx, nodes) => {
           const chunkNode = d3.select(nodes[idx]);
           const sentencesContainer = chunkNode.select('.chunk-sentences');
-          
+
           const sentences = sentencesContainer.selectAll('.chunk-sentence')
             .data(chunk.sentences);
-          
+
           sentences.enter()
             .append('p')
             .attr('class', `chunk-sentence chunk-${(idx % 5) + 1}`)
             .text(sentenceIdx => this.quizData.passage[sentenceIdx]);
-          
+
           if (chunk.reasoning) {
             chunkNode.append('div')
               .attr('class', 'reasoning-box')
               .html(`<strong>Why these belong together:</strong><br>${chunk.reasoning}`);
           }
         });
-        
+
         // Animate correct section
         correctSection
           .transition()
           .duration(700)
           .delay(1500)
           .style('opacity', 1)
-          .style('transform', 'scale(1)');
+          .style('transform', 'scale(1)')
+          .on('end', () => {
+            if (window.sendHeightToParent) {
+              window.sendHeightToParent();
+            }
+          });
       }
 
       // Back button with animation
@@ -575,7 +579,7 @@ class TextChunkingQuiz {
         .attr('class', 'btn back-btn')
         .text('← Back to Quiz')
         .on('click', () => this.hideResults());
-      
+
       backButton
         .transition()
         .duration(500)
@@ -584,11 +588,22 @@ class TextChunkingQuiz {
 
       // Show results with fade in
       resultsContainer.classed('show', true);
+
+      // Trigger resize when results become visible and scroll to top
+      if (window.sendHeightToParent) {
+        window.sendHeightToParent(true);
+      }
+
       setTimeout(() => {
         resultsContainer
           .transition()
           .duration(400)
-          .style('opacity', 1);
+          .style('opacity', 1)
+          .on('end', () => {
+            if (window.sendHeightToParent) {
+              window.sendHeightToParent();
+            }
+          });
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 50);
     }, 400);
@@ -599,9 +614,13 @@ class TextChunkingQuiz {
     const quizContent = d3.select('.quiz-content');
     const controls = d3.select('.controls');
 
-    // Reset progress
-    this.updateProgress(this.selectedOption ? 0.5 : 0);
-    
+    // Reset selection state
+    this.selectedOption = null;
+    this.hasSubmitted = false;
+
+    // Reset progress to 0
+    this.updateProgress(0);
+
     // Fade out results with d3 transition
     resultsContainer
       .transition()
@@ -610,11 +629,29 @@ class TextChunkingQuiz {
 
     setTimeout(() => {
       resultsContainer.classed('show', false);
-      this.hasSubmitted = false;
+
+      // Clear passage highlighting
+      this.highlightPassageChunks(null);
+
+      // Deselect all options
+      d3.selectAll('.option-card')
+        .classed('selected', false)
+        .style('border-color', '#e0e0e0')
+        .style('background-color', 'white')
+        .style('box-shadow', 'none');
+
+      // Uncheck all radio buttons
+      d3.selectAll('input[name="chunking-option"]')
+        .property('checked', false);
 
       // Show quiz
       quizContent.classed('hidden', false).style('opacity', 0);
       controls.classed('hidden', false).style('opacity', 0);
+
+      // Scroll to top first, before resizing
+      if (window.sendHeightToParent) {
+        window.sendHeightToParent(true);
+      }
 
       setTimeout(() => {
         // Fade in quiz with staggered animation
@@ -622,13 +659,13 @@ class TextChunkingQuiz {
           .transition()
           .duration(500)
           .style('opacity', 1);
-        
+
         controls
           .transition()
           .duration(500)
           .delay(200)
           .style('opacity', 1);
-        
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 50);
     }, 400);
