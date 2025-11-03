@@ -100,21 +100,27 @@
 
     /* Quiz/Interactive Section Styling */
     .quiz-section {
-      background-color: #f8f9fa;
-      padding: 2rem;
+      padding: 1.5rem;
       border-radius: 10px;
-      margin: 2rem 0;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    /* Reduce spacing around quiz section */
+    #quiz.section {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
     }
 
     .quiz-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 30px;
+      gap: 50px;
       background: white;
       border-radius: 10px;
-      padding: 25px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      min-height: 500px;
+      padding: 40px;
+      align-items: start;
+      box-shadow: none;
     }
 
     @media (max-width: 1024px) {
@@ -126,7 +132,6 @@
 
     /* Left Side - Passage */
     .passage-section {
-      background-color: #f8f9fa;
       border-left: 4px solid #626161;
       padding: 20px;
       border-radius: 6px;
@@ -142,9 +147,9 @@
     }
 
     .passage-sentence {
-      margin: 3px 0;
-      padding: 6px 10px;
-      line-height: 1.4;
+      margin: 1px 0;
+      padding: 4px 10px;
+      line-height: 1.3;
       color: #424242;
       border-radius: 6px;
       transition: all 0.3s ease;
@@ -154,8 +159,8 @@
 
     /* Chunk highlighting colors - combined chunks */
     .chunk-group {
-      margin: 4px 0;
-      padding: 8px;
+      margin: 0px 0;
+      padding: 6px 6px 2px 6px;
       border-radius: 6px;
       border-left: 4px solid;
       transition: all 0.3s ease;
@@ -175,24 +180,25 @@
     }
 
     .chunk-group .chunk-sentence {
-      margin: 2px 0;
-      padding: 2px 0;
+      margin: 0px 0;
+      padding: 1px 0;
       border-left: none;
       background: transparent;
       font-size: 0.85em;
-      line-height: 1.4;
+      line-height: 1.3;
     }
 
     /* Right Side - Interaction */
     .interaction-section {
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     .interaction-section h4 {
       color: #3e3e3e;
-      font-size: 1.2em;
-      margin-bottom: 20px;
+      font-size: 1.1em;
+      margin-bottom: 15px;
       font-weight: 600;
       font-family: 'Roboto', sans-serif;
     }
@@ -201,6 +207,9 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      padding: 2px;
     }
 
     .solution-phase {
@@ -219,6 +228,8 @@
       gap: 15px;
       margin-bottom: 25px;
       flex: 1;
+      overflow-y: auto;
+      padding: 2px 0;
     }
 
     .option-card {
@@ -233,7 +244,7 @@
     .option-card:hover {
       border-color: #9e9e9e;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
 
     .option-card.selected {
@@ -270,13 +281,17 @@
     /* Solution Styling */
     .solution-content {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding-right: 5px;
     }
 
     .result-header {
       text-align: center;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
     }
 
     .result-header.correct {
@@ -290,26 +305,27 @@
     }
 
     .result-header h3 {
-      font-size: 1.5em;
-      margin-bottom: 8px;
+      font-size: 1.1em;
+      margin-bottom: 4px;
       color: #3e3e3e;
       font-weight: 600;
       font-family: 'Roboto', sans-serif;
     }
 
     .result-header p {
-      font-size: 1em;
+      font-size: 0.8em;
       color: #424242;
+      margin: 0;
     }
 
     .feedback-box {
       background-color: #f8f9fa;
       border-left: 4px solid #626161;
-      padding: 15px;
-      margin-bottom: 20px;
+      padding: 10px;
+      margin-bottom: 12px;
       border-radius: 4px;
-      font-size: 0.95em;
-      line-height: 1.6;
+      font-size: 0.8em;
+      line-height: 1.4;
     }
 
     .correct-feedback {
@@ -321,42 +337,25 @@
       background-color: white;
       border: 1px solid #e0e0e0;
       border-radius: 6px;
-      padding: 15px;
-      margin-bottom: 15px;
+      padding: 10px;
+      margin-bottom: 8px;
     }
 
     .chunk-display h5 {
       color: #464646;
-      margin-bottom: 10px;
-      font-size: 1em;
+      margin-bottom: 6px;
+      font-size: 0.9em;
       font-weight: 600;
       font-family: 'Roboto', sans-serif;
     }
 
-    .chunk-sentences {
-      margin-bottom: 10px;
-    }
-
-    .chunk-sentence-item {
-      padding: 6px 10px;
-      margin: 3px 0;
-      border-radius: 4px;
-      border-left: 3px solid;
-      line-height: 1.4;
-      font-size: 0.9em;
-    }
-
-    .chunk-sentence-item.chunk-1 { background-color: #fff5f5; border-left-color: #e57373; }
-    .chunk-sentence-item.chunk-2 { background-color: #f0f8ff; border-left-color: #64b5f6; }
-    .chunk-sentence-item.chunk-3 { background-color: #fffef0; border-left-color: #ffd54f; }
-
     .reasoning-box {
       background-color: #fffef0;
       border-left: 4px solid #ffd54f;
-      padding: 12px;
+      padding: 8px;
       border-radius: 4px;
-      font-size: 0.9em;
-      line-height: 1.5;
+      font-size: 0.75em;
+      line-height: 1.3;
     }
 
     .reasoning-box strong {
@@ -364,10 +363,31 @@
       font-weight: 600;
     }
 
+    /* Aligned chunk definitions */
+    .chunk-definitions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chunk-definition {
+      position: relative;
+    }
+
+    .chunk-definition.chunk-1 {
+      border-left: 4px solid #e57373;
+      background-color: #fff5f5;
+    }
+
+    .chunk-definition.chunk-2 {
+      border-left: 4px solid #64b5f6;
+      background-color: #f0f8ff;
+    }
+
     /* Controls */
     .quiz-controls {
       margin-top: auto;
-      padding-top: 20px;
+      padding-top: 15px;
     }
 
     .quiz-btn {
@@ -462,13 +482,20 @@
       max-width: 100% !important;
     }
 
+    /* Responsive table styling using Bulma */
     table.table {
       width: 100% !important;
       font-family: 'Roboto', sans-serif !important;
-      border-collapse: separate !important;
-      border-spacing: 0 !important;
+      border-collapse: collapse !important;
     }
 
+    /* Make Columns take always the same width */
+    table.table th:nth-child(n+2),
+    table.table td:nth-child(n+2) {
+      width: 20% !important;
+    }
+
+    /* Centered, refined caption styling */
     table.table caption {
       caption-side: top !important;
       text-align: center !important;
@@ -478,42 +505,19 @@
       color: #464646 !important;
     }
 
+    /* Optional: subtle table cell styling */
     table.table th,
     table.table td {
       padding: 0.75rem !important;
+      border: 1px solid #f0f0f0 !important;
       text-align: center !important;
       font-size: clamp(0.65rem, 2vw, 1rem) !important;
       color: #464646 !important;
-      border-left: 1px solid #424242 !important;
-      border-bottom: 1px solid #424242 !important;
-      border-top: 1px solid #d0d0d0 !important;
-      border-right: 1px solid #d0d0d0 !important;
     }
 
     table.table th {
       background: #fafafa !important;
       vertical-align: middle !important;
-    }
-
-    /* Remove duplicate borders at intersections */
-    table.table th:first-child,
-    table.table td:first-child {
-      border-left: 1px solid #424242 !important;
-    }
-
-    table.table tr:first-child th,
-    table.table tr:first-child td {
-      border-top: 1px solid #424242 !important;
-    }
-
-    table.table th:last-child,
-    table.table td:last-child {
-      border-right: 1px solid #d0d0d0 !important;
-    }
-
-    table.table tr:last-child th,
-    table.table tr:last-child td {
-      border-bottom: 1px solid #424242 !important;
     }
 
     .table-card table.table th:first-child,
@@ -522,34 +526,14 @@
       text-align: left !important;
     }
 
-    /* Tables 2, 10, 11, 12 and GutenQA - fully black borders */
-    #table2-caption ~ table th,
-    #table2-caption ~ table td,
-    #table10-caption ~ table th,
-    #table10-caption ~ table td,
-    #table11-caption ~ table th,
-    #table11-caption ~ table td,
-    #table12-caption ~ table th,
-    #table12-caption ~ table td {
-      border: 1px solid #000 !important;
+    .table-card table.table thead th:nth-child(2) {
+      white-space: nowrap !important;
     }
 
-    [aria-labelledby="table2-caption"] table.table th,
-    [aria-labelledby="table2-caption"] table.table td,
-    [aria-labelledby="table10-caption"] table.table th,
-    [aria-labelledby="table10-caption"] table.table td,
-    [aria-labelledby="table11-caption"] table.table th,
-    [aria-labelledby="table11-caption"] table.table td,
-    [aria-labelledby="table12-caption"] table.table th,
-    [aria-labelledby="table12-caption"] table.table td,
-    #table-container-ndcg table.table th,
-    #table-container-ndcg table.table td,
-    #table-container-recall table.table th,
-    #table-container-recall table.table td {
-      border-left: 1px solid #000 !important;
-      border-bottom: 1px solid #000 !important;
-      border-top: 1px solid #000 !important;
-      border-right: 1px solid #000 !important;
+    .table-card table.table thead th:first-child {
+      background: transparent !important;
+      border-top: none !important;
+      border-left: none !important;
     }
 
     /* Algorithm box styling */
@@ -721,8 +705,8 @@
 </section>
 
   <!-- Interactive Quiz Section -->
-  <section class="section" id="quiz" style="margin-top: -2rem; margin-bottom: -2.5rem;">
-    <div class="container is-max-desktop">
+  <section class="section" id="quiz" style="margin-top: 0; margin-bottom: 0; padding-top: 1rem; padding-bottom: 1rem;">
+    <div class="container is-max-widescreen">
       <div class="quiz-section">
         <div class="quiz-header">
           <h3 style="color: #3e3e3e; font-size: 1.4em; margin-bottom: 8px; font-weight: 600; text-align: center;">Text Segmentation Quiz</h3>
@@ -840,7 +824,53 @@
             <p>
               Narratives work off of topic turns, scene changes, and discourse shifts, not uniform token distances. By explicitly locating the earliest meaningful change inside a window, LumberChunker produces variable-length chunks that keep entities and events intact, improving retrieval quality downstream.
             </p>
+            <h3 class="title is-4">Granularity that “feels right”</h3>
+            <p>
+              Average chunk sizes (tokens) on the 100-book corpus: Paragraph ~79, Semantic ~185, Recursive ~399, <strong>LumberChunker ~334</strong>, Proposition ~12. Even with <code>θ=550</code>, the model frequently finds earlier shifts, yielding compact, on-topic chunks and reducing “lost-in-the-middle” effects.
+            </p>
 
+            <!-- Table 10: Average tokens and total chunks per method -->
+
+            <!-- Accessible HTML table fallback (renders even if image is missing) -->
+            <div class="table-card" aria-labelledby="table10-caption">
+              <table class="table is-bordered is-hoverable">
+                <caption id="table10-caption">Table 10: The average number of tokens per chunk and the total number of chunks after segmenting each book in the GutenQA.</caption>
+                <thead>
+                  <tr>
+                    <th style="text-align: left;">Method</th>
+                    <th>Avg. #Tokens / Chunk</th>
+                    <th>Total #Chunks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="text-align: left;">Semantic Chunking</td>
+                    <td>185 tokens</td>
+                    <td>191059</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Paragraph Level</td>
+                    <td>79 tokens</td>
+                    <td>248307</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Recursive Chunking</td>
+                    <td>399 tokens</td>
+                    <td>31787</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">Proposition-Level</td>
+                    <td>12 tokens</td>
+                    <td>914493</td>
+                  </tr>
+                  <tr style="background-color: #f0f8ff;">
+                    <td style="text-align: left;">LumberChunker</td>
+                    <td><strong>334 tokens</strong></td>
+                    <td><strong>36917</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -858,6 +888,7 @@
             <p>
               To evaluate chunking where it matters, we introduce <strong>GutenQA</strong>, a benchmark of <strong>100</strong> carefully cleaned public-domain books paired with <strong>3,000</strong> needle-in-a-haystack QA items (short, verifiable answers). This lets us measure <em>passage retrieval</em> precisely and then see how that lift translates into <em>RAG QA</em>.
             </p>
+
 
             <h3 class="title is-4">Retrieval: LumberChunker leads ⭐</h3>
             <p>
@@ -1064,66 +1095,16 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td style="text-align: left;">LumberChunker</td>
-                    <td>0.709</td>
-                  </tr>
-                  <tr>
                     <td style="text-align: left;">Recursive Chunks</td>
                     <td>0.689</td>
                   </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <h3 class="title is-4">Granularity that “feels right”</h3>
-            <p>
-              Average chunk sizes (tokens) on the 100-book corpus: Paragraph ~79, Semantic ~185, Recursive ~399, <strong>LumberChunker ~334</strong>, Proposition ~12. Even with <code>θ=550</code>, the model frequently finds earlier shifts, yielding compact, on-topic chunks and reducing “lost-in-the-middle” effects.
-            </p>
-
-            <!-- Table 10: Average tokens and total chunks per method -->
-
-            <!-- Accessible HTML table fallback (renders even if image is missing) -->
-            <div class="table-card" aria-labelledby="table10-caption">
-              <table class="table is-bordered is-hoverable">
-                <caption id="table10-caption">Table 10: The average number of tokens per chunk and the total number of chunks after segmenting each book in the GutenQA.</caption>
-                <thead>
-                  <tr>
-                    <th style="text-align: left;">Method</th>
-                    <th>Avg. #Tokens / Chunk</th>
-                    <th>Total #Chunks</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style="text-align: left;">Semantic Chunking</td>
-                    <td>185 tokens</td>
-                    <td>191059</td>
-                  </tr>
-                  <tr>
-                    <td style="text-align: left;">Paragraph Level</td>
-                    <td>79 tokens</td>
-                    <td>248307</td>
-                  </tr>
-                  <tr>
-                    <td style="text-align: left;">Recursive Chunking</td>
-                    <td>399 tokens</td>
-                    <td>31787</td>
-                  </tr>
-                  <tr>
-                    <td style="text-align: left;">Proposition-Level</td>
-                    <td>12 tokens</td>
-                    <td>914493</td>
-                  </tr>
                   <tr style="background-color: #f0f8ff;">
                     <td style="text-align: left;">LumberChunker</td>
-                    <td><strong>334 tokens</strong></td>
-                    <td><strong>36917</strong></td>
+                    <td><strong>0.709</strong></td>
                   </tr>
                 </tbody>
               </table>
             </div>
-
-
           </div>
         </div>
       </div>
@@ -1722,14 +1703,14 @@
       
       // Calculate proper legend height based on number of items
       const legendItemHeight = 28; // reduced spacing
-      const legendPadding = 20;
+      const legendPadding = 35;
       const totalItems = referenceThetaValues.length; // only reference items, no current
       const legendHeight = (totalItems * legendItemHeight) + legendPadding;
       
       legendGroup.append('rect')
         .attr('x', -15)
         .attr('y', -15)
-        .attr('width', 195)
+        .attr('width', 160)
         .attr('height', legendHeight)
         .attr('fill', 'white')
         .attr('stroke', '#464646')
@@ -1739,7 +1720,7 @@
       // Legend title
       legendGroup.append('text')
         .attr('x', 0)
-        .attr('y', -5)
+        .attr('y', 5)
         .attr('dy', '0.32em')
         .style('font-family', "'Roboto', sans-serif")
         .style('font-size', '17px')
@@ -1753,7 +1734,7 @@
       // Reference theta legend items
       referenceThetaValues.forEach((refConfig, i) => {
         const refLegend = legendGroup.append('g')
-          .attr('transform', `translate(5, ${20 + i * legendItemHeight})`); // removed +1 offset
+          .attr('transform', `translate(5, ${30 + i * legendItemHeight})`); // removed +1 offset
         
         refLegend.append('line')
           .attr('x1', 0)
@@ -2004,7 +1985,8 @@
         .style('fill', '#464646')
         .style('font-size', '18px')
         .style('font-weight', '500')
-        .style('font-family', "'Roboto', sans-serif");
+        .style('font-family', "'Roboto', sans-serif")
+        .attr('x', -15);
       
       yAxis.select('.domain').remove();
       
@@ -2049,7 +2031,7 @@
       svg.append('text')
         .attr('transform', 'rotate(-90)')
         .attr('x', -(height + margin.top + margin.bottom) / 2 + 30)
-        .attr('y', 25)
+        .attr('y', 45)
         .attr('text-anchor', 'middle')
         .style('font-size', '22px')
         .style('font-weight', '600')
@@ -2259,7 +2241,7 @@
         .join('text')
         .attr('class', 'bottom-label')
         .attr('x', (d, i) => x(i) + x.bandwidth() / 2)
-        .attr('y', height + 15)
+        .attr('y', height + 30)
         .attr('text-anchor', 'middle')
         .style('font-size', '17px')
         .style('font-weight', '500')
@@ -2294,8 +2276,8 @@
       legendGroup.append('rect')
         .attr('x', -12)
         .attr('y', -12)
-        .attr('width', 200)
-        .attr('height', 165)
+        .attr('width', 260)
+        .attr('height', 155)
         .attr('fill', 'white')
         .attr('stroke', '#464646')
         .attr('stroke-width', 1.5)
@@ -2319,44 +2301,17 @@
           .attr('stroke', '#464646')
           .attr('stroke-width', 1);
         
-        // Check if this is a RAG method
-        if (d.label.startsWith('RAG - ')) {
-          const parts = d.label.split(' - ');
-          
-          // First line: "RAG"
-          legendRow.append('text')
-            .attr('x', 25)
-            .attr('y', -4)
-            .style('font-size', '16px')
-            .style('font-weight', '600')
-            .style('font-family', "'Roboto', sans-serif")
-            .style('fill', '#464646')
-            .text('RAG');
-          
-          // Second line: method name
-          legendRow.append('text')
-            .attr('x', 25)
-            .attr('y', 10)
-            .style('font-size', '16px')
-            .style('font-weight', '400')
-            .style('font-family', "'Roboto', sans-serif")
-            .style('fill', '#464646')
-            .text(parts[1]);
-          
-          yOffset += 32;
-        } else {
-          // Single line label
-          legendRow.append('text')
-            .attr('x', 25)
-            .attr('y', 3)
-            .style('font-size', '16px')
-            .style('font-weight', '600')
-            .style('font-family', "'Roboto', sans-serif")
-            .style('fill', '#464646')
-            .text(d.label);
-          
-          yOffset += 32;
-        }
+        // Single line label for all entries
+        legendRow.append('text')
+          .attr('x', 25)
+          .attr('y', 3)
+          .style('font-size', '15px')
+          .style('font-weight', '500')
+          .style('font-family', "'Roboto', sans-serif")
+          .style('fill', '#464646')
+          .text(d.label);
+        
+        yOffset += 28;
       }
       
       // Set up Intersection Observer for scroll-triggered animation
@@ -2552,6 +2507,7 @@
         this.renderPassage();
         this.renderOptions();
         this.setupEventListeners();
+        this.matchHeights();
       }
 
       renderPassage() {
@@ -2720,11 +2676,14 @@
 
       renderOptimalSegmentation(container, option) {
         const chunksSection = document.createElement('div');
-        chunksSection.innerHTML = `<h4 style="margin: 20px 0 15px 0;">Optimal Segmentation:</h4>`;
+        chunksSection.innerHTML = `<h4 style="margin: 10px 0 8px 0; font-size: 0.95em;">Optimal Segmentation:</h4>`;
+        
+        const definitionsContainer = document.createElement('div');
+        definitionsContainer.className = 'chunk-definitions';
         
         option.chunks.forEach((chunk, index) => {
           const chunkDiv = document.createElement('div');
-          chunkDiv.className = 'chunk-display';
+          chunkDiv.className = `chunk-definition chunk-display chunk-${(index % 2) + 1}`;
           
           const chunkTitle = document.createElement('h5');
           chunkTitle.textContent = chunk.name;
@@ -2737,10 +2696,37 @@
             chunkDiv.appendChild(reasoningDiv);
           }
           
-          chunksSection.appendChild(chunkDiv);
+          definitionsContainer.appendChild(chunkDiv);
         });
         
+        chunksSection.appendChild(definitionsContainer);
         container.appendChild(chunksSection);
+      }
+
+      matchHeights() {
+        // Wait for content to render, then match heights
+        setTimeout(() => {
+          const passageSection = document.querySelector('.passage-section');
+          const interactionSection = document.querySelector('.interaction-section');
+          
+          if (passageSection && interactionSection) {
+            const passageHeight = passageSection.offsetHeight;
+            interactionSection.style.height = passageHeight + 'px';
+            
+            // Set overflow for scrolling when content is too long
+            const answerPhase = document.getElementById('answerPhase');
+            const solutionPhase = document.getElementById('solutionPhase');
+            
+            if (answerPhase) {
+              answerPhase.style.height = (passageHeight - 40) + 'px'; // Account for padding
+              answerPhase.style.overflowY = 'auto';
+            }
+            if (solutionPhase) {
+              solutionPhase.style.height = (passageHeight - 40) + 'px'; // Account for padding
+              solutionPhase.style.overflowY = 'auto';
+            }
+          }
+        }, 100);
       }
 
       resetQuiz() {
@@ -2760,6 +2746,9 @@
         
         // Reset passage display
         this.renderPassage();
+        
+        // Re-match heights after content change
+        this.matchHeights();
         
         // Fade transition
         solutionPhase.classList.remove('show');
