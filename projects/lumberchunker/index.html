@@ -579,10 +579,21 @@
       cursor: pointer;
     }
 
+    /* Hide the default slider thumb since we're using custom markers */
+    #theta-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 0;
+      height: 0;
+      background: transparent;
+      cursor: pointer;
+      border: none;
+    }
+
     #theta-slider::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
-      background: #808080;
+      width: 0;
+      height: 0;
+      background: transparent;
       border-radius: 50%;
       cursor: pointer;
       border: none;
@@ -821,13 +832,29 @@
               <div style="display: flex; align-items: flex-start; justify-content: center; gap: 20px; margin-bottom: 5px;">
                 <label for="theta-slider" style="font-weight: 600; font-size: 22px; font-family: 'Roboto', sans-serif; padding-top: 2px;">θ (Token Budget):</label>
                 <div style="position: relative; width: 300px;">
+                  <!-- Circular markers positioned on top of the slider -->
+                  <div id="slider-markers" style="position: absolute; top: 50%; width: 100%; height: 20px; pointer-events: none; transform: translateY(-50%);">
+                    <div class="slider-marker" data-index="0" style="position: absolute; left: 0%; transform: translate(-50%, -50%);">
+                      <div style="width: 18px; height: 18px; border-radius: 50%; background-color: white; border: 3px solid #424242;"></div>
+                    </div>
+                    <div class="slider-marker" data-index="1" style="position: absolute; left: 33.33%; transform: translate(-50%, -50%);">
+                      <div style="width: 18px; height: 18px; border-radius: 50%; background-color: #424242; border: 3px solid #424242;"></div>
+                    </div>
+                    <div class="slider-marker" data-index="2" style="position: absolute; left: 66.67%; transform: translate(-50%, -50%);">
+                      <div style="width: 18px; height: 18px; border-radius: 50%; background-color: white; border: 3px solid #424242;"></div>
+                    </div>
+                    <div class="slider-marker" data-index="3" style="position: absolute; left: 100%; transform: translate(-50%, -50%);">
+                      <div style="width: 18px; height: 18px; border-radius: 50%; background-color: white; border: 3px solid #424242;"></div>
+                    </div>
+                  </div>
                   <input type="range" id="theta-slider" min="0" max="3" value="1" step="1" 
                          style="width: 100%; cursor: pointer;">
-                  <div style="display: flex; justify-content: space-between; margin-top: 5px; padding: 0 2px;">
-                    <span style="font-size: 18px; color: #666; font-family: 'Roboto', sans-serif;">450</span>
-                    <span style="font-size: 18px; color: #666; font-family: 'Roboto', sans-serif;">550</span>
-                    <span style="font-size: 18px; color: #666; font-family: 'Roboto', sans-serif;">650</span>
-                    <span style="font-size: 18px; color: #666; font-family: 'Roboto', sans-serif;">1000</span>
+                  <!-- Precisely aligned tick labels under the slider -->
+                  <div style="position: relative; height: 22px; margin-top: 5px;">
+                    <span style="position: absolute; left: 0%; transform: translateX(-50%); font-size: 18px; color: #666; font-family: 'Roboto', sans-serif;">450</span>
+                    <span style="position: absolute; left: 33.33%; transform: translateX(-50%); font-size: 18px; color: #666; font-family: 'Roboto', sans-serif;">550</span>
+                    <span style="position: absolute; left: 66.67%; transform: translateX(-50%); font-size: 18px; color: #666; font-family: 'Roboto', sans-serif;">650</span>
+                    <span style="position: absolute; left: 100%; transform: translateX(-50%); font-size: 18px; color: #666; font-family: 'Roboto', sans-serif;">1000</span>
                   </div>
                 </div>
                 <span id="theta-value" style="font-weight: 700; font-size: 20px; color: #ffa726; min-width: 70px; font-family: 'Roboto', sans-serif; padding-top: 2px;">550</span>
@@ -1446,8 +1473,8 @@
       const thetaValues = [450, 550, 650, 1000];
       let currentTheta = thetaValues[parseInt(slider.value)];
       
-      // Dimensions - increased size
-      const margin = { top: 60, right: 90, bottom: 70, left: 95 };
+      // Dimensions - increased size with extra top margin for labels
+      const margin = { top: 70, right: 50, bottom: 70, left: 95 };
       const width = 1100 - margin.left - margin.right;
       const height = 650 - margin.top - margin.bottom;
       
@@ -1712,30 +1739,54 @@
       // Initial markers
       updateActiveMarkers(currentTheta, referenceThetaValues[initialSliderIndex].color);
       
-      // Add labels at the end of each line on the right side
+  // Add labels at the top of the chart in legend format
       const legendGroup = g.append('g').attr('class', 'line-labels-group');
       
       // Store references to legend text elements for updating
       const legendTexts = [];
       
-      // Reference theta labels positioned at the end of each line
+  // Calculate spacing for horizontal legend (increased for larger labels)
+  const legendSpacing = 200;
+      const legendStartX = (width - (referenceThetaValues.length - 1) * legendSpacing) / 2;
+      
+      // Reference theta labels positioned at the top with symbols
       referenceThetaValues.forEach((refConfig, i) => {
-        const refData = interpolateDCGData(refConfig.theta);
-        const lastPoint = refData[refData.length - 1];
-        
         const labelGroup = legendGroup.append('g')
           .attr('class', `label-${refConfig.theta}`);
         
-        // Background for better readability
+        const labelX = legendStartX + (i * legendSpacing);
+        
+        // Add line segment as symbol (no pattern, extends both sides around the circle like -o-)
+        const centerX = labelX - 12.5; // circle center
+        const symbolY = -38;
+        const halfLen = 15; // shorter length to avoid text overlap
+        labelGroup.append('line')
+          .attr('x1', centerX - halfLen)
+          .attr('x2', centerX + halfLen)
+          .attr('y1', symbolY)
+          .attr('y2', symbolY)
+          .attr('stroke', refConfig.color)
+          .attr('stroke-width', 6);
+        
+        // Add circle marker (ring style so line is visible through it)
+        const symbolCircle = labelGroup.append('circle')
+          .attr('cx', centerX)
+          .attr('cy', symbolY)
+          .attr('r', 7)
+          .attr('fill', 'white')
+          .attr('stroke', refConfig.color)
+          .attr('stroke-width', 5);
+        
         const labelText = labelGroup.append('text')
-          .attr('x', width + 10)
-          .attr('y', y(lastPoint.dcg))
+          .attr('x', labelX + 8)
+          .attr('y', symbolY)
           .attr('dy', '0.35em')
+          .attr('text-anchor', 'start')
           .style('font-family', "'Roboto', sans-serif")
-          .style('font-size', '18px')
-          .style('font-weight', refConfig.theta === currentTheta ? '600' : '400')
-          .style('fill', refConfig.color)
-          .text(`θ: ${refConfig.theta}`);
+          .style('font-size', '24px')
+          .style('font-weight', refConfig.theta === currentTheta ? '700' : '400')
+          .style('fill', '#424242')
+          .text(`θ=${refConfig.theta}`);
         
         // Store reference for updating
         legendTexts.push({ element: labelText, theta: refConfig.theta });
@@ -1749,6 +1800,16 @@
         currentTheta = newTheta;
         thetaValueDisplay.textContent = newTheta;
         thetaValueDisplay.style.color = newColor;
+        
+        // Update slider markers
+        document.querySelectorAll('.slider-marker').forEach((marker, idx) => {
+          const circle = marker.querySelector('div');
+          if (idx === sliderIndex) {
+            circle.style.backgroundColor = '#424242';
+          } else {
+            circle.style.backgroundColor = 'white';
+          }
+        });
         
         // Update the active line
         const newData = interpolateDCGData(newTheta);
