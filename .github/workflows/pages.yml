@@ -1,4 +1,4 @@
-name: Deploy lumberchunker to GitHub Pages
+name: Deploy lumberchunker + address-matching to GitHub Pages
 on:
   push:
     branches: [ main ]  # deploy whenever main updates
@@ -18,10 +18,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Upload EXACTLY the subfolder; nothing else is published
+      - name: Prepare Pages artifact (root = lumberchunker)
+        run: |
+          mkdir -p pages
+          # Copy lumberchunker to the root of the deployed site
+          cp -r projects/lumberchunker/* pages/
+          # If you have important dotfiles in lumberchunker, use this instead:
+          # cp -r projects/lumberchunker/. pages/
+
+          # Copy address-matching into a subfolder
+          mkdir -p pages/address-matching
+          cp -r projects/address-matching/* pages/address-matching/
+          # or, for dotfiles:
+          # cp -r projects/address-matching/. pages/address-matching/
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: projects/lumberchunker
+          path: pages
 
       - id: deployment
         uses: actions/deploy-pages@v4

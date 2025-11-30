@@ -1,0 +1,4560 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Improving Address Matching Using Siamese Transformer Networks">
+  <meta name="keywords" content="Address Matching, Siamese Networks, Transformers, NLP">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Improving Address Matching Using Siamese Transformer Networks</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700">
+
+  <!-- Bulma CSS -->
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  
+  <!-- FontAwesome & Academicons -->
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  
+  <!-- Your Custom CSS -->
+  <link rel="stylesheet" href="./static/css/index.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='https://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>LC</text></svg>">
+
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  
+  <!-- Bootstrap CSS AFTER Bulma so that the navbar styles take precedence -->
+  <link rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
+        integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA=="
+        crossorigin="anonymous" />
+
+  <!-- Bootstrap JS (with Popper.js) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+          integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"
+          integrity="sha512-XKa9Hemdy1Ui3KSGJdgMyYlUg1gM+QhL6cnlyTe2qzMCYm4nAZ1PsVerQzTTXzonUR+dmswHqgJPuwCq1MaAg=="
+          crossorigin="anonymous"></script>
+  
+  <!-- FontAwesome, Bulma Carousel, etc. -->
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <!-- d3 -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!-- Address Matching Challenge -->
+  <script src="script.js"></script>
+
+  <style>
+    /* Slightly increase the base font size */
+    body {
+      font-size: 20px;
+      color: #424242 !important;
+    }
+
+    p {
+      margin-bottom: 12px !important;
+    }
+
+    /* For mobile devices: change text alignment to left */
+    @media screen and (max-width: 1000px) {
+      .content.has-text-justified {
+        text-align: left !important;
+      }
+    }
+
+    .title.is-3 {
+      color: #3e3e3e !important;
+      font-weight: bold;
+      margin-top: -2rem;
+    }
+
+    .title.is-4 {
+      color: #686868 !important;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .image-wrapper {
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    @media screen and (max-width: 1000px) {
+      .image-wrapper {
+        width: 100% !important;
+      }
+      .image-wrapper img {
+        width: 90% !important;
+      }
+    }
+
+    /* Quiz/Interactive Section Styling */
+    .quiz-section {
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    /* Reduce spacing around quiz section */
+    #quiz.section {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
+    }
+
+    /* Candidate card styling */
+    .candidate-card {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: white;
+      font-size: 0.85em;
+      line-height: 1.4;
+    }
+
+    .candidate-card:hover {
+      border-color: #9e9e9e;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+
+    .candidate-card.selected {
+      border-color: #464646;
+      background-color: #f0f8ff;
+      box-shadow: 0 2px 8px rgba(70,70,70,0.15);
+    }
+
+    .candidate-card.correct {
+      border-color: #81c784;
+      background-color: #f1f8f4;
+    }
+
+    .candidate-card.user-selected {
+      border-color: #64b5f6;
+      background-color: #e3f2fd;
+    }
+
+    .rank-slot {
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 4px;
+      background: white;
+      font-size: 0.9em;
+      color: #424242;
+    }
+
+    .rank-placeholder {
+      color: #9e9e9e;
+      font-style: italic;
+    }
+
+    .rank-slot .selected-address {
+      color: #464646;
+      font-weight: 500;
+    }
+
+    .candidate-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .badge-correct {
+      background-color: #81c784;
+      color: white;
+    }
+
+    .badge-user {
+      background-color: #64b5f6;
+      color: white;
+    }
+
+    .badge-bi-encoder {
+      background-color: #ffd54f;
+      color: #424242;
+    }
+
+    .quiz-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      background: white;
+      border-radius: 10px;
+      padding: 40px;
+      align-items: start;
+      box-shadow: none;
+      min-width: 800px;
+    }
+
+    @media (max-width: 1200px) {
+      .quiz-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        min-width: auto;
+      }
+    }
+
+    /* Left Side - Passage */
+    .passage-section {
+      border-left: 4px solid #626161;
+      padding: 20px;
+      border-radius: 6px;
+      min-height: 500px;
+      max-height: 700px;
+      overflow-y: auto;
+      align-self: start;
+    }
+
+    .passage-section h4 {
+      color: #464646;
+      margin-bottom: 15px;
+      font-size: 1.1em;
+      font-weight: 600;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .passage-sentence {
+      margin: 1px 0;
+      padding: 4px 10px;
+      line-height: 1.3;
+      color: #424242;
+      border-radius: 6px;
+      transition: background-color 0.3s ease, border-left-color 0.3s ease;
+      border-left: 4px solid transparent;
+      font-size: 0.85em;
+      box-sizing: border-box;
+    }
+
+    /* Chunk highlighting colors - combined chunks */
+    .chunk-group {
+      margin: 1px 0;
+      padding: 0;
+      border-radius: 6px;
+      border-left: 4px solid transparent;
+      transition: background-color 0.3s ease, border-left-color 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .chunk-group.chunk-1 { 
+      background-color: #fff5f5; 
+      border-left-color: #e57373;
+    }
+    .chunk-group.chunk-2 { 
+      background-color: #f0f8ff; 
+      border-left-color: #64b5f6;
+    }
+    .chunk-group.chunk-3 { 
+      background-color: #fffef0; 
+      border-left-color: #ffd54f;
+    }
+
+    .chunk-group .chunk-sentence {
+      margin: 0;
+      padding: 4px 10px;
+      border-left: none;
+      background: transparent;
+      font-size: 0.85em;
+      line-height: 1.3;
+      box-sizing: border-box;
+    }
+
+    /* Right Side - Interaction */
+    .interaction-section {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 500px;
+    }
+
+    .interaction-section h4 {
+      color: #3e3e3e;
+      font-size: 1.1em;
+      margin-bottom: 15px;
+      font-weight: 600;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .answer-phase, .solution-phase {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      padding: 2px;
+    }
+
+    .solution-phase {
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+    }
+
+    .solution-phase.show {
+      opacity: 1;
+    }
+
+    /* Options Styling */
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 25px;
+      flex: 1;
+      overflow-y: auto;
+      padding: 2px 0;
+    }
+
+    .option-card {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: white;
+    }
+
+    .option-card:hover {
+      border-color: #9e9e9e;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+
+    .option-card.selected {
+      border-color: #464646;
+      background-color: #f8f9fa;
+      box-shadow: 0 4px 12px rgba(70,70,70,0.15);
+    }
+
+    .option-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .option-header input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .option-header label {
+      flex: 1;
+      cursor: pointer;
+      font-size: 1em;
+      color: #424242;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .option-header label strong {
+      color: #3e3e3e;
+      font-weight: 600;
+    }
+
+    /* Solution Styling */
+    .solution-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .result-header {
+      text-align: center;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+
+    .result-header.correct {
+      background-color: #f1f8f4;
+      border: 2px solid #81c784;
+    }
+
+    .result-header.incorrect {
+      background-color: #fff5f5;
+      border: 2px solid #e57373;
+    }
+
+    .result-header h3 {
+      font-size: 1.1em;
+      margin-bottom: 4px;
+      color: #3e3e3e;
+      font-weight: 600;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .result-header p {
+      font-size: 0.8em;
+      color: #424242;
+      margin: 0;
+    }
+
+    .feedback-box {
+      background-color: #f8f9fa;
+      border-left: 4px solid #626161;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 4px;
+      font-size: 0.8em;
+      line-height: 1.4;
+    }
+
+    /* Final score row for end-of-game layout */
+    .final-row {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .final-score-box {
+      min-width: 240px;
+      max-width: 420px;
+    }
+
+    .final-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media screen and (max-width: 680px) {
+      .final-row {
+        flex-direction: column;
+      }
+      .final-actions {
+        margin-left: 0 !important;
+      }
+    }
+
+    /* Remove default shadow for selected architecture images */
+    .image-wrapper img.no-img-shadow {
+      box-shadow: none !important;
+    }
+
+    .correct-feedback {
+      background-color: #f1f8f4;
+      border-left-color: #81c784;
+    }
+
+    .chunk-display {
+      background-color: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .chunk-display h5 {
+      color: #464646;
+      margin-bottom: 6px;
+      font-size: 0.9em;
+      font-weight: 600;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .reasoning-box {
+      background-color: #fffef0;
+      border-left: 4px solid #ffd54f;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      line-height: 1.3;
+    }
+
+    .reasoning-box strong {
+      color: #3e3e3e;
+      font-weight: 600;
+    }
+
+    /* Aligned chunk definitions */
+    .chunk-definitions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chunk-definition {
+      position: relative;
+    }
+
+    .chunk-definition.chunk-1 {
+      border-left: 4px solid #e57373;
+      background-color: #fff5f5;
+    }
+
+    .chunk-definition.chunk-2 {
+      border-left: 4px solid #64b5f6;
+      background-color: #f0f8ff;
+    }
+
+    /* Controls */
+    .quiz-controls {
+      margin-top: auto;
+      padding-top: 15px;
+      flex-shrink: 0;
+    }
+
+    .quiz-btn {
+      padding: 12px 28px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.25s ease;
+      font-size: 1em;
+      font-family: 'Roboto', sans-serif;
+      background-color: #ffffff;
+      color: #464646;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .quiz-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    }
+
+    .submit-btn {
+      background-color: #464646;
+      color: white;
+      border-color: #464646;
+    }
+
+    .submit-btn:hover {
+      background-color: #3e3e3e;
+      border-color: #3e3e3e;
+    }
+
+    .back-btn {
+      background-color: #464646;
+      color: white;
+      border-color: #464646;
+    }
+
+    .back-btn:hover {
+      background-color: #3e3e3e;
+      border-color: #3e3e3e;
+    }
+
+    /* Custom Tab Styling */
+    .custom-tabs {
+      margin-bottom: 1.5rem !important;
+      border-bottom: 1px solid #e0e0e0 !important;
+      font-family: 'Roboto', sans-serif !important;
+    }
+
+    .custom-tabs ul {
+      display: flex !important;
+      justify-content: center !important;
+      list-style: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .custom-tabs ul li {
+      padding: 0.75rem 1.5rem !important;
+      margin: 0 0.5rem !important;
+      cursor: pointer !important;
+      position: relative !important;
+      font-size: 1.1rem !important;
+      color: #9e9e9e !important;
+      transition: color 0.25s ease !important;
+    }
+
+    .custom-tabs ul li:not(.is-active):hover {
+      color: rgb(47, 47, 47) !important;
+    }
+
+    .custom-tabs ul li.is-active {
+      color: #464646 !important;
+      font-weight: 600 !important;
+    }
+
+    .custom-tabs ul li.is-active::after {
+      content: '' !important;
+      position: absolute !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: -1px !important;
+      height: 3px !important;
+      background-color: #464646 !important;
+      border-radius: 2px !important;
+    }
+
+    /* Card-like Table Container */
+    .table-card {
+      margin: 0 auto !important;
+      max-width: 100% !important;
+    }
+
+    /* Responsive table styling using Bulma */
+    table.table {
+      width: 100% !important;
+      font-family: 'Roboto', sans-serif !important;
+      border-collapse: collapse !important;
+    }
+
+    /* Make Columns take always the same width */
+    table.table th:nth-child(n+2),
+    table.table td:nth-child(n+2) {
+      width: 20% !important;
+    }
+
+    /* Centered, refined caption styling */
+    table.table caption {
+      caption-side: top !important;
+      text-align: center !important;
+      font-weight: 600 !important;
+      margin-bottom: 0.75rem !important;
+      font-size: 1.15rem !important;
+      color: #464646 !important;
+    }
+
+    /* Optional: subtle table cell styling */
+    table.table th,
+    table.table td {
+      padding: 0.75rem !important;
+      border: 1px solid #f0f0f0 !important;
+      text-align: center !important;
+      font-size: clamp(0.65rem, 2vw, 1rem) !important;
+      color: #464646 !important;
+    }
+
+    table.table th {
+      background: #fafafa !important;
+      vertical-align: middle !important;
+    }
+
+    .table-card table.table th:first-child,
+    .table-card table.table td:first-child {
+      white-space: nowrap !important;
+      text-align: left !important;
+    }
+
+    .table-card table.table thead th:nth-child(2) {
+      white-space: nowrap !important;
+    }
+
+    .table-card table.table thead th:first-child {
+      background: transparent !important;
+      border-top: none !important;
+      border-left: none !important;
+    }
+
+    /* Algorithm box styling */
+    .algorithm-box {
+      background-color: #f5f5f5;
+      border-left: 4px solid #626161;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+    }
+
+    .algorithm-box code {
+      background-color: #fff;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+    /* Custom styling for theta slider */
+    #theta-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      background: #ddd;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    #theta-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #808080;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Hide the default slider thumb since we're using custom markers */
+    #theta-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 0;
+      height: 0;
+      background: transparent;
+      cursor: pointer;
+      border: none;
+    }
+
+    #theta-slider::-moz-range-thumb {
+      width: 0;
+      height: 0;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Begin Bulma-Based Page Content -->
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">
+              Improving Address Matching Using Siamese Transformer Networks
+            </h1>
+            <p style="font-size: 1.1rem; color: #666; margin-bottom: 1rem;">
+              Blog created by Raymond Jiang
+            </p>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="https://avduarte333.github.io/">André V. Duarte</a><sup>1</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://web.tecnico.ulisboa.pt/arlindo.oliveira/">Arlindo L. Oliveira</a><sup>1</sup>
+              </span>
+            </div>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><sup>1</sup>Instituto Superior Técnico / INESC-ID</span>
+            </div>
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- PDF Link -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/pdf/2307.02300" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+                <!-- Code Link -->
+                <span class="link-block">
+                  <a href="https://github.com/avduarte333/adress-matching" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fab fa-github"></i></span>
+                    <span>Code</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Teaser Section -->
+  <section class="section" style="padding-top: 0; margin-top: 0;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths has-text-centered">
+          <div class="image-wrapper" id="pipeline-image-wrapper" style="display: flex; justify-content: center; align-items: center;">
+          </div>
+          <p style="margin-top: 1rem;">
+            We present a Siamese Transformer system for large-scale address matching, combining a fast bi-encoder retriever with a precise cross-encoder reranker to achieve over 95% door-level accuracy and 4.5× faster inference than traditional methods.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+<!-- Introduction & Key Idea -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-left">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Introduction</h2>
+        <div class="content has-text-justified">
+          <p>
+            Unstructured postal addresses rarely follow a consistent template. The same physical location may appear with <strong>missing fields</strong>, <strong>reordered components</strong>, typos, or redundant descriptors. Traditional approaches such as edit distance, token sorting, and rule-based normalization are fast but brittle because they operate only on surface text. They struggle when two visually different address strings refer to the same real-world doorstep, and as national-scale databases grow, comparison becomes slow and increasingly inaccurate.
+          </p>
+          <p>
+            <span style="font-weight: 600;">So how do we capture an address's semantic meaning while keeping matching practical at postal scale?</span>
+          </p>
+
+          <h2 class="title is-4">The Key Idea</h2>
+          <p>
+            Treat address matching as a <strong>two-stage semantic retrieval problem</strong>. First, embed every normalized address into a dense vector space using a Siamese bi-encoder. When a new unnormalized address arrives, embed it once and retrieve the <strong>top 10 most similar candidates</strong> using cosine similarity.
+          </p>
+          <p>
+            Then apply a cross-encoder to those candidates for <strong>deep pairwise comparison</strong>, allowing the model to rerank them and identify the true match with high precision.
+          </p>
+
+          <p>This design works because:</p>
+          <ul>
+            <li>
+              <strong>Low false negatives during retrieval.</strong>
+              The bi-encoder retrieves the correct address in the top 10 for 99.41 percent of cases, even when the input is noisy or unstructured.
+            </li>
+            <li>
+              <strong>High precision when a match exists.</strong>
+              The cross-encoder captures fine structural details such as artery type, house number, floor information, and ZIP code, enabling door-level accuracy above 95 percent.
+            </li>
+          </ul>
+
+          <p>
+            In practice, combining postal code prefix filtering with confidence-based thresholds provides a strong balance. Retrieval offers high recall, reranking delivers high precision, and the overall system runs <strong>four to five times faster</strong> than BM25 when using GPU inference.
+          </p>
+
+          <p>
+            Want to test your intuition? Try the interactive challenge below to match messy unnormalized Portuguese addresses to their correct normalized forms and see how well you understand address matching.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+  <!-- Interactive Quiz Section -->
+  <section class="section" id="quiz" style="margin-top: 0; margin-bottom: 0; padding-top: 1rem; padding-bottom: 1rem;">
+    <div class="container is-max-widescreen">
+      <div class="quiz-section">
+        <div class="quiz-header">
+          <h3 style="color: #3e3e3e; font-size: 1.4em; margin-bottom: 8px; font-weight: 600; text-align: center;">Address Matching Challenge</h3>
+          <p style="color: #686868; font-size: 0.9em; text-align: center; margin-bottom: 20px;">Can you match messy addresses to their normalized forms?</p>
+        </div>
+        
+        <div class="quiz-container" id="quizContainer">
+          <!-- Left Side - Unnormalized Address -->
+          <div class="passage-section">
+            <h4>Unnormalized Address:</h4>
+            <div id="unnormalizedAddress" style="padding: 20px; background: #fff5f5; border-radius: 8px; font-size: 1.1em; line-height: 1.6; color: #424242; margin-bottom: 20px;">
+              <!-- Unnormalized address will be inserted here -->
+            </div>
+            <h4 style="margin-top: 20px;">Your Task:</h4>
+            <p style="font-size: 0.9em; line-height: 1.5; color: #666;">
+              Select your <strong>top 3 candidates</strong> in order of likelihood to match the unnormalized address above. Click candidates to select them.
+            </p>
+            <div id="selectedRanking" style="margin-top: 15px; padding: 15px; background: #f0f8ff; border-radius: 8px; min-height: 120px;">
+              <div style="font-weight: 600; margin-bottom: 10px; color: #464646;">Your Ranking:</div>
+              <div id="rankingList">
+                <div class="rank-slot" data-rank="1">1. <span class="rank-placeholder">Click a candidate</span></div>
+                <div class="rank-slot" data-rank="2">2. <span class="rank-placeholder">Click a candidate</span></div>
+                <div class="rank-slot" data-rank="3">3. <span class="rank-placeholder">Click a candidate</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Side - Candidates -->
+          <div class="interaction-section">
+            <!-- Answer Selection Phase -->
+            <div class="answer-phase" id="answerPhase">
+              <h4>Normalized Candidates (Click to Rank):</h4>
+              <div id="candidatesContainer" style="max-height: 500px; overflow-y: auto;">
+                <!-- Candidates will be inserted here -->
+              </div>
+              <div class="quiz-controls" style="display: flex; gap: 10px; justify-content: center;">
+                <button class="quiz-btn submit-btn" id="submitBtn" disabled>Submit Ranking</button>
+                <button class="quiz-btn submit-btn" id="resetBtn">↻ Reset Game</button>
+              </div>
+            </div>
+
+            <!-- Solution Phase (initially hidden) -->
+            <div class="solution-phase" id="solutionPhase" style="display: none;">
+              <div id="solutionContent">
+                <!-- Solution content will be inserted here -->
+              </div>
+              <div class="quiz-controls">
+                <button class="quiz-btn back-btn" id="nextRoundBtn">Next Round →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Method Section -->
+  <section class="section" id="method">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-left">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">The BI+CE Address Matching Model</h2>
+          <div class="content has-text-justified">
+
+            <p>
+              The BI+CE architecture approaches postal address matching as a two-stage semantic similarity task.
+              Instead of relying on symbolic string metrics, the system retrieves likely candidates using dense embeddings
+              and then performs deep pairwise reasoning to determine which normalized address truly corresponds to the
+              provided unnormalized input. This results in highly accurate retrieval even when the original address is noisy,
+              incomplete, or formatted inconsistently.
+            </p>
+
+            <!-- Portuguese Address Structure Figure -->
+            <div style="margin: 2rem 0; text-align: center;">
+              <div style="display: inline-block; background-color: #f8f9fa; padding: 2rem; border-radius: 8px; border: 1px solid #e0e0e0;">
+                <table style="border-collapse: collapse; margin: 0 auto; font-family: 'Roboto', sans-serif;">
+                  <tr style="border: 2px solid #424242;">
+                    <td style="padding: 12px 20px; border-right: 2px solid #424242; background-color: white;">
+                      <div style="font-size: 0.75em; color: #666; margin-bottom: 4px;">Artery Type</div>
+                      <div style="font-weight: 600; color: #424242;">R</div>
+                    </td>
+                    <td style="padding: 12px 20px; border-right: 2px solid #424242; background-color: white;">
+                      <div style="font-size: 0.75em; color: #666; margin-bottom: 4px;">Artery Name</div>
+                      <div style="font-weight: 600; color: #424242;">Bartolomeu Dias</div>
+                    </td>
+                    <td style="padding: 12px 20px; border-right: 2px solid #424242; background-color: white;">
+                      <div style="font-size: 0.75em; color: #666; margin-bottom: 4px;">Door ID</div>
+                      <div style="font-weight: 600; color: #424242;">4</div>
+                    </td>
+                    <td style="padding: 12px 20px; border-right: 2px solid #424242; background-color: white;">
+                      <div style="font-size: 0.75em; color: #666; margin-bottom: 4px;">Accomodation ID</div>
+                      <div style="font-weight: 600; color: #424242;">9º Dto.</div>
+                    </td>
+                    <td style="padding: 12px 20px; border-right: 2px solid #424242; background-color: white;">
+                      <div style="font-size: 0.75em; color: #666; margin-bottom: 4px;">CP4-CP3</div>
+                      <div style="font-weight: 600; color: #424242;">2685-187</div>
+                    </td>
+                    <td style="padding: 12px 20px; background-color: white;">
+                      <div style="font-size: 0.75em; color: #666; margin-bottom: 4px;">Postal Designation of ZIP-Code</div>
+                      <div style="font-weight: 600; color: #424242;">Portela LRS</div>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin-top: 1rem; font-size: 0.9em; color: #666; font-style: italic;">
+                  Figure 1: Example of a normalized portuguese address
+                </p>
+              </div>
+            </div>
+
+            <!-- <div class="notification is-info is-light">
+              <strong>Include Figure 4 here (full-width):</strong>
+              Architecture of the bi-encoder + cross-encoder model, showing the database pre-embedding module
+              and the predicting module.
+            </div> -->
+
+            <h3 class="title is-4" id="step1-extraction">1) Normalized Address Pre-Embedding</h3>
+            <p>
+              Before processing any real-world queries, the system embeds every normalized Portuguese address in the
+              database. Each address is passed through a bi-encoder to produce a fixed-length vector representation. This
+              produces a static embedding index that enables fast cosine-similarity retrieval.
+            </p>
+
+            <div class="algorithm-box">
+              <strong>Example:</strong> Each normalized postal record is transformed into:<br><br>
+              <code>ID_001</code>: 512-dim embedding of “Rua das Flores 12, 1200-045 Lisboa”<br>
+              <code>ID_002</code>: 512-dim embedding of “Avenida do Mar 58, 9000-206 Funchal”<br>
+              <code>ID_003</code>: 512-dim embedding of “Travessa Azul 3, 4000-281 Porto”<br><br>
+              These vectors form the searchable embedding database.
+            </div>
+
+            <!-- Interactive Bi-Encoder Architecture Figure -->
+            <div class="image-wrapper" style="margin: 2rem 0; text-align: center;">
+              <div id="bi-encoder-interactive-wrapper" style="display: flex; justify-content: center; align-items: center; min-height: 750px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 1rem;">
+              </div>
+              <p style="margin-top: 1rem; font-size: 0.9em; color: #666; font-style: italic;">
+                Figure 2: Interactive bi-encoder architecture.
+              </p>
+            </div>
+
+            <h3 class="title is-4" id="step2-grouping">2) ZIP-Based Filtering for Efficient Retrieval</h3>
+            <p>
+              To reduce search space and accelerate inference, embeddings are partitioned into nine auxiliary groups
+              according to the first digit of the CP4 postal code. When a new query arrives, only the relevant group
+              is scanned. This preserves efficiency without reducing recall.
+            </p>
+
+            <div class="algorithm-box">
+              <strong>Example:</strong> A query with CP4 starting in <code>1</code> is compared only against:<br><br>
+              <code>Group_1</code> → All normalized addresses whose CP4 begins with “1”<br>
+              <code>Group_2</code> is ignored, <code>Group_3</code> is ignored, …<br><br>
+              This reduces unnecessary comparisons and increases throughput.
+            </div>
+
+            <h3 class="title is-4" id="step3-query">3) Bi-Encoder Retrieval</h3>
+            <p>
+              When an unnormalized address is provided, it is embedded using the same bi-encoder. The embedding is then
+              compared against the filtered group using cosine similarity, producing the top-k most similar candidates.
+              The system uses <code>k = 10</code>, which was found to reliably include the correct address in nearly all cases.
+            </p>
+
+            <div class="algorithm-box">
+              <strong>Example:</strong> Query → “Rua Flor 12 Lisboa”<br><br>
+              Top-10 retrieved candidates (ranked by cosine similarity):<br>
+              • <code>ID_30294</code><br>
+              • <code>ID_18302</code><br>
+              • <code>ID_94751</code><br>
+              … (remaining 7)<br><br>
+              The correct normalized address usually appears within this list.
+            </div>
+
+            <h3 class="title is-4">4) Cross-Encoder Reranking</h3>
+            <p>
+              Each of the top-10 candidate pairs is then passed through a cross-encoder. Both addresses are fed jointly
+              as a sentence pair, allowing the transformer to evaluate their semantic relationship in detail. The
+              cross-encoder outputs a matching probability for every candidate.
+            </p>
+
+            <!-- Cross-Encoder Architecture Figure -->
+            <div class="image-wrapper" style="margin: 2rem 0; text-align: center;">
+                <img src="cross_encoder_architecture.png" class="no-img-shadow"
+                  alt="Cross-encoder architecture for address matching classification with joint sentence pair processing"
+                  style="max-width: 90%; height: auto; border-radius: 8px;">
+              <p style="margin-top: 1rem; font-size: 0.9em; color: #666; font-style: italic;">
+                Figure 3: Cross-encoder architecture for address matching classification (adapted from [3] and [14])
+              </p>
+            </div>
+
+            <div class="algorithm-box">
+              <strong>Example:</strong><br>
+              Cross-encoder scores (higher = more likely match):<br><br>
+              <code>ID_30294</code> → 0.997<br>
+              <code>ID_18302</code> → 0.843<br>
+              <code>ID_94751</code> → 0.011<br><br>
+              The candidate with the highest probability becomes the final match.
+            </div>
+
+            <h3 class="title is-4">Choosing the matching probability threshold</h3>
+            <p>
+              After reranking, the system applies a threshold to determine which predictions can be safely automated.
+              Evaluations show that a cutoff at <strong>0.90</strong> maximizes operational reliability, retaining nearly all
+              correct predictions while ensuring ambiguous cases are routed for manual review.
+            </p>
+
+            <p>
+              The histogram below illustrates why this threshold works so well. The bi-encoder (left) concentrates nearly all 
+              predictions at very high probability, making it difficult to distinguish confident from uncertain matches. 
+              In contrast, the BI+CE model (right) creates clear separation: low-confidence predictions cluster near 0, 
+              while high-confidence predictions cluster near 1, enabling effective automated filtering at τ = 0.90.
+            </p>
+
+            <div class="image-wrapper" id="dcg-image-wrapper" style="display: flex; justify-content: center; align-items: center; margin: 2rem 0;">
+            </div>
+
+            <h3 class="title is-5">Why this works</h3>
+            <p>
+              The bi-encoder provides fast, scalable retrieval by capturing coarse semantic similarity, while the
+              cross-encoder provides deeper contextual reasoning necessary for final disambiguation. Together, they deliver
+              high precision and robustness, even when unnormalized addresses contain typos, missing fields, or nonstandard
+              formatting.
+            </p>
+
+            <h3 class="title is-4">Performance at Operational Granularity</h3>
+            <p>
+              With thresholding applied, door-level accuracy reaches <strong>98.35%</strong>, and artery-level accuracy rises to
+              <strong>99.71%</strong>. Only about <strong>18%</strong> of addresses require manual intervention, representing a substantial
+              improvement over traditional string-based methods.
+            </p>
+
+            <!-- This summary table can be conceptually aligned with Tables 3 and 4 in the paper -->
+            <div class="table-card" aria-labelledby="table10-caption">
+              <table class="table is-bordered is-hoverable">
+                <caption id="table10-caption">
+                  Table: Retrieval and accuracy statistics across model components (adapted from the experimental results).
+                </caption>
+                <thead>
+                  <tr>
+                    <th style="text-align: left;">Component</th>
+                    <th>Metric</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="text-align: left;">Bi-Encoder</td>
+                    <td>Top-10 Recall</td>
+                    <td>99.41%</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">BI+CE (No Threshold)</td>
+                    <td>Door-Level Accuracy</td>
+                    <td>95.32%</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align: left;">BI+CE (τ = 0.90)</td>
+                    <td>Door-Level Accuracy</td>
+                    <td>98.35%</td>
+                  </tr>
+                  <tr style="background-color: #f0f8ff;">
+                    <td style="text-align: left;"><strong>BI+CE System</strong></td>
+                    <td><strong>Artery-Level Accuracy (τ = 0.90)</strong></td>
+                    <td><strong>99.71%</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Optional: another figure placeholder that matches the paper -->
+            <!-- <div class="notification is-info is-light">
+              <strong>Optionally include Figure 7 here:</strong>
+              Bar plots with error bars showing the median accuracy and standard deviation for the bi-encoder
+              and BI+CE across multiple runs.
+            </div> -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+    <!-- Results / Key Findings Section: Address Matching -->
+  <section class="section" id="results">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-left">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Key Results: Fast, high-accuracy Portuguese address matching</h2>
+          <div class="content has-text-justified">
+
+            <p>
+              We evaluate our proposed <strong>BI+CE</strong> pipeline (bi-encoder retriever + cross-encoder reranker)
+              against traditional string matching and strong neural baselines.
+              Performance is measured on a held-out test set using <em>artery-level</em> and
+              <em>door-level</em> accuracy plus inference speed.
+            </p>
+
+            <h3 class="title is-4">Accuracy: BI+CE is near-perfect after confidence filtering</h3>
+            <p>
+              Without filtering, BI+CE matches doors correctly about as often as the bi-encoder alone,
+              but it produces a much cleaner confidence separation. By accepting only predictions with
+              matching probability &gt; 0.90, BI+CE reaches <strong>98.35% door-level</strong> and
+              <strong>99.71% artery-level</strong> accuracy while discarding only ~18% for manual review.
+
+            <!-- Accuracy Charts Container -->
+            <div class="image-wrapper" id="accuracy-charts-wrapper" style="display: flex; flex-direction: column; align-items: center; margin: 2rem 0;">
+            </div>
+
+            <!-- Hidden table data for reference -->
+            <div id="table-container-acc" class="table-card" style="display:none;">
+              <table class="table is-bordered is-hoverable">
+                <thead>
+                  <tr>
+                    <th rowspan="2" style="text-align:left;">Method</th>
+                    <th colspan="2">No Filter Accuracy (%)</th>
+                    <th rowspan="2">Filter Value</th>
+                    <th colspan="2">With Filter Accuracy (%)</th>
+                    <th rowspan="2">Discarded (%)</th>
+                  </tr>
+                  <tr>
+                    <th>Artery</th>
+                    <th>Door</th>
+                    <th>Artery</th>
+                    <th>Door</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="text-align:left;">Token Sort</td>
+                    <td>51.09</td>
+                    <td>17.57</td>
+                    <td>0.85</td>
+                    <td>68.40</td>
+                    <td>25.60</td>
+                    <td>92.80</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align:left;">Token Set</td>
+                    <td>64.67</td>
+                    <td>27.09</td>
+                    <td>0.85</td>
+                    <td>69.44</td>
+                    <td>32.20</td>
+                    <td>54.80</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align:left;">BM25 + CE</td>
+                    <td>79.78</td>
+                    <td>63.31</td>
+                    <td>0.95</td>
+                    <td>98.47</td>
+                    <td>84.34</td>
+                    <td>38.03</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align:left;">DPR</td>
+                    <td>95.48</td>
+                    <td>85.91</td>
+                    <td>0.90</td>
+                    <td>99.50</td>
+                    <td>91.50</td>
+                    <td>19.80</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align:left;">Bi-Encoder</td>
+                    <td>96.49</td>
+                    <td>95.68</td>
+                    <td>0.99</td>
+                    <td>97.82</td>
+                    <td>97.39</td>
+                    <td>23.37</td>
+                  </tr>
+                  <tr style="background-color:#f0f8ff;">
+                    <td style="text-align:left;"><strong>BI+CE (ours)</strong></td>
+                    <td><strong>97.08</strong></td>
+                    <td><strong>95.32</strong></td>
+                    <td><strong>0.90</strong></td>
+                    <td><strong>99.71</strong></td>
+                    <td><strong>98.35</strong></td>
+                    <td><strong>18.08</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+              <p style="font-size:0.95rem; color:#666;">
+                Table: Test-set artery/door accuracy before and after applying each method’s optimal confidence filter.
+              </p>
+            </div>
+
+            <!-- Inference Speed Line Chart -->
+            <div style="margin-top: 2rem;">
+              <div class="image-wrapper" id="speed-chart-wrapper" style="display: flex; justify-content: center; align-items: center;">
+              </div>
+            </div>
+
+            <h3 class="title is-4">Retrieval quality: the bi-encoder almost never misses in top-10</h3>
+            <p>
+              The bi-encoder alone retrieves the correct normalized address in the top-1 position
+              <strong>95.68%</strong> of the time, and in the top-10 for <strong>99.41%</strong> of queries.
+              This makes reranking practical: BI+CE only needs to score 10 candidates per query.
+            </p>
+
+            <!-- Table: Top-k retrieval -->
+            <div class="table-card" aria-labelledby="topk-caption">
+              <table class="table is-bordered is-hoverable">
+                <caption id="topk-caption">Top-k Retrieval Accuracy (Door-level)</caption>
+                <thead>
+                  <tr>
+                    <th style="text-align:left;">Retriever</th>
+                    <th>Top-1 (%)</th>
+                    <th>Top-10 (%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="text-align:left;">Bi-Encoder</td>
+                    <td><strong>95.68</strong></td>
+                    <td><strong>99.41</strong></td>
+                  </tr>
+                  <tr>
+                    <td style="text-align:left;">DPR (no rerank)</td>
+                    <td>80.92</td>
+                    <td>97.02</td>
+                  </tr>
+                  <tr>
+                    <td style="text-align:left;">BM25</td>
+                    <td>33.49</td>
+                    <td>72.80</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3 class="title is-4">Stability across runs</h3>
+            <p>
+              Fine-tuning is consistent: over five runs, BI+CE shows a door-level standard deviation of
+              only <strong>0.084</strong>, indicating reliable training behavior.
+            </p>
+
+            <p>
+              Overall, BI+CE offers a strong operating point for real delivery workflows:
+              <strong>high precision at the door level</strong>, a clean confidence threshold for routing
+              uncertain cases to humans, and <strong>GPU-friendly inference</strong> that is several times faster
+              than traditional BM25-style retrieval.
+            </p>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Conclusion Section -->
+  <section class="section" style="margin-top: -2rem;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-left">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Conclusion</h2>
+          <div class="content has-text-justified">
+            <p>
+              This work demonstrates that <strong>Siamese Transformer Networks</strong> provide an effective solution for large-scale address matching. By combining a fast bi-encoder for candidate retrieval with a precise cross-encoder for reranking, the proposed BI+CE system achieves <strong>over 95% door-level accuracy</strong> while maintaining practical inference speeds.
+            </p>
+
+            <p>
+              The two-stage retrieval approach proves particularly powerful: the bi-encoder successfully retrieves the correct address in the top-10 candidates for <strong>99.41%</strong> of queries, while the cross-encoder refines these results with fine-grained semantic understanding. When combined with confidence-based thresholds (τ = 0.90), the system reaches <strong>98.35% door-level accuracy</strong> and <strong>99.71% artery-level accuracy</strong>, with uncertain cases flagged for human review.
+            </p>
+
+            <p>
+              Compared to traditional string matching methods like Token Sort and Token Set, which achieve only 17-27% door-level accuracy, and even strong neural baselines like DPR (85.91%), the BI+CE system offers substantial improvements. Furthermore, the use of ZIP-code-based filtering enables the system to run <strong>4.5× faster</strong> than BM25-based approaches when using GPU inference.
+            </p>
+
+            <p style="margin-top: 1.5rem;">
+              As postal services and logistics companies continue to handle growing volumes of unstructured address data, <strong>semantic address matching</strong> becomes increasingly critical. The BI+CE architecture offers a practical, scalable solution that balances accuracy, speed, and the ability to defer uncertain cases to human operators—making it well-suited for real-world deployment in address normalization pipelines.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Citation Section -->
+  <section class="section" style="background-color: #f8f9fa; margin-top: 2rem; padding: 2rem 0;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Citation</h2>
+          <div class="content">
+            <p>If you found this useful in your research, please consider citing:</p>
+            <div style="position: relative;">
+              <button id="copy-citation-btn" style="position: absolute; top: 10px; right: 10px; padding: 8px 16px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 500; transition: background-color 0.3s; z-index: 10; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.backgroundColor='#1976D2'" onmouseout="this.style.backgroundColor='#2196F3'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span id="copy-btn-text">Copy</span>
+              </button>
+              <pre id="citation-text" style="background-color: #ffffff; padding: 1rem; padding-top: 2.5rem; border-radius: 5px; overflow-x: auto;"><code>@misc{duarte2023improvingaddressmatchingusing,
+      title={Improving Address Matching using Siamese Transformer Networks}, 
+      author={André V. Duarte and Arlindo L. Oliveira},
+      year={2023},
+      eprint={2307.02300},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2307.02300}, 
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <footer class="footer" style="padding: 2rem 0; background-color: #f8f9fa;">
+    <div class="container">
+      <div class="content has-text-centered">
+        <p>
+          This website is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+        </p>
+        <p>
+          Website template adapted from <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // D3.js Image and Chart Rendering
+    
+    // Function to render pipeline image using d3.js
+    function renderPipelineImage() {
+      const container = d3.select('#pipeline-image-wrapper');
+      container.selectAll('*').remove();
+      
+      const svg = container.append('svg')
+        .attr('width', '100%')
+        .attr('height', 'auto')
+        .style('max-width', '80%')
+        .style('border-radius', '8px')
+        .style('display', 'block')
+        .style('margin', '0 auto');
+      
+      const img = new Image();
+      img.onload = function() {
+        const imgWidth = this.width;
+        const imgHeight = this.height;
+        
+        svg.attr('viewBox', `0 0 ${imgWidth} ${imgHeight}`)
+           .attr('preserveAspectRatio', 'xMidYMid meet');
+        
+        // Add the image
+        svg.append('image')
+          .attr('href', 'model_architecture.png')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', imgWidth)
+          .attr('height', imgHeight);
+
+        // NOTE: Clickable image-map overlays were previously present here.
+        // We've removed the interactive overlays so the image renders as a static
+        // model architecture illustration. If you want a different behavior
+        // (lightbox, links, or tooltips) let me know and I can add it back in
+        // as a separate, accessible component.
+              
+          // removed: overlay rectangles / hover tooltips / click-to-scroll handlers
+          // to keep the figure static and non-clickable as requested
+      };
+        img.src = 'model_architecture.png';
+    }
+
+    // Interactive Bi-Encoder Visualization
+    function renderBiEncoderInteractive() {
+      const container = d3.select('#bi-encoder-interactive-wrapper');
+      container.selectAll('*').remove();
+      
+      // Address pairs for demonstration with sample embeddings (showing first 4 of 512 dims)
+      const addressPairs = [
+        {
+          human: "Rua Flor 12 Lisboa",
+          database: "Rua das Flores 12, 1200-045 Lisboa",
+          similarity: 0.94,
+          isMatch: true,
+          embeddingA: [0.42, -0.18, 0.73, 0.31],
+          embeddingB: [0.45, -0.21, 0.71, 0.28]
+        },
+        {
+          human: "Rua Flor 12 Lisboa",
+          database: "Avenida do Mar 58, 9000-206 Funchal",
+          similarity: 0.23,
+          isMatch: false,
+          embeddingA: [0.42, -0.18, 0.73, 0.31],
+          embeddingB: [-0.15, 0.67, -0.22, 0.54]
+        },
+        {
+          human: "Av Mar 58 Funchal",
+          database: "Avenida do Mar 58, 9000-206 Funchal",
+          similarity: 0.97,
+          isMatch: true,
+          embeddingA: [-0.12, 0.65, -0.19, 0.51],
+          embeddingB: [-0.15, 0.67, -0.22, 0.54]
+        },
+        {
+          human: "Tv Azul 3 Porto",
+          database: "Travessa Azul 3, 4000-281 Porto",
+          similarity: 0.91,
+          isMatch: true,
+          embeddingA: [0.58, 0.24, -0.41, 0.19],
+          embeddingB: [0.61, 0.27, -0.38, 0.22]
+        },
+        {
+          human: "Tv Azul 3 Porto",
+          database: "Rua Verde 15, 4000-500 Porto",
+          similarity: 0.31,
+          isMatch: false,
+          embeddingA: [0.58, 0.24, -0.41, 0.19],
+          embeddingB: [-0.33, 0.12, 0.68, -0.45]
+        }
+      ];
+      
+      let currentPairIndex = 0;
+      let isAnimating = false;
+      
+      // Dimensions - taller to fit architecture
+      const width = 850;
+      const height = 720;
+      
+      // Create main container
+      const mainDiv = container.append('div')
+        .style('width', '100%')
+        .style('max-width', width + 'px')
+        .style('margin', '0 auto');
+      
+      // Controls
+      const controls = mainDiv.append('div')
+        .style('display', 'flex')
+        .style('justify-content', 'center')
+        .style('gap', '15px')
+        .style('margin-bottom', '15px')
+        .style('flex-wrap', 'wrap');
+      
+      const runBtn = controls.append('button')
+        .attr('id', 'bi-encoder-run-btn')
+        .style('padding', '12px 28px')
+        .style('font-size', '16px')
+        .style('font-weight', '600')
+        .style('background', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')
+        .style('color', 'white')
+        .style('border', 'none')
+        .style('border-radius', '8px')
+        .style('cursor', 'pointer')
+        .style('transition', 'all 0.3s ease')
+        .style('box-shadow', '0 4px 15px rgba(102, 126, 234, 0.4)')
+        .text('Run Animation')
+        .on('mouseover', function() {
+          d3.select(this).style('transform', 'translateY(-2px)').style('box-shadow', '0 6px 20px rgba(102, 126, 234, 0.5)');
+        })
+        .on('mouseout', function() {
+          d3.select(this).style('transform', 'translateY(0)').style('box-shadow', '0 4px 15px rgba(102, 126, 234, 0.4)');
+        });
+      
+      const nextBtn = controls.append('button')
+        .attr('id', 'bi-encoder-next-btn')
+        .style('padding', '12px 28px')
+        .style('font-size', '16px')
+        .style('font-weight', '600')
+        .style('background', 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)')
+        .style('color', 'white')
+        .style('border', 'none')
+        .style('border-radius', '8px')
+        .style('cursor', 'pointer')
+        .style('transition', 'all 0.3s ease')
+        .style('box-shadow', '0 4px 15px rgba(17, 153, 142, 0.4)')
+        .text('Next Pair →')
+        .on('mouseover', function() {
+          d3.select(this).style('transform', 'translateY(-2px)').style('box-shadow', '0 6px 20px rgba(17, 153, 142, 0.5)');
+        })
+        .on('mouseout', function() {
+          d3.select(this).style('transform', 'translateY(0)').style('box-shadow', '0 4px 15px rgba(17, 153, 142, 0.4)');
+        });
+      
+      // SVG Canvas
+      const svg = mainDiv.append('svg')
+        .attr('width', '100%')
+        .attr('viewBox', `0 0 ${width} ${height}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('background', 'white')
+        .style('border-radius', '12px')
+        .style('box-shadow', '0 8px 32px rgba(0,0,0,0.1)');
+      
+      // Define gradients and colors matching the paper figure
+      const defs = svg.append('defs');
+      
+      // Arrow marker
+      defs.append('marker')
+        .attr('id', 'arrowhead-bi')
+        .attr('viewBox', '-0 -5 10 10')
+        .attr('refX', 8)
+        .attr('refY', 0)
+        .attr('orient', 'auto')
+        .attr('markerWidth', 8)
+        .attr('markerHeight', 8)
+        .append('path')
+        .attr('d', 'M 0,-4 L 10,0 L 0,4')
+        .attr('fill', '#555');
+      
+      // Layout positions (bottom to top like the paper figure)
+      const leftX = 220;
+      const rightX = width - 220;
+      const centerX = width / 2;
+      
+      // Y positions (from bottom to top)
+      const inputY = 660;
+      const distilbertY = 545;
+      const poolingY = 455;
+      const ffnnY = 375;
+      const embeddingY = 285;
+      const cosineY = 175;
+      const lossY = 75;
+      
+      // Box dimensions
+      const boxWidth = 180;
+      const inputBoxWidth = 220;
+      const inputBoxHeight = 60;
+      const boxHeight = 45;
+      const smallBoxHeight = 40;
+      
+      // Colors matching the paper
+      const colors = {
+        input: '#9E9E9E',        // Gray for input
+        distilbert: '#C62828',   // Red for DistilBERT
+        pooling: '#26A69A',      // Teal for pooling
+        ffnn: '#43A047',         // Green for FFNN
+        embedding: '#00838F',    // Dark cyan for embedding
+        cosine: '#00838F',       // Dark cyan for cosine
+        loss: '#212121'          // Dark for loss
+      };
+      
+      // Draw static structure
+      function drawStaticElements() {
+        // === INPUT BOXES (Address A and Address B) ===
+        // Left input (Address A)
+        svg.append('rect')
+          .attr('id', 'input-left-box')
+          .attr('x', leftX - inputBoxWidth/2)
+          .attr('y', inputY - inputBoxHeight/2)
+          .attr('width', inputBoxWidth)
+          .attr('height', inputBoxHeight)
+          .attr('fill', colors.input)
+          .attr('rx', 4);
+        
+        svg.append('text')
+          .attr('id', 'input-left-label')
+          .attr('x', leftX)
+          .attr('y', inputY - 12)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '14px')
+          .style('font-weight', '600')
+          .style('fill', 'white')
+          .text('Address A (xₐ)');
+        
+        svg.append('text')
+          .attr('id', 'input-left-text')
+          .attr('x', leftX)
+          .attr('y', inputY + 10)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '11px')
+          .style('font-weight', '500')
+          .style('fill', '#fff')
+          .text('—');
+        
+        // Right input (Address B)
+        svg.append('rect')
+          .attr('id', 'input-right-box')
+          .attr('x', rightX - inputBoxWidth/2)
+          .attr('y', inputY - inputBoxHeight/2)
+          .attr('width', inputBoxWidth)
+          .attr('height', inputBoxHeight)
+          .attr('fill', colors.input)
+          .attr('rx', 4);
+        
+        svg.append('text')
+          .attr('id', 'input-right-label')
+          .attr('x', rightX)
+          .attr('y', inputY - 12)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '14px')
+          .style('font-weight', '600')
+          .style('fill', 'white')
+          .text('Address B (xᵦ)');
+        
+        svg.append('text')
+          .attr('id', 'input-right-text')
+          .attr('x', rightX)
+          .attr('y', inputY + 10)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '11px')
+          .style('font-weight', '500')
+          .style('fill', '#fff')
+          .text('—');
+        
+        // === DISTILBERT BOXES ===
+        svg.append('rect')
+          .attr('id', 'distilbert-left')
+          .attr('x', leftX - boxWidth/2)
+          .attr('y', distilbertY - boxHeight/2)
+          .attr('width', boxWidth)
+          .attr('height', boxHeight)
+          .attr('fill', colors.distilbert)
+          .attr('rx', 4);
+        
+        svg.append('text')
+          .attr('x', leftX)
+          .attr('y', distilbertY - 5)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '13px')
+          .style('font-weight', '700')
+          .style('fill', 'white')
+          .text('DistilBERT');
+        
+        svg.append('text')
+          .attr('x', leftX)
+          .attr('y', distilbertY + 12)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '11px')
+          .style('fill', 'white')
+          .style('opacity', 0.9)
+          .text('Multilingual');
+        
+        svg.append('rect')
+          .attr('id', 'distilbert-right')
+          .attr('x', rightX - boxWidth/2)
+          .attr('y', distilbertY - boxHeight/2)
+          .attr('width', boxWidth)
+          .attr('height', boxHeight)
+          .attr('fill', colors.distilbert)
+          .attr('rx', 4);
+        
+        svg.append('text')
+          .attr('x', rightX)
+          .attr('y', distilbertY - 5)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '13px')
+          .style('font-weight', '700')
+          .style('fill', 'white')
+          .text('DistilBERT');
+        
+        svg.append('text')
+          .attr('x', rightX)
+          .attr('y', distilbertY + 12)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '11px')
+          .style('fill', 'white')
+          .style('opacity', 0.9)
+          .text('Multilingual');
+        
+        // Horizontal line connecting DistilBERTs (left side)
+        svg.append('line')
+          .attr('x1', leftX + boxWidth/2 + 5)
+          .attr('y1', distilbertY)
+          .attr('x2', centerX - 70)
+          .attr('y2', distilbertY)
+          .attr('stroke', '#999')
+          .attr('stroke-width', 1.5)
+          .attr('stroke-dasharray', '5,3');
+        
+        // Same Weights label (centered between the two DistilBERT boxes)
+        svg.append('text')
+          .attr('x', centerX)
+          .attr('y', distilbertY + 5)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '12px')
+          .style('font-weight', '500')
+          .style('fill', '#666')
+          .text('Same Weights');
+        
+        // Horizontal line connecting DistilBERTs (right side)
+        svg.append('line')
+          .attr('x1', centerX + 70)
+          .attr('y1', distilbertY)
+          .attr('x2', rightX - boxWidth/2 - 5)
+          .attr('y2', distilbertY)
+          .attr('stroke', '#999')
+          .attr('stroke-width', 1.5)
+          .attr('stroke-dasharray', '5,3');
+        
+        // === POOLING BOXES ===
+        svg.append('rect')
+          .attr('id', 'pooling-left')
+          .attr('x', leftX - boxWidth/2)
+          .attr('y', poolingY - smallBoxHeight/2)
+          .attr('width', boxWidth)
+          .attr('height', smallBoxHeight)
+          .attr('fill', colors.pooling)
+          .attr('rx', 4);
+        
+        svg.append('text')
+          .attr('x', leftX)
+          .attr('y', poolingY + 5)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '14px')
+          .style('font-weight', '600')
+          .style('fill', 'white')
+          .text('pooling');
+        
+        svg.append('rect')
+          .attr('id', 'pooling-right')
+          .attr('x', rightX - boxWidth/2)
+          .attr('y', poolingY - smallBoxHeight/2)
+          .attr('width', boxWidth)
+          .attr('height', smallBoxHeight)
+          .attr('fill', colors.pooling)
+          .attr('rx', 4);
+        
+        svg.append('text')
+          .attr('x', rightX)
+          .attr('y', poolingY + 5)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '14px')
+          .style('font-weight', '600')
+          .style('fill', 'white')
+          .text('pooling');
+        
+        // === FFNN BOXES ===
+        svg.append('rect')
+          .attr('id', 'ffnn-left')
+          .attr('x', leftX - boxWidth/2)
+          .attr('y', ffnnY - smallBoxHeight/2)
+          .attr('width', boxWidth)
+          .attr('height', smallBoxHeight)
+          .attr('fill', colors.ffnn)
+          .attr('rx', 4);
+        
+        svg.append('text')
+          .attr('x', leftX)
+          .attr('y', ffnnY + 5)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '14px')
+          .style('font-weight', '600')
+          .style('fill', 'white')
+          .text('FFNN');
+        
+        svg.append('rect')
+          .attr('id', 'ffnn-right')
+          .attr('x', rightX - boxWidth/2)
+          .attr('y', ffnnY - smallBoxHeight/2)
+          .attr('width', boxWidth)
+          .attr('height', smallBoxHeight)
+          .attr('fill', colors.ffnn)
+          .attr('rx', 4);
+        
+        svg.append('text')
+          .attr('x', rightX)
+          .attr('y', ffnnY + 5)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '14px')
+          .style('font-weight', '600')
+          .style('fill', 'white')
+          .text('FFNN');
+        
+        // === EMBEDDING BOXES ===
+        svg.append('rect')
+          .attr('id', 'embedding-left')
+          .attr('x', leftX - boxWidth/2)
+          .attr('y', embeddingY - boxHeight/2)
+          .attr('width', boxWidth)
+          .attr('height', boxHeight)
+          .attr('fill', colors.embedding)
+          .attr('rx', 4)
+          .attr('opacity', 0.5);
+        
+        svg.append('text')
+          .attr('x', leftX)
+          .attr('y', embeddingY - 5)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '13px')
+          .style('font-weight', '600')
+          .style('fill', 'white')
+          .text('Embedding of');
+        
+        svg.append('text')
+          .attr('id', 'embedding-left-label')
+          .attr('x', leftX)
+          .attr('y', embeddingY + 14)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '15px')
+          .style('font-weight', '600')
+          .style('font-style', 'italic')
+          .style('fill', 'white')
+          .text('xₐ');
+        
+        // Sample embedding vector display (hidden initially)
+        svg.append('text')
+          .attr('id', 'embedding-left-vector')
+          .attr('x', leftX)
+          .attr('y', embeddingY + 14)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '9px')
+          .style('font-weight', '500')
+          .style('font-family', 'monospace')
+          .style('fill', '#A5D6A7')
+          .style('opacity', 0)
+          .text('');
+        
+        svg.append('rect')
+          .attr('id', 'embedding-right')
+          .attr('x', rightX - boxWidth/2)
+          .attr('y', embeddingY - boxHeight/2)
+          .attr('width', boxWidth)
+          .attr('height', boxHeight)
+          .attr('fill', colors.embedding)
+          .attr('rx', 4)
+          .attr('opacity', 0.5);
+        
+        svg.append('text')
+          .attr('x', rightX)
+          .attr('y', embeddingY - 5)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '13px')
+          .style('font-weight', '600')
+          .style('fill', 'white')
+          .text('Embedding of');
+        
+        svg.append('text')
+          .attr('id', 'embedding-right-label')
+          .attr('x', rightX)
+          .attr('y', embeddingY + 14)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '15px')
+          .style('font-weight', '600')
+          .style('font-style', 'italic')
+          .style('fill', 'white')
+          .text('xᵦ');
+        
+        // Sample embedding vector display (hidden initially)
+        svg.append('text')
+          .attr('id', 'embedding-right-vector')
+          .attr('x', rightX)
+          .attr('y', embeddingY + 14)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '9px')
+          .style('font-weight', '500')
+          .style('font-family', 'monospace')
+          .style('fill', '#A5D6A7')
+          .style('opacity', 0)
+          .text('');
+        
+        // === COSINE SIMILARITY BOX ===
+        svg.append('rect')
+          .attr('id', 'cosine-box')
+          .attr('x', centerX - 100)
+          .attr('y', cosineY - 30)
+          .attr('width', 200)
+          .attr('height', 60)
+          .attr('fill', colors.cosine)
+          .attr('rx', 6)
+          .attr('opacity', 0.5);
+        
+        svg.append('text')
+          .attr('x', centerX)
+          .attr('y', cosineY - 5)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '14px')
+          .style('font-weight', '600')
+          .style('fill', 'white')
+          .text('Cosine-Similarity');
+        
+        svg.append('text')
+          .attr('id', 'similarity-value')
+          .attr('x', centerX)
+          .attr('y', cosineY + 20)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '22px')
+          .style('font-weight', '700')
+          .style('fill', 'white')
+          .text('—');
+        
+        // === CONTRASTIVE LOSS BOX ===
+        svg.append('rect')
+          .attr('id', 'loss-box')
+          .attr('x', centerX - 100)
+          .attr('y', lossY - 25)
+          .attr('width', 200)
+          .attr('height', 50)
+          .attr('fill', colors.loss)
+          .attr('rx', 6)
+          .attr('opacity', 0.5);
+        
+        svg.append('text')
+          .attr('x', centerX)
+          .attr('y', lossY + 6)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '15px')
+          .style('font-weight', '700')
+          .style('fill', 'white')
+          .text('Contrastive Loss');
+        
+        // === ARROWS ===
+        // Input to DistilBERT
+        drawArrow(leftX, inputY - inputBoxHeight/2, leftX, distilbertY + boxHeight/2);
+        drawArrow(rightX, inputY - inputBoxHeight/2, rightX, distilbertY + boxHeight/2);
+        
+        // DistilBERT to pooling
+        drawArrow(leftX, distilbertY - boxHeight/2, leftX, poolingY + smallBoxHeight/2);
+        drawArrow(rightX, distilbertY - boxHeight/2, rightX, poolingY + smallBoxHeight/2);
+        
+        // Pooling to FFNN
+        drawArrow(leftX, poolingY - smallBoxHeight/2, leftX, ffnnY + smallBoxHeight/2);
+        drawArrow(rightX, poolingY - smallBoxHeight/2, rightX, ffnnY + smallBoxHeight/2);
+        
+        // FFNN to Embedding
+        drawArrow(leftX, ffnnY - smallBoxHeight/2, leftX, embeddingY + boxHeight/2);
+        drawArrow(rightX, ffnnY - smallBoxHeight/2, rightX, embeddingY + boxHeight/2);
+        
+        // Embedding to Cosine (diagonal)
+        drawArrow(leftX + 30, embeddingY - boxHeight/2, centerX - 40, cosineY + 30);
+        drawArrow(rightX - 30, embeddingY - boxHeight/2, centerX + 40, cosineY + 30);
+        
+        // Cosine to Loss
+        drawArrow(centerX, cosineY - 30, centerX, lossY + 25);
+      }
+      
+      function drawArrow(x1, y1, x2, y2) {
+        svg.append('line')
+          .attr('x1', x1)
+          .attr('y1', y1 - 5)
+          .attr('x2', x2)
+          .attr('y2', y2 + 12)
+          .attr('stroke', '#555')
+          .attr('stroke-width', 2)
+          .attr('marker-end', 'url(#arrowhead-bi)');
+      }
+      
+      // Update display with current pair
+      function updatePair(pair) {
+        svg.select('#input-left-text').text(pair.human);
+        svg.select('#input-right-text').text(pair.database);
+      }
+      
+      // Animation sequence
+      function runAnimation() {
+        if (isAnimating) return;
+        isAnimating = true;
+        runBtn.text('⏳ Running...').style('opacity', 0.7);
+        
+        const pair = addressPairs[currentPairIndex];
+        
+        // Reset states
+        svg.select('#embedding-left').attr('opacity', 0.5).style('filter', 'none');
+        svg.select('#embedding-right').attr('opacity', 0.5).style('filter', 'none');
+        svg.select('#cosine-box').attr('opacity', 0.5).style('filter', 'none');
+        svg.select('#loss-box').attr('opacity', 0.5).style('filter', 'none');
+        svg.select('#similarity-value').text('—');
+        svg.select('#distilbert-left').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        svg.select('#distilbert-right').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        svg.select('#pooling-left').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        svg.select('#pooling-right').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        svg.select('#ffnn-left').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        svg.select('#ffnn-right').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        // Reset embedding vectors (show label, hide vector)
+        svg.select('#embedding-left-label').style('opacity', 1);
+        svg.select('#embedding-left-vector').style('opacity', 0);
+        svg.select('#embedding-right-label').style('opacity', 1);
+        svg.select('#embedding-right-vector').style('opacity', 0);
+        
+        // Step 1: Highlight inputs (0ms)
+        svg.select('#input-left-box')
+          .transition().duration(300)
+          .style('filter', 'drop-shadow(0 0 8px rgba(158, 158, 158, 0.8))')
+          .attr('opacity', 1)
+          .transition().duration(400)
+          .style('filter', 'none')
+          .attr('opacity', 0.9);
+        svg.select('#input-right-box')
+          .transition().duration(300)
+          .style('filter', 'drop-shadow(0 0 8px rgba(158, 158, 158, 0.8))')
+          .attr('opacity', 1)
+          .transition().duration(400)
+          .style('filter', 'none')
+          .attr('opacity', 0.9);
+        
+        // Step 2: DistilBERT processing (600ms)
+        setTimeout(() => {
+          svg.select('#distilbert-left')
+            .transition().duration(300)
+            .style('filter', 'drop-shadow(0 0 12px rgba(198, 40, 40, 0.8))')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 3)
+            .transition().duration(400)
+            .style('filter', 'none')
+            .attr('stroke', 'none')
+            .attr('stroke-width', 0);
+          svg.select('#distilbert-right')
+            .transition().duration(300)
+            .style('filter', 'drop-shadow(0 0 12px rgba(198, 40, 40, 0.8))')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 3)
+            .transition().duration(400)
+            .style('filter', 'none')
+            .attr('stroke', 'none')
+            .attr('stroke-width', 0);
+        }, 600);
+        
+        // Step 3: Pooling (1200ms)
+        setTimeout(() => {
+          svg.select('#pooling-left')
+            .transition().duration(300)
+            .style('filter', 'drop-shadow(0 0 10px rgba(38, 166, 154, 0.8))')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 3)
+            .transition().duration(400)
+            .style('filter', 'none')
+            .attr('stroke', 'none')
+            .attr('stroke-width', 0);
+          svg.select('#pooling-right')
+            .transition().duration(300)
+            .style('filter', 'drop-shadow(0 0 10px rgba(38, 166, 154, 0.8))')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 3)
+            .transition().duration(400)
+            .style('filter', 'none')
+            .attr('stroke', 'none')
+            .attr('stroke-width', 0);
+        }, 1200);
+        
+        // Step 4: FFNN (1800ms)
+        setTimeout(() => {
+          svg.select('#ffnn-left')
+            .transition().duration(300)
+            .style('filter', 'drop-shadow(0 0 10px rgba(67, 160, 71, 0.8))')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 3)
+            .transition().duration(400)
+            .style('filter', 'none')
+            .attr('stroke', 'none')
+            .attr('stroke-width', 0);
+          svg.select('#ffnn-right')
+            .transition().duration(300)
+            .style('filter', 'drop-shadow(0 0 10px rgba(67, 160, 71, 0.8))')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 3)
+            .transition().duration(400)
+            .style('filter', 'none')
+            .attr('stroke', 'none')
+            .attr('stroke-width', 0);
+        }, 1800);
+        
+        // Step 5: Embeddings generated (2400ms)
+        setTimeout(() => {
+          // Format embedding vectors for display
+          const formatEmb = (emb) => '[' + emb.map(v => v.toFixed(2)).join(', ') + ', ...]';
+          
+          svg.select('#embedding-left')
+            .transition().duration(400)
+            .style('filter', 'drop-shadow(0 0 10px rgba(0, 131, 143, 0.7))')
+            .attr('opacity', 1)
+            .transition().duration(300)
+            .style('filter', 'none');
+          svg.select('#embedding-right')
+            .transition().duration(400)
+            .style('filter', 'drop-shadow(0 0 10px rgba(0, 131, 143, 0.7))')
+            .attr('opacity', 1)
+            .transition().duration(300)
+            .style('filter', 'none');
+          
+          // Show embedding vectors (fade out label, fade in vector)
+          svg.select('#embedding-left-label')
+            .transition().duration(200)
+            .style('opacity', 0);
+          svg.select('#embedding-left-vector')
+            .text(formatEmb(pair.embeddingA))
+            .transition().delay(200).duration(300)
+            .style('opacity', 1);
+          
+          svg.select('#embedding-right-label')
+            .transition().duration(200)
+            .style('opacity', 0);
+          svg.select('#embedding-right-vector')
+            .text(formatEmb(pair.embeddingB))
+            .transition().delay(200).duration(300)
+            .style('opacity', 1);
+        }, 2400);
+        
+        // Step 6: Cosine similarity calculation (3000ms)
+        setTimeout(() => {
+          svg.select('#cosine-box')
+            .transition().duration(400)
+            .style('filter', 'drop-shadow(0 0 12px rgba(0, 131, 143, 0.7))')
+            .attr('opacity', 1);
+          
+          // Animate similarity value
+          const similarity = pair.similarity;
+          const simText = svg.select('#similarity-value');
+          let currentVal = 0;
+          const steps = 25;
+          const stepTime = 25;
+          
+          const interval = setInterval(() => {
+            currentVal += similarity / steps;
+            if (currentVal >= similarity) {
+              currentVal = similarity;
+              clearInterval(interval);
+            }
+            simText.text(currentVal.toFixed(2));
+          }, stepTime);
+          
+          // Color based on match after animation
+          setTimeout(() => {
+            if (pair.isMatch) {
+              svg.select('#cosine-box').transition().duration(300).attr('fill', '#2E7D32').style('filter', 'none');
+              svg.select('#similarity-value').style('fill', '#A5D6A7');
+            } else {
+              svg.select('#cosine-box').transition().duration(300).attr('fill', '#C62828').style('filter', 'none');
+              svg.select('#similarity-value').style('fill', '#FFCDD2');
+            }
+          }, 700);
+        }, 3000);
+        
+        // Step 7: Loss box (4000ms)
+        setTimeout(() => {
+          svg.select('#loss-box')
+            .transition().duration(400)
+            .style('filter', 'drop-shadow(0 0 10px rgba(33, 33, 33, 0.6))')
+            .attr('opacity', 1)
+            .transition().duration(300)
+            .style('filter', 'none');
+        }, 4000);
+        
+        // Animation complete (4800ms)
+        setTimeout(() => {
+          isAnimating = false;
+          runBtn.text('▶ Run Animation').style('opacity', 1);
+        }, 4800);
+      }
+      
+      // Next pair handler
+      function nextPair() {
+        if (isAnimating) return;
+        currentPairIndex = (currentPairIndex + 1) % addressPairs.length;
+        const pair = addressPairs[currentPairIndex];
+        
+        // Reset states
+        svg.select('#embedding-left').attr('opacity', 0.5).style('filter', 'none');
+        svg.select('#embedding-right').attr('opacity', 0.5).style('filter', 'none');
+        svg.select('#cosine-box').attr('opacity', 0.5).attr('fill', colors.cosine).style('filter', 'none');
+        svg.select('#loss-box').attr('opacity', 0.5).style('filter', 'none');
+        svg.select('#similarity-value').text('—').style('fill', 'white');
+        svg.select('#input-left-box').style('filter', 'none');
+        svg.select('#input-right-box').style('filter', 'none');
+        svg.select('#distilbert-left').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        svg.select('#distilbert-right').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        svg.select('#pooling-left').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        svg.select('#pooling-right').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        svg.select('#ffnn-left').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        svg.select('#ffnn-right').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
+        // Reset embedding vectors (show label, hide vector)
+        svg.select('#embedding-left-label').style('opacity', 1);
+        svg.select('#embedding-left-vector').style('opacity', 0);
+        svg.select('#embedding-right-label').style('opacity', 1);
+        svg.select('#embedding-right-vector').style('opacity', 0);
+        
+        // Update text with fade
+        svg.select('#input-left-text')
+          .transition().duration(150)
+          .style('opacity', 0)
+          .transition().duration(150)
+          .text(pair.human)
+          .style('opacity', 1);
+        
+        svg.select('#input-right-text')
+          .transition().duration(150)
+          .style('opacity', 0)
+          .transition().duration(150)
+          .text(pair.database)
+          .style('opacity', 1);
+      }
+      
+      // Initialize
+      drawStaticElements();
+      updatePair(addressPairs[currentPairIndex]);
+      
+      // Bind events
+      runBtn.on('click', runAnimation);
+      nextBtn.on('click', nextPair);
+    }
+
+    // Function to interpolate DCG values for any theta
+    function interpolateDCGData(theta) {
+      // Known data points
+      const knownThetas = [450, 550, 650, 1000];
+      const knownData = {
+        450: [
+          { k: 1, dcg: 0.47 },
+          { k: 2, dcg: 0.533 },
+          { k: 5, dcg: 0.576 },
+          { k: 10, dcg: 0.595 },
+          { k: 20, dcg: 0.606 }
+        ],
+        550: [
+          { k: 1, dcg: 0.483 },
+          { k: 2, dcg: 0.549 },
+          { k: 5, dcg: 0.594 },
+          { k: 10, dcg: 0.610 },
+          { k: 20, dcg: 0.621 }
+        ],
+        650: [
+          { k: 1, dcg: 0.447 },
+          { k: 2, dcg: 0.518 },
+          { k: 5, dcg: 0.565 },
+          { k: 10, dcg: 0.583 },
+          { k: 20, dcg: 0.596 }
+        ],
+        1000: [
+          { k: 1, dcg: 0.420 },
+          { k: 2, dcg: 0.487 },
+          { k: 5, dcg: 0.538 },
+          { k: 10, dcg: 0.562 },
+          { k: 20, dcg: 0.573 }
+        ]
+      };
+
+      // If theta is exactly a known value, return it directly
+      if (knownData[theta]) {
+        return knownData[theta];
+      }
+
+      // Find bracketing theta values
+      let lowerTheta = knownThetas[0];
+      let upperTheta = knownThetas[knownThetas.length - 1];
+      
+      for (let i = 0; i < knownThetas.length - 1; i++) {
+        if (theta >= knownThetas[i] && theta <= knownThetas[i + 1]) {
+          lowerTheta = knownThetas[i];
+          upperTheta = knownThetas[i + 1];
+          break;
+        }
+      }
+
+      // Linear interpolation
+      const t = (theta - lowerTheta) / (upperTheta - lowerTheta);
+      const lowerData = knownData[lowerTheta];
+      const upperData = knownData[upperTheta];
+
+      return lowerData.map((point, i) => ({
+        k: point.k,
+        dcg: point.dcg + t * (upperData[i].dcg - point.dcg)
+      }));
+    }
+
+    // Function to render matching probability histogram
+    function renderProbabilityHistogram() {
+      const container = d3.select('#dcg-image-wrapper');
+      container.selectAll('*').remove();
+      
+      // Data for histograms - matching probability distributions
+      const biEncoderData = [
+        { range: '0.0-0.1', count: 0, probability: 0.0 },
+        { range: '0.1-0.2', count: 0, probability: 0.1 },
+        { range: '0.2-0.3', count: 0, probability: 0.2 },
+        { range: '0.3-0.4', count: 0, probability: 0.3 },
+        { range: '0.4-0.5', count: 0, probability: 0.4 },
+        { range: '0.5-0.6', count: 0, probability: 0.5 },
+        { range: '0.6-0.7', count: 0, probability: 0.6 },
+        { range: '0.7-0.8', count: 0, probability: 0.7 },
+        { range: '0.8-0.9', count: 0, probability: 0.8 },
+        { range: '0.9-1.0', count: 60000, probability: 0.9 }
+      ];
+      
+      const biCEData = [
+        { range: '0.0-0.1', count: 10000, probability: 0.0 },
+        { range: '0.1-0.2', count: 0, probability: 0.1 },
+        { range: '0.2-0.3', count: 0, probability: 0.2 },
+        { range: '0.3-0.4', count: 0, probability: 0.3 },
+        { range: '0.4-0.5', count: 0, probability: 0.4 },
+        { range: '0.5-0.6', count: 0, probability: 0.5 },
+        { range: '0.6-0.7', count: 0, probability: 0.6 },
+        { range: '0.7-0.8', count: 0, probability: 0.7 },
+        { range: '0.8-0.9', count: 0, probability: 0.8 },
+        { range: '0.9-1.0', count: 50000, probability: 0.9 }
+      ];
+      
+      // Dimensions
+      const margin = { top: 80, right: 60, bottom: 120, left: 100 };
+      const chartWidth = 420;
+      const chartHeight = 380;
+      const gap = 140;
+      const totalWidth = chartWidth * 2 + gap + margin.left + margin.right;
+      const totalHeight = chartHeight + margin.top + margin.bottom;
+      
+      // Create SVG container
+      const svg = container.append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('viewBox', `0 0 ${totalWidth} ${totalHeight}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('max-width', '95%')
+        .style('display', 'block')
+        .style('margin', '0 auto')
+        .style('background-color', 'white')
+        .style('border-radius', '8px');
+      
+      // Create two chart groups
+      const biEncoderGroup = svg.append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+      
+      const biCEGroup = svg.append('g')
+        .attr('transform', `translate(${margin.left + chartWidth + gap}, ${margin.top})`);
+      
+      // Scales
+      const xScale = d3.scaleLinear()
+        .domain([0, 1])
+        .range([0, chartWidth]);
+      
+      const yScale = d3.scaleLinear()
+        .domain([0, 60000])
+        .range([chartHeight, 0]);
+      
+      // Function to create histogram
+      function createHistogram(group, data, color, title) {
+        const barWidth = chartWidth / data.length;
+        
+        // Grid lines (horizontal)
+        const yTicks = yScale.ticks(5).filter(t => t !== 0);
+        group.append('g')
+          .attr('class', 'grid horizontal-grid')
+          .selectAll('line')
+          .data(yTicks)
+          .join('line')
+          .attr('x1', 0)
+          .attr('x2', chartWidth)
+          .attr('y1', d => yScale(d))
+          .attr('y2', d => yScale(d))
+          .attr('stroke', 'lightgray')
+          .attr('stroke-dasharray', '5')
+          .attr('stroke-width', 2);
+        
+        // Bars
+        const bars = group.selectAll('.bar')
+          .data(data)
+          .join('rect')
+          .attr('class', 'bar')
+          .attr('x', (d, i) => i * barWidth + 1)
+          .attr('y', chartHeight)
+          .attr('width', barWidth - 2)
+          .attr('height', 0)
+          .attr('fill', color)
+          .attr('opacity', 0.8)
+          .style('cursor', 'pointer');
+        
+        // Animate bars
+        bars.transition()
+          .duration(1000)
+          .delay((d, i) => i * 50)
+          .attr('y', d => yScale(d.count))
+          .attr('height', d => chartHeight - yScale(d.count));
+        
+        // Hover effects
+        bars.on('mouseover', function(event, d) {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('opacity', 1);
+          
+          // Show tooltip
+          if (d.count > 0) {
+            group.append('text')
+              .attr('class', 'tooltip')
+              .attr('x', xScale(d.probability + 0.05))
+              .attr('y', yScale(d.count) - 10)
+              .attr('text-anchor', 'middle')
+              .style('font-size', '17px')
+              .style('font-weight', '700')
+              .style('fill', '#424242')
+              .style('font-family', "'Roboto', sans-serif")
+              .text(`${d.count.toLocaleString()}`);
+          }
+        })
+        .on('mouseout', function() {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('opacity', 0.8);
+          
+          group.selectAll('.tooltip').remove();
+        });
+        
+        // X-axis
+        const xAxis = group.append('g')
+          .attr('transform', `translate(0, ${chartHeight})`)
+          .call(d3.axisBottom(xScale)
+            .ticks(5)
+            .tickFormat(d => d.toFixed(1))
+            .tickSize(0)
+            .tickSizeOuter(0)
+            .tickPadding(12))
+          .style('font-size', '22px');
+        
+        xAxis.selectAll('text')
+          .style('fill', '#464646')
+          .style('font-weight', '500')
+          .style('font-family', "'Roboto', sans-serif");
+        
+        xAxis.select('.domain').remove();
+        
+        // Y-axis
+        const yAxis = group.append('g')
+          .call(d3.axisLeft(yScale)
+            .ticks(5)
+            .tickFormat(d => (d / 1000) + 'k')
+            .tickSize(0)
+            .tickSizeOuter(0)
+            .tickPadding(12))
+          .style('font-size', '22px');
+        
+        yAxis.selectAll('text')
+          .style('fill', '#464646')
+          .style('font-weight', '500')
+          .style('font-family', "'Roboto', sans-serif");
+        
+        yAxis.select('.domain').remove();
+        
+        // Add border frame
+        // Top border (light grey)
+        group.append('line')
+          .attr('x1', 0)
+          .attr('x2', chartWidth)
+          .attr('y1', 0)
+          .attr('y2', 0)
+          .attr('stroke', 'lightgray')
+          .attr('stroke-width', 2);
+        
+        // Right border (light grey)
+        group.append('line')
+          .attr('x1', chartWidth)
+          .attr('x2', chartWidth)
+          .attr('y1', 0)
+          .attr('y2', chartHeight)
+          .attr('stroke', 'lightgray')
+          .attr('stroke-width', 2);
+        
+        // Left border (dark)
+        group.append('line')
+          .attr('x1', 0)
+          .attr('x2', 0)
+          .attr('y1', 0)
+          .attr('y2', chartHeight)
+          .attr('stroke', '#36454F')
+          .attr('stroke-width', 2);
+        
+        // Bottom border (dark)
+        group.append('line')
+          .attr('x1', 0)
+          .attr('x2', chartWidth)
+          .attr('y1', chartHeight)
+          .attr('y2', chartHeight)
+          .attr('stroke', '#36454F')
+          .attr('stroke-width', 2);
+        
+        // X-axis label
+        group.append('text')
+          .attr('x', chartWidth / 2)
+          .attr('y', chartHeight + 70)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '24px')
+          .style('font-weight', '600')
+          .style('fill', '#464646')
+          .style('font-family', "'Roboto', sans-serif")
+          .text('Matching Probability');
+        
+        // Y-axis label
+        group.append('text')
+          .attr('transform', 'rotate(-90)')
+          .attr('x', -chartHeight / 2)
+          .attr('y', -70)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '24px')
+          .style('font-weight', '600')
+          .style('fill', '#464646')
+          .style('font-family', "'Roboto', sans-serif")
+          .text('Count');
+        
+        // Title
+        group.append('text')
+          .attr('x', chartWidth / 2)
+          .attr('y', -45)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '22px')
+          .style('font-weight', '600')
+          .style('fill', '#3e3e3e')
+          .style('font-family', "'Roboto', sans-serif")
+          .text(title);
+      }
+      
+      // Create both histograms
+      createHistogram(biEncoderGroup, biEncoderData, '#9c27b0', '(a) Bi-Encoder');
+      createHistogram(biCEGroup, biCEData, '#00bcd4', '(b) BI+CE');
+      
+      // Add overall caption below the charts
+      svg.append('text')
+        .attr('x', totalWidth / 2)
+        .attr('y', totalHeight - 25)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '15px')
+        .style('font-style', 'italic')
+        .style('fill', '#666')
+        .style('font-family', "'Roboto', sans-serif")
+        .text('Figure 5: Histogram of matching probability distributions for bi-encoder (left) and BI+CE (right) models');
+    }
+
+    // Function to render accuracy bar charts (Artery and Door)
+    function renderAccuracyCharts() {
+      const container = d3.select('#accuracy-charts-wrapper');
+      container.selectAll('*').remove();
+      
+      // Data from the accuracy table (No Filter values) with descriptions
+      const methods = ['Token Sort', 'Token Set', 'BM25 + CE', 'DPR', 'Bi-Encoder', 'BI+CE'];
+      const arteryData = [51.09, 64.67, 79.78, 95.48, 96.49, 97.08];
+      const doorData = [17.57, 27.09, 63.31, 85.91, 95.68, 95.32];
+      
+      // Method descriptions and details
+      const methodDetails = {
+        'Token Sort': {
+          type: 'String Matching',
+          description: 'Sorts tokens alphabetically before comparing. Simple but brittle to word order variations.',
+          filterValue: 0.85,
+          arteryFiltered: 68.40,
+          doorFiltered: 25.60,
+          discarded: 92.80
+        },
+        'Token Set': {
+          type: 'String Matching',
+          description: 'Compares unique token sets, ignoring duplicates. Better than Token Sort but still surface-level.',
+          filterValue: 0.85,
+          arteryFiltered: 69.44,
+          doorFiltered: 32.20,
+          discarded: 54.80
+        },
+        'BM25 + CE': {
+          type: 'Hybrid Retrieval',
+          description: 'BM25 sparse retrieval followed by cross-encoder reranking. Strong baseline but slower.',
+          filterValue: 0.95,
+          arteryFiltered: 98.47,
+          doorFiltered: 84.34,
+          discarded: 38.03
+        },
+        'DPR': {
+          type: 'Dense Retrieval',
+          description: 'Dense Passage Retrieval using dual encoders. Good semantic matching but not address-specific.',
+          filterValue: 0.90,
+          arteryFiltered: 99.50,
+          doorFiltered: 91.50,
+          discarded: 19.80
+        },
+        'Bi-Encoder': {
+          type: 'Siamese Network',
+          description: 'Fine-tuned Siamese bi-encoder for address embeddings. Fast retrieval with high recall.',
+          filterValue: 0.99,
+          arteryFiltered: 97.82,
+          doorFiltered: 97.39,
+          discarded: 23.37
+        },
+        'BI+CE': {
+          type: 'Our Method',
+          description: 'Bi-encoder retrieval + cross-encoder reranking. Best accuracy with efficient inference.',
+          filterValue: 0.90,
+          arteryFiltered: 99.71,
+          doorFiltered: 98.35,
+          discarded: 18.08
+        }
+      };
+      
+      // Dimensions
+      const margin = { top: 80, right: 40, bottom: 100, left: 80 };
+      const chartWidth = 420;
+      const chartHeight = 380;
+      const gap = 100;
+      const totalWidth = chartWidth * 2 + gap + margin.left + margin.right;
+      const totalHeight = chartHeight + margin.top + margin.bottom;
+      
+      // Create SVG container
+      const svg = container.append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('viewBox', `0 0 ${totalWidth} ${totalHeight}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('max-width', '95%')
+        .style('display', 'block')
+        .style('margin', '0 auto')
+        .style('background-color', 'white')
+        .style('border-radius', '8px');
+      
+      // Create two chart groups
+      const arteryGroup = svg.append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+      
+      const doorGroup = svg.append('g')
+        .attr('transform', `translate(${margin.left + chartWidth + gap}, ${margin.top})`);
+      
+      // Scales
+      const xScale = d3.scaleBand()
+        .domain(methods)
+        .range([0, chartWidth])
+        .padding(0.3);
+      
+      const yScale = d3.scaleLinear()
+        .domain([0, 100])
+        .range([chartHeight, 0]);
+      
+      // Colors for each method
+      const colors = {
+        'Token Sort': '#e57373',
+        'Token Set': '#ffb74d',
+        'BM25 + CE': '#81c784',
+        'DPR': '#64b5f6',
+        'Bi-Encoder': '#9575cd',
+        'BI+CE': '#ff7043'
+      };
+      
+
+      
+      // Function to show detail panel
+      function showDetailPanel(method, isArtery) {
+        const details = methodDetails[method];
+        const currentValue = isArtery ? arteryData[methods.indexOf(method)] : doorData[methods.indexOf(method)];
+        const filteredValue = isArtery ? details.arteryFiltered : details.doorFiltered;
+        const levelType = isArtery ? 'Artery' : 'Door';
+        
+        const detailPanel = container.select('.detail-panel');
+        detailPanel.style('display', 'block')
+          .style('border-left-color', colors[method])
+          .html(`
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+              <div style="flex: 1; min-width: 250px;">
+                <h4 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 700; color: #3e3e3e; font-family: 'Roboto', sans-serif;">
+                  ${method} ${method === 'BI+CE' ? '<span style="color: #ff7043;">(Ours)</span>' : ''}
+                </h4>
+                <p style="margin: 0 0 12px 0; font-size: 13px; color: #666; font-family: 'Roboto', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">
+                  ${details.type}
+                </p>
+                <p style="margin: 0; font-size: 15px; color: #424242; line-height: 1.5; font-family: 'Roboto', sans-serif;">
+                  ${details.description}
+                </p>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; min-width: 280px;">
+                <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+                  <div style="font-size: 24px; font-weight: 700; color: ${colors[method]}; font-family: 'Roboto', sans-serif;">${currentValue.toFixed(2)}%</div>
+                  <div style="font-size: 12px; color: #666; font-family: 'Roboto', sans-serif;">${levelType} (No Filter)</div>
+                </div>
+                <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+                  <div style="font-size: 24px; font-weight: 700; color: #26a69a; font-family: 'Roboto', sans-serif;">${filteredValue.toFixed(2)}%</div>
+                  <div style="font-size: 12px; color: #666; font-family: 'Roboto', sans-serif;">${levelType} (τ=${details.filterValue})</div>
+                </div>
+                <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+                  <div style="font-size: 24px; font-weight: 700; color: #464646; font-family: 'Roboto', sans-serif;">${details.filterValue}</div>
+                  <div style="font-size: 12px; color: #666; font-family: 'Roboto', sans-serif;">Optimal Threshold</div>
+                </div>
+                <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+                  <div style="font-size: 24px; font-weight: 700; color: #e57373; font-family: 'Roboto', sans-serif;">${details.discarded.toFixed(2)}%</div>
+                  <div style="font-size: 12px; color: #666; font-family: 'Roboto', sans-serif;">Discarded for Review</div>
+                </div>
+              </div>
+            </div>
+          `);
+      }
+      
+      // Function to create bar chart
+      function createBarChart(group, data, title, isArtery) {
+        const chartData = methods.map((method, i) => ({
+          method: method,
+          value: data[i],
+          isOurs: method === 'BI+CE'
+        }));
+        
+        // Grid lines (horizontal)
+        const yTicks = yScale.ticks(5).filter(t => t !== 0);
+        group.append('g')
+          .attr('class', 'grid horizontal-grid')
+          .selectAll('line')
+          .data(yTicks)
+          .join('line')
+          .attr('x1', 0)
+          .attr('x2', chartWidth)
+          .attr('y1', d => yScale(d))
+          .attr('y2', d => yScale(d))
+          .attr('stroke', 'lightgray')
+          .attr('stroke-dasharray', '5')
+          .attr('stroke-width', 2);
+        
+        // Bars
+        const bars = group.selectAll('.bar')
+          .data(chartData)
+          .join('rect')
+          .attr('class', 'bar')
+          .attr('x', d => xScale(d.method))
+          .attr('y', chartHeight)
+          .attr('width', xScale.bandwidth())
+          .attr('height', 0)
+          .attr('fill', d => colors[d.method])
+          .attr('opacity', d => d.isOurs ? 1 : 0.8)
+          .attr('stroke', d => d.isOurs ? '#d84315' : 'none')
+          .attr('stroke-width', d => d.isOurs ? 3 : 0)
+          .style('cursor', 'pointer');
+        
+        // Animate bars
+        bars.transition()
+          .duration(1000)
+          .delay((d, i) => i * 100)
+          .attr('y', d => yScale(d.value))
+          .attr('height', d => chartHeight - yScale(d.value));
+        
+        // Hover effects
+        bars.on('mouseover', function(event, d) {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('opacity', 1);
+          
+          group.append('text')
+            .attr('class', 'tooltip')
+            .attr('x', xScale(d.method) + xScale.bandwidth() / 2)
+            .attr('y', yScale(d.value) - 10)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '16px')
+            .style('font-weight', '700')
+            .style('fill', '#424242')
+            .style('font-family', "'Roboto', sans-serif")
+            .text(`${d.value.toFixed(2)}%`);
+        })
+        .on('mouseout', function(event, d) {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('opacity', d.isOurs ? 1 : 0.8);
+          
+          group.selectAll('.tooltip').remove();
+        })
+        .on('click', function(event, d) {
+          // Remove previous selection highlight
+          svg.selectAll('.bar').attr('stroke-width', function(barData) {
+            return barData.isOurs ? 3 : 0;
+          });
+          
+          // Highlight selected bar
+          d3.select(this)
+            .attr('stroke', colors[d.method])
+            .attr('stroke-width', 4);
+          
+          // Show detail panel
+          showDetailPanel(d.method, isArtery);
+        });
+        
+        // Border frame
+        group.append('line').attr('x1', 0).attr('x2', chartWidth).attr('y1', 0).attr('y2', 0).attr('stroke', 'lightgray').attr('stroke-width', 2);
+        group.append('line').attr('x1', chartWidth).attr('x2', chartWidth).attr('y1', 0).attr('y2', chartHeight).attr('stroke', 'lightgray').attr('stroke-width', 2);
+        group.append('line').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', chartHeight).attr('stroke', '#36454F').attr('stroke-width', 2);
+        group.append('line').attr('x1', 0).attr('x2', chartWidth).attr('y1', chartHeight).attr('y2', chartHeight).attr('stroke', '#36454F').attr('stroke-width', 2);
+        
+        // X-axis
+        const xAxis = group.append('g')
+          .attr('transform', `translate(0, ${chartHeight})`)
+          .call(d3.axisBottom(xScale).tickSize(0).tickSizeOuter(0).tickPadding(10))
+          .style('font-size', '14px');
+        
+        xAxis.selectAll('text')
+          .style('fill', '#464646')
+          .style('font-weight', '500')
+          .style('font-family', "'Roboto', sans-serif")
+          .attr('transform', 'rotate(-35)')
+          .style('text-anchor', 'end');
+        
+        xAxis.select('.domain').remove();
+        
+        // Y-axis
+        const yAxis = group.append('g')
+          .call(d3.axisLeft(yScale).ticks(5).tickFormat(d => d + '%').tickSize(0).tickSizeOuter(0).tickPadding(12))
+          .style('font-size', '18px');
+        
+        yAxis.selectAll('text')
+          .style('fill', '#464646')
+          .style('font-weight', '500')
+          .style('font-family', "'Roboto', sans-serif");
+        
+        yAxis.select('.domain').remove();
+        
+        // Y-axis label
+        group.append('text')
+          .attr('transform', 'rotate(-90)')
+          .attr('x', -chartHeight / 2)
+          .attr('y', -55)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '20px')
+          .style('font-weight', '600')
+          .style('fill', '#464646')
+          .style('font-family', "'Roboto', sans-serif")
+          .text('Accuracy (%)');
+        
+        // Title
+        group.append('text')
+          .attr('x', chartWidth / 2)
+          .attr('y', -45)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '22px')
+          .style('font-weight', '600')
+          .style('fill', '#3e3e3e')
+          .style('font-family', "'Roboto', sans-serif")
+          .text(title);
+      }
+      
+      // Create both charts
+      createBarChart(arteryGroup, arteryData, '(a) Artery-Level Accuracy', true);
+      createBarChart(doorGroup, doorData, '(b) Door-Level Accuracy', false);
+      
+      // Add overall caption
+      svg.append('text')
+        .attr('x', totalWidth / 2)
+        .attr('y', totalHeight - 15)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '15px')
+        .style('font-style', 'italic')
+        .style('fill', '#666')
+        .style('font-family', "'Roboto', sans-serif")
+        .text('Test-set accuracy comparison across methods (No Filter)');
+      
+      // Create detail panel container AFTER the SVG (so it appears below)
+      let detailPanel = container.select('.detail-panel');
+      if (detailPanel.empty()) {
+        detailPanel = container.append('div')
+          .attr('class', 'detail-panel')
+          .style('margin-top', '1.5rem')
+          .style('padding', '20px')
+          .style('background-color', '#f8f9fa')
+          .style('border-radius', '8px')
+          .style('border-left', '4px solid #464646')
+          .style('display', 'none')
+          .style('max-width', '800px')
+          .style('margin-left', 'auto')
+          .style('margin-right', 'auto');
+      }
+    }
+
+    // Function to render inference speed line chart
+    function renderSpeedChart(showWithFilter = false) {
+      const container = d3.select('#speed-chart-wrapper');
+      container.selectAll('*').remove();
+      
+      // Data from the inference speed table
+      const methods = ['Token Sort', 'Token Set', 'BM25 + CE', 'DPR', 'Bi-Encoder', 'BI+CE'];
+      const noFilterData = [0.01, 0.07, 0.09, 0.76, 0.91, 0.80];
+      const withFilterData = [0.96, 0.61, 0.83, 3.64, 5.40, 3.70];
+      
+      const data = methods.map((method, i) => ({
+        method: method,
+        noFilter: noFilterData[i],
+        withFilter: withFilterData[i],
+        value: showWithFilter ? withFilterData[i] : noFilterData[i],
+        isOurs: method === 'BI+CE'
+      }));
+      
+      // Dimensions - increased top margin for title and buttons
+      const margin = { top: 110, right: 80, bottom: 100, left: 95 };
+      const width = 900 - margin.left - margin.right;
+      const height = 500 - margin.top - margin.bottom;
+      
+      // Create SVG
+      const svg = container.append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('max-width', '95%')
+        .style('display', 'block')
+        .style('margin', '0 auto')
+        .style('background-color', 'white')
+        .style('border-radius', '8px');
+      
+      const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+      
+      // Scales
+      const x = d3.scalePoint()
+        .domain(methods)
+        .range([0, width])
+        .padding(0.5);
+      
+      const maxY = 6; // Fixed scale for both views
+      const y = d3.scaleLinear()
+        .domain([0, maxY])
+        .range([height, 0]);
+      
+      // Grid lines (horizontal)
+      const yTicks = y.ticks(5).filter(t => t !== 0);
+      g.append('g')
+        .attr('class', 'grid horizontal-grid')
+        .selectAll('line')
+        .data(yTicks)
+        .join('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', d => y(d))
+        .attr('y2', d => y(d))
+        .attr('stroke', 'lightgray')
+        .attr('stroke-dasharray', '5')
+        .attr('stroke-width', 2);
+      
+      // Border frame
+      g.append('line').attr('x1', 0).attr('x2', width).attr('y1', 0).attr('y2', 0).attr('stroke', 'lightgray').attr('stroke-width', 2);
+      g.append('line').attr('x1', width).attr('x2', width).attr('y1', 0).attr('y2', height).attr('stroke', 'lightgray').attr('stroke-width', 2);
+      g.append('line').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height).attr('stroke', '#36454F').attr('stroke-width', 2);
+      g.append('line').attr('x1', 0).attr('x2', width).attr('y1', height).attr('y2', height).attr('stroke', '#36454F').attr('stroke-width', 2);
+      
+      // X-axis
+      const xAxis = g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickSize(0).tickSizeOuter(0).tickPadding(15))
+        .style('font-size', '18px');
+      
+      xAxis.selectAll('text')
+        .style('fill', '#464646')
+        .style('font-weight', '500')
+        .style('font-family', "'Roboto', sans-serif")
+        .attr('transform', 'rotate(-25)')
+        .style('text-anchor', 'end');
+      
+      xAxis.select('.domain').remove();
+      
+      // Y-axis
+      const yAxis = g.append('g')
+        .call(d3.axisLeft(y).ticks(5).tickFormat(d => d.toFixed(1)).tickSize(0).tickSizeOuter(0).tickPadding(12))
+        .style('font-size', '22px');
+      
+      yAxis.selectAll('text')
+        .style('fill', '#464646')
+        .style('font-weight', '500')
+        .style('font-family', "'Roboto', sans-serif");
+      
+      yAxis.select('.domain').remove();
+      
+      // Y-axis label
+      svg.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -(height + margin.top + margin.bottom) / 2 + 30)
+        .attr('y', 20)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '24px')
+        .style('font-weight', '600')
+        .style('fill', '#464646')
+        .style('font-family', "'Roboto', sans-serif")
+        .text('Iterations per Second (it/s)');
+      
+      // Line generator
+      const line = d3.line()
+        .x(d => x(d.method))
+        .y(d => y(d.value))
+        .curve(d3.curveMonotoneX);
+      
+      // Draw line
+      const lineColor = showWithFilter ? '#26a69a' : '#1e88e5';
+      const path = g.append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', lineColor)
+        .attr('stroke-width', 3)
+        .attr('d', line);
+      
+      // Animate line
+      const pathLength = path.node().getTotalLength();
+      path
+        .attr('stroke-dasharray', pathLength)
+        .attr('stroke-dashoffset', pathLength)
+        .transition()
+        .duration(1500)
+        .ease(d3.easeQuadInOut)
+        .attr('stroke-dashoffset', 0);
+      
+      // Draw markers
+      const markers = g.selectAll('.marker')
+        .data(data)
+        .join('circle')
+        .attr('class', 'marker')
+        .attr('cx', d => x(d.method))
+        .attr('cy', d => y(d.value))
+        .attr('r', d => d.isOurs ? 8 : 6)
+        .attr('fill', d => d.isOurs ? '#ff7043' : 'white')
+        .attr('stroke', d => d.isOurs ? '#ff7043' : lineColor)
+        .attr('stroke-width', d => d.isOurs ? 3 : 2.5)
+        .attr('opacity', 0)
+        .style('cursor', 'pointer');
+      
+      // Animate markers
+      markers.transition()
+        .delay((d, i) => 1500 + i * 100)
+        .duration(300)
+        .attr('opacity', 1);
+      
+      // Hover effects
+      markers.on('mouseover', function(event, d) {
+        d3.select(this)
+          .transition()
+          .duration(150)
+          .attr('r', d.isOurs ? 10 : 8);
+        
+        g.append('text')
+          .attr('class', 'speed-tooltip')
+          .attr('x', x(d.method))
+          .attr('y', y(d.value) - 15)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '17px')
+          .style('font-weight', '700')
+          .style('fill', d.isOurs ? '#ff7043' : lineColor)
+          .style('font-family', "'Roboto', sans-serif")
+          .text(`${d.value.toFixed(2)} it/s`);
+      })
+      .on('mouseout', function(event, d) {
+        d3.select(this)
+          .transition()
+          .duration(150)
+          .attr('r', d.isOurs ? 8 : 6);
+        
+        g.selectAll('.speed-tooltip').remove();
+      });
+      
+      // Title
+      svg.append('text')
+        .attr('x', (width + margin.left + margin.right) / 2)
+        .attr('y', 30)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '22px')
+        .style('font-weight', '600')
+        .style('fill', '#3e3e3e')
+        .style('font-family', "'Roboto', sans-serif")
+        .text('Inference Speed Comparison');
+      
+      // Toggle buttons using foreignObject
+      const buttonGroup = svg.append('foreignObject')
+        .attr('x', (width + margin.left + margin.right) / 2 - 150)
+        .attr('y', 45)
+        .attr('width', 300)
+        .attr('height', 50);
+      
+      const buttonDiv = buttonGroup.append('xhtml:div')
+        .style('display', 'flex')
+        .style('justify-content', 'center')
+        .style('gap', '15px');
+      
+      const noFilterBtn = buttonDiv.append('xhtml:button')
+        .attr('id', 'speed-no-filter-btn-inner')
+        .style('padding', '8px 20px')
+        .style('border', '2px solid ' + (showWithFilter ? '#e0e0e0' : '#464646'))
+        .style('border-radius', '6px')
+        .style('cursor', 'pointer')
+        .style('font-weight', showWithFilter ? '500' : '600')
+        .style('font-size', '14px')
+        .style('font-family', "'Roboto', sans-serif")
+        .style('background-color', showWithFilter ? 'white' : '#464646')
+        .style('color', showWithFilter ? '#464646' : 'white')
+        .style('transition', 'all 0.25s ease')
+        .text('No CP4 Filter')
+        .on('click', function() { renderSpeedChart(false); });
+      
+      const withFilterBtn = buttonDiv.append('xhtml:button')
+        .attr('id', 'speed-with-filter-btn-inner')
+        .style('padding', '8px 20px')
+        .style('border', '2px solid ' + (showWithFilter ? '#464646' : '#e0e0e0'))
+        .style('border-radius', '6px')
+        .style('cursor', 'pointer')
+        .style('font-weight', showWithFilter ? '600' : '500')
+        .style('font-size', '14px')
+        .style('font-family', "'Roboto', sans-serif")
+        .style('background-color', showWithFilter ? '#464646' : 'white')
+        .style('color', showWithFilter ? 'white' : '#464646')
+        .style('transition', 'all 0.25s ease')
+        .text('With CP4 Filter')
+        .on('click', function() { renderSpeedChart(true); });
+      
+      // Legend for BI+CE highlight - moved with more padding from edge
+      const legend = svg.append('g')
+        .attr('transform', `translate(${width + margin.left - 100}, ${margin.top + 20})`);
+      
+      legend.append('circle')
+        .attr('cx', 0)
+        .attr('cy', 0)
+        .attr('r', 6)
+        .attr('fill', '#ff7043')
+        .attr('stroke', '#ff7043')
+        .attr('stroke-width', 2);
+      
+      legend.append('text')
+        .attr('x', 12)
+        .attr('y', 5)
+        .style('font-size', '14px')
+        .style('font-weight', '600')
+        .style('fill', '#464646')
+        .style('font-family', "'Roboto', sans-serif")
+        .text('BI+CE (ours)');
+    }
+
+    // Function to render QA Accuracy bar chart
+    function renderQAChart() {
+      const container = d3.select('#qa-image-wrapper');
+      container.selectAll('*').remove();
+      
+      // Data: QA Accuracy percentages with descriptions
+      const data = [
+        { 
+          method: 'Closed-Book', 
+          accuracy: 26.43, 
+          color: '#FF6B6B', 
+          label: 'Closed-Book',
+          description: 'No context given. Model answers from pre-trained knowledge only.'
+        },
+        { 
+          method: 'Open-Book', 
+          accuracy: 37.76, 
+          color: '#4ECDC4', 
+          label: 'Open-Book',
+          description: 'Full document provided. Model can reference any part of the text.'
+        },
+        { 
+          method: 'RAG - Recursive Chunks', 
+          accuracy: 84.96, 
+          color: '#45B7D1', 
+          label: 'RAG - Recursive Chunks',
+          description: 'Documents split at fixed token boundaries, then relevant chunks retrieved.'
+        },
+        { 
+          method: 'RAG - LumberChunker', 
+          accuracy: 88.89, 
+          color: '#96CEB4', 
+          label: 'RAG - LumberChunker',
+          description: 'Documents segmented at semantic boundaries by LLM for better context.'
+        },
+        { 
+          method: 'RAG - Manual Chunks', 
+          accuracy: 90.53, 
+          color: '#FFEAA7', 
+          label: 'RAG - Manual Chunks',
+          description: 'Human experts segment at natural topic boundaries (gold standard).'
+        }
+      ];
+      
+      // Dimensions - increased size
+      const margin = { top: 80, right: 60, bottom: 120, left: 120 };
+      const width = 1600 - margin.left - margin.right;
+      const height = 800 - margin.top - margin.bottom;
+      
+      // Create SVG
+      const svg = container.append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('max-width', '95%')
+        .style('display', 'block')
+        .style('margin', '0 auto');
+      
+      const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+      
+      // Scales
+      const x = d3.scaleLinear()
+        .domain([1, 20])
+        .range([0, width]);
+      
+      const y = d3.scaleLinear()
+        .domain([0.40, 0.665]) // reduced buffer zone by half
+        .range([height, 0]);
+      
+      // Grid lines (disco style)
+      // Horizontal grid lines
+      const yTicks = y.ticks(6).filter(t => t !== y.domain()[0] && t !== y.domain()[1]);
+      g.append('g')
+        .attr('class', 'grid horizontal-grid')
+        .selectAll('line')
+        .data(yTicks)
+        .join('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', d => y(d))
+        .attr('y2', d => y(d))
+        .attr('stroke', 'lightgray')
+        .attr('stroke-dasharray', '5')
+        .attr('stroke-width', 2);
+      
+      // Vertical grid lines
+      const xTicks = [1, 2, 5, 10, 20];
+      g.append('g')
+        .attr('class', 'grid vertical-grid')
+        .selectAll('line')
+        .data(xTicks)
+        .join('line')
+        .attr('x1', d => x(d))
+        .attr('x2', d => x(d))
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', 'lightgray')
+        .attr('stroke-dasharray', '5')
+        .attr('stroke-width', 2);
+      
+      // Axes with black borders
+      const xAxis = g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickValues([1, 2, 5, 10, 20]).tickFormat(d => d).tickSize(0).tickSizeOuter(0).tickPadding(12))
+        .style('font-size', '22px');
+      
+      xAxis.selectAll('text')
+        .style('fill', '#464646')
+        .style('font-weight', '500')
+        .style('font-family', "'Roboto', sans-serif");
+      
+      // Remove the x-axis domain line
+      xAxis.select('.domain').remove();
+      
+      const yAxis = g.append('g')
+        .call(d3.axisLeft(y).ticks(6).tickFormat(d => d.toFixed(2)).tickSize(0).tickSizeOuter(0).tickPadding(12))
+        .style('font-size', '22px');
+      
+      yAxis.selectAll('text')
+        .style('fill', '#464646')
+        .style('font-weight', '500')
+        .style('font-family', "'Roboto', sans-serif");
+      
+      // Remove the y-axis domain line
+      yAxis.select('.domain').remove();
+      
+      // Add border frame (disco style)
+      // Top border (light grey)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', 0)
+        .attr('y2', 0)
+        .attr('stroke', 'lightgray')
+        .attr('stroke-width', 2);
+      
+      // Right border (light grey)
+      g.append('line')
+        .attr('x1', width)
+        .attr('x2', width)
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', 'lightgray')
+        .attr('stroke-width', 2);
+      
+      // Left border (dark)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', 0)
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', '#36454F')
+        .attr('stroke-width', 2);
+      
+      // Bottom border (dark)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', height)
+        .attr('y2', height)
+        .attr('stroke', '#36454F')
+        .attr('stroke-width', 2);
+      
+      // Axis labels
+      svg.append('text')
+        .attr('x', (width + margin.left + margin.right) / 2)
+        .attr('y', height + margin.top + 55)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '26px')
+        .style('font-weight', '600')
+        .style('fill', '#464646')
+        .style('font-family', "'Roboto', sans-serif")
+        .text('k');
+      
+      svg.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -(height + margin.top + margin.bottom) / 2 + 30)
+        .attr('y', 20)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '26px')
+        .style('font-weight', '600')
+        .style('fill', '#464646')
+        .style('font-family', "'Roboto', sans-serif")
+        .text('DCG');
+      
+      // Line generator
+      const line = d3.line()
+        .x(d => x(d.k))
+        .y(d => y(d.dcg))
+        .curve(d3.curveMonotoneX);
+      
+      // All reference theta values to show as transparent lines
+      const referenceThetaValues = [
+        { theta: 450, color: '#1e88e5', dashArray: '4,2' },
+        { theta: 550, color: '#ffa726', dashArray: '8,4' },
+        { theta: 650, color: '#26a69a', dashArray: '6,3' },
+        { theta: 1000, color: '#ff7043', dashArray: '2,3' }
+      ];
+      
+      // Set initial color to match the theta value
+      const initialSliderIndex = parseInt(slider.value);
+      thetaValueDisplay.style.color = referenceThetaValues[initialSliderIndex].color;
+      
+      // Create a group for all reference lines
+      const referenceLinesGroup = g.append('g').attr('class', 'reference-lines-group');
+      
+      // Draw all reference lines as transparent
+      referenceThetaValues.forEach((refConfig, index) => {
+        const refData = interpolateDCGData(refConfig.theta);
+        
+        // Reference line
+        const refLine = referenceLinesGroup.append('path')
+          .datum(refData)
+          .attr('class', `reference-line-${refConfig.theta}`)
+          .attr('fill', 'none')
+          .attr('stroke', refConfig.color)
+          .attr('stroke-width', 2)
+          .attr('stroke-dasharray', refConfig.dashArray)
+          .attr('opacity', 0.2)
+          .attr('d', line);
+        
+        // Reference markers
+        referenceLinesGroup.selectAll(`.reference-marker-${refConfig.theta}`)
+          .data(refData)
+          .join('circle')
+          .attr('class', `reference-marker-${refConfig.theta}`)
+          .attr('cx', d => x(d.k))
+          .attr('cy', d => y(d.dcg))
+          .attr('r', 3)
+          .attr('fill', 'white')
+          .attr('stroke', refConfig.color)
+          .attr('stroke-width', 1.5)
+          .attr('opacity', 0.2);
+      });
+      
+      // Active line (changes with slider)
+      const activeLine = g.append('path')
+        .attr('class', 'active-line')
+        .attr('fill', 'none')
+        .attr('stroke', referenceThetaValues[initialSliderIndex].color)
+        .attr('stroke-width', 3)
+        .attr('d', line(interpolateDCGData(currentTheta)));
+      
+      // Active markers
+      const activeMarkersGroup = g.append('g').attr('class', 'active-markers-group');
+      
+      function updateActiveMarkers(theta, color = '#2196F3') {
+        const data = interpolateDCGData(theta);
+        
+        const markers = activeMarkersGroup.selectAll('.active-marker')
+          .data(data);
+        
+        // Exit
+        markers.exit().remove();
+        
+        // Enter + Update
+        const markersEnter = markers.enter()
+          .append('circle')
+          .attr('class', 'active-marker')
+          .attr('r', 5)
+          .attr('fill', 'white')
+          .attr('stroke', color)
+          .attr('stroke-width', 2.5)
+          .style('cursor', 'pointer');
+        
+        markers.merge(markersEnter)
+          .transition()
+          .duration(300)
+          .attr('cx', d => x(d.k))
+          .attr('cy', d => y(d.dcg))
+          .attr('stroke', color);
+        
+        // Hover effects
+        activeMarkersGroup.selectAll('.active-marker')
+          .on('mouseover', function(event, d) {
+            d3.select(this)
+              .transition()
+              .duration(150)
+              .attr('r', 7);
+            
+            // Show tooltip
+            const tooltip = g.append('text')
+              .attr('class', 'dcg-tooltip')
+              .attr('x', x(d.k))
+              .attr('y', y(d.dcg) - 15)
+              .attr('text-anchor', 'middle')
+              .style('font-size', '17px')
+              .style('font-weight', '700')
+              .style('fill', color)
+              .style('font-family', "'Roboto', sans-serif")
+              .text(`θ=${theta}: ${d.dcg.toFixed(3)}`);
+          })
+          .on('mouseout', function() {
+            d3.select(this)
+              .transition()
+              .duration(150)
+              .attr('r', 5);
+            
+            g.selectAll('.dcg-tooltip').remove();
+          });
+      }
+      
+      // Initial markers
+      updateActiveMarkers(currentTheta, referenceThetaValues[initialSliderIndex].color);
+      
+  // Add labels at the top of the chart in legend format
+      const legendGroup = g.append('g').attr('class', 'line-labels-group');
+      
+      // Store references to legend text elements for updating
+      const legendTexts = [];
+      
+  // Calculate spacing for horizontal legend (increased for larger labels)
+  const legendSpacing = 200;
+      const legendStartX = (width - (referenceThetaValues.length - 1) * legendSpacing) / 2;
+      
+      // Reference theta labels positioned at the top with symbols
+      referenceThetaValues.forEach((refConfig, i) => {
+        const labelGroup = legendGroup.append('g')
+          .attr('class', `label-${refConfig.theta}`);
+        
+        const labelX = legendStartX + (i * legendSpacing);
+        
+        // Add line segment as symbol (no pattern, extends both sides around the circle like -o-)
+        const centerX = labelX - 12.5; // circle center
+        const symbolY = -38;
+        const halfLen = 15; // shorter length to avoid text overlap
+        labelGroup.append('line')
+          .attr('x1', centerX - halfLen)
+          .attr('x2', centerX + halfLen)
+          .attr('y1', symbolY)
+          .attr('y2', symbolY)
+          .attr('stroke', refConfig.color)
+          .attr('stroke-width', 6);
+        
+        // Add circle marker (ring style so line is visible through it)
+        const symbolCircle = labelGroup.append('circle')
+          .attr('cx', centerX)
+          .attr('cy', symbolY)
+          .attr('r', 7)
+          .attr('fill', 'white')
+          .attr('stroke', refConfig.color)
+          .attr('stroke-width', 5);
+        
+        const labelText = labelGroup.append('text')
+          .attr('x', labelX + 8)
+          .attr('y', symbolY)
+          .attr('dy', '0.35em')
+          .attr('text-anchor', 'start')
+          .style('font-family', "'Roboto', sans-serif")
+          .style('font-size', '24px')
+          .style('font-weight', refConfig.theta === currentTheta ? '700' : '400')
+          .style('fill', '#424242')
+          .text(`θ=${refConfig.theta}`);
+        
+        // Store reference for updating
+        legendTexts.push({ element: labelText, theta: refConfig.theta });
+      });
+      
+      // Slider interaction - map slider positions to predefined theta values
+      slider.addEventListener('input', function() {
+        const sliderIndex = parseInt(this.value);
+        const newTheta = thetaValues[sliderIndex];
+        const newColor = referenceThetaValues[sliderIndex].color;
+        currentTheta = newTheta;
+        thetaValueDisplay.textContent = newTheta;
+        thetaValueDisplay.style.color = newColor;
+        
+        // Update slider markers
+        document.querySelectorAll('.slider-marker').forEach((marker, idx) => {
+          const circle = marker.querySelector('div');
+          if (idx === sliderIndex) {
+            circle.style.backgroundColor = '#424242';
+          } else {
+            circle.style.backgroundColor = 'white';
+          }
+        });
+        
+        // Update the active line
+        const newData = interpolateDCGData(newTheta);
+        
+        // Interrupt any ongoing transitions and clear dasharray
+        activeLine
+          .interrupt()
+          .attr('stroke-dasharray', 'none')
+          .attr('stroke-dashoffset', 0);
+        
+        // Now transition to the new line
+        activeLine
+          .transition()
+          .duration(300)
+          .attr('d', line(newData))
+          .attr('stroke', newColor);
+        
+        // Update markers
+        updateActiveMarkers(newTheta, newColor);
+        
+        // Update legend - bold the selected theta value
+        legendTexts.forEach(({ element, theta }) => {
+          const isSelected = theta === newTheta;
+          element
+            .style('font-weight', isSelected ? '700' : '400')
+            .style('opacity', isSelected ? 1 : 0.7);
+        });
+      });
+      
+      // Set up Intersection Observer for scroll-triggered animation
+      const dcgWrapper = document.getElementById('dcg-image-wrapper');
+      let hasAnimatedDCG = false;
+      
+      const dcgObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !hasAnimatedDCG) {
+            hasAnimatedDCG = true;
+            
+            // Animate all reference lines
+            referenceThetaValues.forEach((refConfig, index) => {
+              const refLine = referenceLinesGroup.select(`.reference-line-${refConfig.theta}`);
+              const refPath = refLine.node();
+              const refLength = refPath.getTotalLength();
+              
+              refLine
+                .attr('stroke-dasharray', `${refConfig.dashArray},${refLength}`)
+                .attr('stroke-dashoffset', refLength)
+                .transition()
+                .duration(1500)
+                .delay(index * 150)
+                .ease(d3.easeQuadInOut)
+                .attr('stroke-dashoffset', 0)
+                .on('end', function() {
+                  d3.select(this).attr('stroke-dasharray', refConfig.dashArray);
+                });
+              
+              // Animate reference markers
+              referenceLinesGroup.selectAll(`.reference-marker-${refConfig.theta}`)
+                .attr('opacity', 0)
+                .transition()
+                .delay(1500 + index * 150)
+                .duration(400)
+                .attr('opacity', 0.2);
+            });
+            
+            // Animate active line
+            const activePath = activeLine.node();
+            const activeLength = activePath.getTotalLength();
+            
+            activeLine
+              .attr('stroke-dasharray', activeLength)
+              .attr('stroke-dashoffset', activeLength)
+              .transition()
+              .duration(1800)
+              .delay(800)
+              .ease(d3.easeQuadInOut)
+              .attr('stroke-dashoffset', 0)
+              .on('end', function() {
+                d3.select(this).attr('stroke-dasharray', 'none');
+              });
+            
+            // Animate active markers
+            activeMarkersGroup.selectAll('.active-marker')
+              .attr('opacity', 0)
+              .transition()
+              .delay((d, i) => 2600 + i * 150)
+              .duration(400)
+              .attr('opacity', 1);
+            
+            // Animate legend
+            legendGroup
+              .attr('opacity', 0)
+              .transition()
+              .delay(3000)
+              .duration(600)
+              .attr('opacity', 1);
+          }
+        });
+      }, {
+        threshold: 0.3,
+        rootMargin: '0px'
+      });
+      
+      if (dcgWrapper) {
+        dcgObserver.observe(dcgWrapper);
+      }
+    }
+
+    // Function to render QA Accuracy bar chart
+    function renderQAChart() {
+      const container = d3.select('#qa-image-wrapper');
+      container.selectAll('*').remove();
+      
+      // Data: QA Accuracy percentages with descriptions
+      const data = [
+        { 
+          method: 'Closed-Book', 
+          accuracy: 26.43, 
+          color: '#FF6B6B', 
+          label: 'Closed-Book',
+          description: 'No context given. Model answers from pre-trained knowledge only.'
+        },
+        { 
+          method: 'Open-Book', 
+          accuracy: 37.76, 
+          color: '#4ECDC4', 
+          label: 'Open-Book',
+          description: 'Full document provided. Model can reference any part of the text.'
+        },
+        { 
+          method: 'RAG - Recursive Chunks', 
+          accuracy: 84.96, 
+          color: '#45B7D1', 
+          label: 'RAG - Recursive Chunks',
+          description: 'Documents split at fixed token boundaries, then relevant chunks retrieved.'
+        },
+        { 
+          method: 'RAG - LumberChunker', 
+          accuracy: 88.89, 
+          color: '#96CEB4', 
+          label: 'RAG - LumberChunker',
+          description: 'Documents segmented at semantic boundaries by LLM for better context.'
+        },
+        { 
+          method: 'RAG - Manual Chunks', 
+          accuracy: 90.53, 
+          color: '#FFEAA7', 
+          label: 'RAG - Manual Chunks',
+          description: 'Human experts segment at natural topic boundaries (gold standard).'
+        }
+      ];
+      
+      // Dimensions - increased size
+      const margin = { top: 80, right: 60, bottom: 120, left: 120 };
+      const width = 1600 - margin.left - margin.right;
+      const height = 800 - margin.top - margin.bottom;
+      
+      // Create SVG
+      const svg = container.append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('max-width', '95%')
+        .style('display', 'block')
+        .style('margin', '0 auto')
+        .style('background-color', 'white')
+        .style('border-radius', '8px')
+        .style('box-shadow', 'none');
+      
+      const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+      
+      // Tooltip group for click interactions
+      let activeTooltip = null;
+      
+      // Scales
+      const x = d3.scaleBand()
+        .domain(data.map((d, i) => i))
+        .range([0, width])
+        .padding(0.4);
+      
+      const y = d3.scaleLinear()
+        .domain([0, 105]) // up to 105% for buffer zone like disco
+        .range([height, 0]);
+      
+      // Dashed grid lines in background (disco style)
+      const yTicksQA = y.ticks(5).filter(t => t !== 0);
+      g.append('g')
+        .attr('class', 'grid horizontal-grid')
+        .selectAll('line')
+        .data(yTicksQA)
+        .join('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', d => y(d))
+        .attr('y2', d => y(d))
+        .attr('stroke', 'lightgray')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5');
+      
+      // Axes with borders
+      const xAxis = g.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(() => '').tickSize(0).tickSizeOuter(0));
+      
+      xAxis.select('.domain').remove();
+      xAxis.selectAll('.tick').remove();
+      
+      const yAxis = g.append('g')
+        .call(d3.axisLeft(y).ticks(5).tickFormat(d => d).tickSize(0).tickSizeOuter(0).tickPadding(12));
+      
+      yAxis.selectAll('text')
+        .style('fill', '#464646')
+        .style('font-size', '28px')
+        .style('font-weight', '500')
+        .style('font-family', "'Roboto', sans-serif");
+      
+      yAxis.select('.domain').remove();
+      
+      // Borders (disco style)
+      // Top border (light grey)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', 0)
+        .attr('y2', 0)
+        .attr('stroke', 'lightgray')
+        .attr('stroke-width', 2);
+      
+      // Right border (light grey)
+      g.append('line')
+        .attr('x1', width)
+        .attr('x2', width)
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', 'lightgray')
+        .attr('stroke-width', 2);
+      
+      // Left border (dark)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', 0)
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', '#36454F')
+        .attr('stroke-width', 2);
+      
+      // Bottom border (dark)
+      g.append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', height)
+        .attr('y2', height)
+        .attr('stroke', '#36454F')
+        .attr('stroke-width', 2);
+      
+      // Axis label
+      svg.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -(height + margin.top + margin.bottom) / 2 + 30)
+        .attr('y', 45)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '32px')
+        .style('font-weight', '600')
+        .style('font-family', "'Roboto', sans-serif")
+        .style('fill', '#464646')
+        .text('Accuracy (%)');
+      
+      // Draw bars (without animation initially)
+      let isAnimating = false;
+      
+      const bars = g.selectAll('.bar')
+        .data(data)
+        .join('rect')
+        .attr('class', 'bar')
+        .attr('x', (d, i) => x(i))
+        .attr('y', height)
+        .attr('width', x.bandwidth())
+        .attr('height', 0)
+        .attr('fill', d => d.color)
+        .attr('stroke', '#000')
+        .attr('stroke-width', 1.5)
+        .attr('opacity', 0.7)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event, d) {
+          // Only allow hover effect if not currently animating
+          if (!isAnimating) {
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr('opacity', 0.5);
+          }
+        })
+        .on('mouseout', function() {
+          // Only allow hover effect if not currently animating
+          if (!isAnimating) {
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr('opacity', 0.7);
+          }
+        })
+        .on('click', function(event, d) {
+          event.stopPropagation();
+          
+          // Remove existing tooltip if any
+          if (activeTooltip) {
+            activeTooltip.remove();
+            activeTooltip = null;
+          }
+          
+          // Get bar position
+          const barIndex = data.indexOf(d);
+          const barX = x(barIndex);
+          const barY = y(d.accuracy);
+          
+          // Create tooltip group
+          const tooltip = g.append('g')
+            .attr('class', 'info-tooltip')
+            .style('pointer-events', 'all');
+          
+          activeTooltip = tooltip;
+          
+          // Tooltip dimensions
+          const padding = 20;
+          const maxTooltipWidth = 400;
+          const lineHeight = 24;
+          
+          // Create temporary text to measure title width
+          const tempTitle = tooltip.append('text')
+            .style('font-size', '26px')
+            .style('font-weight', '600')
+            .style('font-family', "'Roboto', sans-serif")
+            .style('visibility', 'hidden')
+            .text(d.label);
+          const titleWidth = tempTitle.node().getComputedTextLength();
+          tempTitle.remove();
+          
+          // Calculate tooltip width based on content
+          const tooltipWidth = Math.min(Math.max(titleWidth + 2 * padding + 30, 320), maxTooltipWidth);
+          const maxWidth = tooltipWidth - 2 * padding;
+          
+          // Calculate wrapped text lines to determine height
+          const words = d.description.split(' ');
+          let line = '';
+          let lineCount = 0;
+          const tempText = tooltip.append('text')
+            .style('font-size', '22px')
+            .style('font-family', "'Roboto', sans-serif")
+            .style('visibility', 'hidden');
+          
+          words.forEach((word, i) => {
+            const testLine = line + word + ' ';
+            tempText.text(testLine);
+            const testWidth = tempText.node().getComputedTextLength();
+            
+            if (testWidth > maxWidth && line !== '') {
+              lineCount++;
+              line = word + ' ';
+            } else {
+              line = testLine;
+            }
+            
+            if (i === words.length - 1) {
+              lineCount++;
+            }
+          });
+          tempText.remove();
+          
+          // Calculate tooltip height based on number of lines
+          const tooltipHeight = padding * 2 + 14 + 28 + (lineCount * lineHeight);
+          
+          // Position tooltip to the right of the bar, or left if near edge
+          let tooltipX = barX + x.bandwidth() + 15;
+          if (tooltipX + tooltipWidth > width) {
+            tooltipX = barX - tooltipWidth - 15;
+          }
+          let tooltipY = barY - tooltipHeight / 2;
+          if (tooltipY < 0) tooltipY = 10;
+          if (tooltipY + tooltipHeight > height) tooltipY = height - tooltipHeight - 10;
+          
+          // Tooltip background
+          const bgRect = tooltip.append('rect')
+            .attr('x', tooltipX)
+            .attr('y', tooltipY)
+            .attr('width', tooltipWidth)
+            .attr('height', tooltipHeight)
+            .attr('fill', 'white')
+            .attr('stroke', d.color)
+            .attr('stroke-width', 2.5)
+            .attr('rx', 6)
+            .style('filter', 'none')
+            .attr('opacity', 0);
+          
+          bgRect.transition()
+            .duration(200)
+            .attr('opacity', 1);
+          
+          // Close button - better positioned
+          const closeBtn = tooltip.append('g')
+            .attr('transform', `translate(${tooltipX + tooltipWidth - 24}, ${tooltipY + 14})`)
+            .style('cursor', 'pointer')
+            .attr('opacity', 0)
+            .on('click', function(e) {
+              e.stopPropagation();
+              tooltip.transition().duration(150).attr('opacity', 0).remove();
+              activeTooltip = null;
+            });
+          
+          closeBtn.append('circle')
+            .attr('r', 10)
+            .attr('fill', '#e0e0e0');
+          
+          closeBtn.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '0.35em')
+            .style('font-size', '16px')
+            .style('font-weight', 'bold')
+            .style('fill', '#424242')
+            .text('×');
+          
+          closeBtn.transition().duration(200).attr('opacity', 1);
+          
+          // Tooltip title - larger font
+          tooltip.append('text')
+            .attr('x', tooltipX + padding)
+            .attr('y', tooltipY + padding + 14)
+            .style('font-size', '26px')
+            .style('font-weight', '600')
+            .style('font-family', "'Roboto', sans-serif")
+            .style('fill', '#464646')
+            .attr('opacity', 0)
+            .text(d.label)
+            .transition()
+            .duration(200)
+            .attr('opacity', 1);
+          
+          // Tooltip description (wrapped text) - larger font
+          line = '';
+          let lineNumber = 0;
+          const textY = tooltipY + padding + 42;
+          
+          words.forEach((word, i) => {
+            const testLine = line + word + ' ';
+            const testText = tooltip.append('text')
+              .attr('x', tooltipX + padding)
+              .attr('y', textY)
+              .style('font-size', '22px')
+              .style('font-family', "'Roboto', sans-serif")
+              .text(testLine);
+            
+            const testWidth = testText.node().getComputedTextLength();
+            testText.remove();
+            
+            if (testWidth > maxWidth && line !== '') {
+              tooltip.append('text')
+                .attr('x', tooltipX + padding)
+                .attr('y', textY + lineNumber * lineHeight)
+                .style('font-size', '22px')
+                .style('font-family', "'Roboto', sans-serif")
+                .style('fill', '#666')
+                .attr('opacity', 0)
+                .text(line.trim())
+                .transition()
+                .duration(200)
+                .attr('opacity', 1);
+              
+              line = word + ' ';
+              lineNumber++;
+            } else {
+              line = testLine;
+            }
+            
+            // Last word
+            if (i === words.length - 1) {
+              tooltip.append('text')
+                .attr('x', tooltipX + padding)
+                .attr('y', textY + lineNumber * lineHeight)
+                .style('font-size', '22px')
+                .style('font-family', "'Roboto', sans-serif")
+                .style('fill', '#666')
+                .attr('opacity', 0)
+                .text(line.trim())
+                .transition()
+                .duration(200)
+                .attr('opacity', 1);
+            }
+          });
+        });
+      
+      // Add value labels (hidden initially)
+      const labels = g.selectAll('.label')
+        .data(data)
+        .join('text')
+        .attr('class', 'label')
+        .attr('x', (d, i) => x(i) + x.bandwidth() / 2)
+        .attr('y', d => y(d.accuracy) - 10)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '30px')
+        .style('font-weight', 'bold')
+        .style('font-family', "'Roboto', sans-serif")
+        .style('fill', '#333')
+        .attr('opacity', 0)
+        .text(d => d.accuracy.toFixed(2));
+      
+      // Add method labels at bottom of each bar
+      const bottomLabels = g.selectAll('.bottom-label')
+        .data(data)
+        .join('text')
+        .attr('class', 'bottom-label')
+        .attr('x', (d, i) => x(i) + x.bandwidth() / 2)
+        .attr('y', height + 30)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '26px')
+        .style('font-weight', '500')
+        .style('font-family', "'Roboto', sans-serif")
+        .style('fill', '#464646')
+        .each(function(d, i) {
+          const text = d3.select(this);
+          const words = d.label.split(' - ');
+          
+          if (words.length > 1) {
+            // Multi-line label for methods with " - "
+            text.append('tspan')
+              .attr('x', x(i) + x.bandwidth() / 2)
+              .attr('dy', '0')
+              .text(words[0]);
+            text.append('tspan')
+              .attr('x', x(i) + x.bandwidth() / 2)
+              .attr('dy', '1.1em')
+              .text(words[1]);
+          } else {
+            // Single line label
+            text.text(d.label);
+          }
+        });
+      
+      // Add legend in top-left corner
+      const legendGroup = g.append('g')
+        .attr('transform', `translate(30, 30)`)
+        .attr('opacity', 0);
+      
+      // Legend background
+      legendGroup.append('rect')
+        .attr('x', -15)
+        .attr('y', -15)
+        .attr('width', 340)
+        .attr('height', 200)
+        .attr('fill', 'white')
+        .attr('stroke', '#464646')
+        .attr('stroke-width', 2)
+        .attr('rx', 3);
+      
+      // Legend items with compact formatting
+      let yOffset = 12;
+      
+      for (let i = 0; i < data.length; i++) {
+        const d = data[i];
+        const legendRow = legendGroup.append('g')
+          .attr('transform', `translate(5, ${yOffset})`);
+        
+        // Color box
+        legendRow.append('rect')
+          .attr('x', 0)
+          .attr('y', -12)
+          .attr('width', 24)
+          .attr('height', 24)
+          .attr('fill', d.color)
+          .attr('stroke', '#464646')
+          .attr('stroke-width', 1.5);
+        
+        // Single line label for all entries
+        legendRow.append('text')
+          .attr('x', 32)
+          .attr('y', 5)
+          .style('font-size', '24px')
+          .style('font-weight', '500')
+          .style('font-family', "'Roboto', sans-serif")
+          .style('fill', '#464646')
+          .text(d.label);
+        
+        yOffset += 36;
+      }
+      
+      // Set up Intersection Observer for scroll-triggered animation
+      const qaWrapper = document.getElementById('qa-image-wrapper');
+      let hasAnimated = false;
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !hasAnimated) {
+            hasAnimated = true;
+            isAnimating = true;
+            
+            // Animate bars sliding up
+            bars.transition()
+              .delay((d, i) => i * 150)
+              .duration(1000)
+              .ease(d3.easeCubicOut)
+              .attr('y', d => y(d.accuracy))
+              .attr('height', d => height - y(d.accuracy))
+              .on('end', function(d, i) {
+                // Re-enable hover effects after the last bar finishes animating
+                if (i === data.length - 1) {
+                  isAnimating = false;
+                }
+              });
+            
+            // Animate labels fading in
+            labels.transition()
+              .delay((d, i) => i * 150 + 800)
+              .duration(500)
+              .attr('opacity', 1);
+            
+            // Animate legend appearance
+            legendGroup.transition()
+              .delay(1200)
+              .duration(600)
+              .attr('opacity', 1);
+          }
+        });
+      }, {
+        threshold: 0.3,
+        rootMargin: '0px'
+      });
+      
+      if (qaWrapper) {
+        observer.observe(qaWrapper);
+      }
+      
+      // Click outside to close tooltip
+      svg.on('click', function(event) {
+        if (activeTooltip && event.target.tagName === 'svg') {
+          activeTooltip.transition().duration(150).attr('opacity', 0).remove();
+          activeTooltip = null;
+        }
+      });
+      
+      g.on('click', function(event) {
+        if (activeTooltip && !event.target.classList.contains('bar')) {
+          activeTooltip.transition().duration(150).attr('opacity', 0).remove();
+          activeTooltip = null;
+        }
+      });
+    }
+
+    // Render all visualizations when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      renderPipelineImage();
+      renderBiEncoderInteractive();
+      renderProbabilityHistogram();
+      renderAccuracyCharts();
+      renderSpeedChart(false);
+      renderQAChart();
+      
+      // Copy citation button functionality
+      const copyBtn = document.getElementById('copy-citation-btn');
+      const citationText = document.getElementById('citation-text');
+      const btnText = document.getElementById('copy-btn-text');
+      
+      if (copyBtn && citationText) {
+        copyBtn.addEventListener('click', function() {
+          // Get the text content from the citation
+          const textToCopy = citationText.textContent.trim();
+          
+          // Copy to clipboard
+          navigator.clipboard.writeText(textToCopy).then(function() {
+            // Success feedback
+            btnText.textContent = 'Copied!';
+            copyBtn.style.backgroundColor = '#4CAF50';
+            
+            // Reset after 2 seconds
+            setTimeout(function() {
+              btnText.textContent = 'Copy';
+              copyBtn.style.backgroundColor = '#2196F3';
+            }, 2000);
+          }).catch(function(err) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = textToCopy;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+              document.execCommand('copy');
+              btnText.textContent = 'Copied!';
+              copyBtn.style.backgroundColor = '#4CAF50';
+              
+              setTimeout(function() {
+                btnText.textContent = 'Copy';
+                copyBtn.style.backgroundColor = '#2196F3';
+              }, 2000);
+            } catch (err) {
+              console.error('Failed to copy text: ', err);
+              btnText.textContent = 'Failed';
+              setTimeout(function() {
+                btnText.textContent = 'Copy';
+              }, 2000);
+            }
+            
+            document.body.removeChild(textArea);
+          });
+        });
+      }
+    });
+
+    // Embedded Quiz Functionality
+    const QUIZ_DATA = {
+      passage: [
+        '"What about a story?" I said.',
+        '"Could you very sweetly tell Winnie-the-Pooh one?"',
+        '"I suppose I could," I said. "What sort of stories does he like?"',
+        '"About himself. Because he\'s that sort of Bear."',
+        '"Oh, I see."',
+        '"So could you very sweetly?"',
+        '"I\'ll try," I said.',
+        'So I tried.',
+        'Once upon a time, a very long time ago now, about last Friday, Winnie-the-Pooh lived in a forest all by himself under the name of Sanders.',
+        '"What does \'under the name\' mean?" asked Christopher Robin.'
+      ],
+      options: [
+        {
+          id: 'A',
+          label: 'Split after every sentence (10 chunks)',
+          chunks: [
+            { sentences: [0], name: "Chunk 1" },
+            { sentences: [1], name: "Chunk 2" },
+            { sentences: [2], name: "Chunk 3" },
+            { sentences: [3], name: "Chunk 4" },
+            { sentences: [4], name: "Chunk 5" },
+            { sentences: [5], name: "Chunk 6" },
+            { sentences: [6], name: "Chunk 7" },
+            { sentences: [7], name: "Chunk 8" },
+            { sentences: [8], name: "Chunk 9" },
+            { sentences: [9], name: "Chunk 10" }
+          ],
+          feedback: "This creates too many tiny chunks! Each sentence is isolated, losing the semantic connections between related dialogue. This approach would make retrieval inefficient and fail to capture the conversational flow."
+        },
+        {
+          id: 'B',
+          label: 'Keep everything together (1 chunk)',
+          chunks: [
+            { sentences: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], name: "Entire Passage" }
+          ],
+          feedback: "This treats the entire passage as one chunk, mixing two distinct sections: the dialogue setup and the story beginning. The shift from meta-conversation to storytelling represents a clear semantic boundary that should be captured."
+        },
+        {
+          id: 'C',
+          label: 'Split between dialogue and story (2 chunks)',
+          chunks: [
+            {
+              sentences: [0, 1, 2, 3, 4, 5, 6, 7],
+              name: "Dialogue Setup",
+              reasoning: "These sentences form a complete dialogue where Christopher Robin asks for a story about Winnie-the-Pooh. They establish the context and setup for what follows, showing the conversational flow from request to agreement."
+            },
+            {
+              sentences: [8, 9],
+              name: "Story Beginning",
+              reasoning: "These sentences transition from the setup dialogue into the actual storytelling. The narrator begins the story with a classic fairy tale opening, immediately followed by Christopher Robin's interruption with a question about the story."
+            }
+          ],
+          feedback: "Correct! This segmentation recognizes the semantic boundary between the meta-dialogue (discussing what story to tell) and the actual storytelling. The first chunk captures the complete request-and-agreement exchange, while the second chunk begins the narrative with its classic opening and immediate interruption.",
+          isCorrect: true
+        }
+      ],
+      correctAnswer: 'C'
+    };
+
+    class EmbeddedQuiz {
+      constructor() {
+        this.selectedOption = null;
+        this.init();
+      }
+
+      init() {
+        this.renderPassage();
+        this.renderOptions();
+        this.setupEventListeners();
+        this.matchHeights();
+      }
+
+      renderPassage() {
+        const container = document.getElementById('passageContainer');
+        container.innerHTML = '';
+        
+        QUIZ_DATA.passage.forEach((sentence, index) => {
+          const p = document.createElement('p');
+          p.className = 'passage-sentence';
+          p.setAttribute('data-id', index);
+          p.textContent = sentence;
+          container.appendChild(p);
+        });
+      }
+
+      renderOptions() {
+        const container = document.getElementById('optionsContainer');
+        container.className = 'options-container';
+        container.innerHTML = '';
+        
+        QUIZ_DATA.options.forEach(option => {
+          const card = document.createElement('div');
+          card.className = 'option-card';
+          card.setAttribute('data-option-id', option.id);
+          
+          const header = document.createElement('div');
+          header.className = 'option-header';
+          
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'chunking-option';
+          radio.id = `option-${option.id}`;
+          radio.value = option.id;
+          
+          const label = document.createElement('label');
+          label.setAttribute('for', `option-${option.id}`);
+          label.innerHTML = `<strong>Option ${option.id}:</strong> ${option.label}`;
+          
+          header.appendChild(radio);
+          header.appendChild(label);
+          card.appendChild(header);
+          
+          card.addEventListener('click', () => this.selectOption(option.id));
+          container.appendChild(card);
+        });
+      }
+
+      selectOption(optionId) {
+        this.selectedOption = optionId;
+        
+        // Update visual selection
+        document.querySelectorAll('.option-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        document.querySelector(`[data-option-id="${optionId}"]`).classList.add('selected');
+        
+        // Update radio button
+        document.querySelectorAll('input[name="chunking-option"]').forEach(radio => {
+          radio.checked = false;
+        });
+        document.getElementById(`option-${optionId}`).checked = true;
+        
+        // Highlight passage chunks
+        this.highlightPassageChunks(optionId);
+      }
+
+      highlightPassageChunks(optionId) {
+        // Clear existing highlights
+        const container = document.getElementById('passageContainer');
+        container.innerHTML = '';
+        
+        const selectedOption = QUIZ_DATA.options.find(opt => opt.id === optionId);
+        if (!selectedOption) return;
+        
+        // Group sentences by chunks and create combined highlights
+        selectedOption.chunks.forEach((chunk, chunkIndex) => {
+          const chunkDiv = document.createElement('div');
+          chunkDiv.className = `chunk-group chunk-${(chunkIndex % 3) + 1}`;
+          
+          chunk.sentences.forEach(sentenceIdx => {
+            const p = document.createElement('p');
+            p.className = 'chunk-sentence';
+            p.textContent = QUIZ_DATA.passage[sentenceIdx];
+            chunkDiv.appendChild(p);
+          });
+          
+          container.appendChild(chunkDiv);
+        });
+      }
+
+      setupEventListeners() {
+        document.getElementById('submitBtn').addEventListener('click', () => {
+          this.submitAnswer();
+        });
+        
+        document.getElementById('backBtn').addEventListener('click', () => {
+          this.resetQuiz();
+        });
+      }
+
+      submitAnswer() {
+        if (!this.selectedOption) {
+          alert('Please select an option before submitting!');
+          return;
+        }
+        
+        this.showSolution();
+      }
+
+      showSolution() {
+        const answerPhase = document.getElementById('answerPhase');
+        const solutionPhase = document.getElementById('solutionPhase');
+        const solutionContent = document.getElementById('solutionContent');
+        
+        const selectedOption = QUIZ_DATA.options.find(opt => opt.id === this.selectedOption);
+        const isCorrect = selectedOption.isCorrect || false;
+        
+        // Build solution content
+        solutionContent.innerHTML = '';
+        
+        // Result header
+        const header = document.createElement('div');
+        header.className = `result-header ${isCorrect ? 'correct' : 'incorrect'}`;
+        header.innerHTML = `
+          <h3>${isCorrect ? 'Correct!' : 'Not Quite'}</h3>
+          <p>${isCorrect ? 'You identified the optimal semantic segmentation!' : 'Let\'s review why this segmentation isn\'t ideal.'}</p>
+        `;
+        solutionContent.appendChild(header);
+        
+        // Your answer section
+        const yourAnswer = document.createElement('div');
+        yourAnswer.innerHTML = `
+          <h4 style="margin-bottom: 15px;">Your Answer: <span style="background-color: #464646; color: white; padding: 4px 12px; border-radius: 4px; font-weight: 600;">Option ${this.selectedOption}</span></h4>
+          <div class="feedback-box">${selectedOption.feedback}</div>
+        `;
+        solutionContent.appendChild(yourAnswer);
+        
+        // Show optimal segmentation (always show correct answer)
+        const correctOption = QUIZ_DATA.options.find(opt => opt.id === QUIZ_DATA.correctAnswer);
+        if (!isCorrect) {
+          const correctSection = document.createElement('div');
+          correctSection.style.marginTop = '25px';
+          correctSection.innerHTML = `
+            <h4 style="margin-bottom: 15px;">Correct Answer: <span style="background-color: #464646; color: white; padding: 4px 12px; border-radius: 4px; font-weight: 600;">Option ${QUIZ_DATA.correctAnswer}</span></h4>
+            <div class="feedback-box correct-feedback">${correctOption.feedback}</div>
+          `;
+          solutionContent.appendChild(correctSection);
+        }
+        
+        // Show optimal segmentation explanation
+        this.renderOptimalSegmentation(solutionContent, correctOption);
+        
+        // Highlight the correct segmentation on the left passage
+        this.highlightPassageChunks(QUIZ_DATA.correctAnswer);
+        
+        // Fade transition
+        answerPhase.style.opacity = '0';
+        setTimeout(() => {
+          answerPhase.style.display = 'none';
+          solutionPhase.style.display = 'flex';
+          setTimeout(() => {
+            solutionPhase.classList.add('show');
+          }, 50);
+        }, 400);
+      }
+
+      renderOptimalSegmentation(container, option) {
+        const chunksSection = document.createElement('div');
+        chunksSection.innerHTML = `<h4 style="margin: 10px 0 8px 0; font-size: 0.95em;">Optimal Segmentation:</h4>`;
+        
+        const definitionsContainer = document.createElement('div');
+        definitionsContainer.className = 'chunk-definitions';
+        
+        option.chunks.forEach((chunk, index) => {
+          const chunkDiv = document.createElement('div');
+          chunkDiv.className = `chunk-definition chunk-display chunk-${(index % 2) + 1}`;
+          
+          const chunkTitle = document.createElement('h5');
+          chunkTitle.textContent = chunk.name;
+          chunkDiv.appendChild(chunkTitle);
+          
+          if (chunk.reasoning) {
+            const reasoningDiv = document.createElement('div');
+            reasoningDiv.className = 'reasoning-box';
+            reasoningDiv.innerHTML = `<strong>Why these belong together:</strong><br>${chunk.reasoning}`;
+            chunkDiv.appendChild(reasoningDiv);
+          }
+          
+          definitionsContainer.appendChild(chunkDiv);
+        });
+        
+        chunksSection.appendChild(definitionsContainer);
+        container.appendChild(chunksSection);
+      }
+
+      matchHeights() {
+        // Wait for content to render, then match heights
+        setTimeout(() => {
+          const passageSection = document.querySelector('.passage-section');
+          const interactionSection = document.querySelector('.interaction-section');
+          
+          if (passageSection && interactionSection) {
+            const passageHeight = passageSection.offsetHeight;
+            interactionSection.style.height = passageHeight + 'px';
+            
+            // Set overflow for scrolling when content is too long
+            const answerPhase = document.getElementById('answerPhase');
+            const solutionPhase = document.getElementById('solutionPhase');
+            
+            if (answerPhase) {
+              answerPhase.style.height = (passageHeight - 40) + 'px'; // Account for padding
+              answerPhase.style.overflowY = 'auto';
+            }
+            if (solutionPhase) {
+              solutionPhase.style.height = (passageHeight - 40) + 'px'; // Account for padding
+              solutionPhase.style.overflowY = 'auto';
+            }
+          }
+        }, 100);
+      }
+
+      resetQuiz() {
+        const answerPhase = document.getElementById('answerPhase');
+        const solutionPhase = document.getElementById('solutionPhase');
+        
+        // Reset state
+        this.selectedOption = null;
+        
+        // Clear selections
+        document.querySelectorAll('.option-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        document.querySelectorAll('input[name="chunking-option"]').forEach(radio => {
+          radio.checked = false;
+        });
+        
+        // Reset passage display
+        this.renderPassage();
+        
+        // Re-match heights after content change
+        this.matchHeights();
+        
+        // Fade transition
+        solutionPhase.classList.remove('show');
+        setTimeout(() => {
+          solutionPhase.style.display = 'none';
+          answerPhase.style.display = 'flex';
+          setTimeout(() => {
+            answerPhase.style.opacity = '1';
+          }, 50);
+        }, 400);
+      }
+    }
+
+    // Initialize embedded quiz when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Only initialize if quiz container exists
+      if (document.getElementById('quizContainer')) {
+        new EmbeddedQuiz();
+      }
+    });
+  </script>
+
+</body>
+</html>
