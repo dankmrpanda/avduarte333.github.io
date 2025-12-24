@@ -1413,8 +1413,9 @@
       const container = d3.select('#bi-encoder-interactive-wrapper');
       container.selectAll('*').remove();
       
-      // Address pairs for demonstration with sample embeddings (showing first 4 of 512 dims)
+      // Address pairs for demonstration - grouped by query address (good match first, then bad match)
       const addressPairs = [
+        // Pair 1: "Rua Flor 12 Lisboa" - good match
         {
           human: "Rua Flor 12 Lisboa",
           database: "Rua das Flores 12, 1200-045 Lisboa",
@@ -1423,6 +1424,7 @@
           embeddingA: [0.42, -0.18, 0.73, 0.31],
           embeddingB: [0.45, -0.21, 0.71, 0.28]
         },
+        // Pair 1: "Rua Flor 12 Lisboa" - bad match
         {
           human: "Rua Flor 12 Lisboa",
           database: "Avenida do Mar 58, 9000-206 Funchal",
@@ -1431,6 +1433,7 @@
           embeddingA: [0.42, -0.18, 0.73, 0.31],
           embeddingB: [-0.15, 0.67, -0.22, 0.54]
         },
+        // Pair 2: "Av Mar 58 Funchal" - good match
         {
           human: "Av Mar 58 Funchal",
           database: "Avenida do Mar 58, 9000-206 Funchal",
@@ -1439,6 +1442,16 @@
           embeddingA: [-0.12, 0.65, -0.19, 0.51],
           embeddingB: [-0.15, 0.67, -0.22, 0.54]
         },
+        // Pair 2: "Av Mar 58 Funchal" - bad match
+        {
+          human: "Av Mar 58 Funchal",
+          database: "Rua Verde 15, 4000-500 Porto",
+          similarity: 0.18,
+          isMatch: false,
+          embeddingA: [-0.12, 0.65, -0.19, 0.51],
+          embeddingB: [-0.33, 0.12, 0.68, -0.45]
+        },
+        // Pair 3: "Tv Azul 3 Porto" - good match
         {
           human: "Tv Azul 3 Porto",
           database: "Travessa Azul 3, 4000-281 Porto",
@@ -1447,6 +1460,7 @@
           embeddingA: [0.58, 0.24, -0.41, 0.19],
           embeddingB: [0.61, 0.27, -0.38, 0.22]
         },
+        // Pair 3: "Tv Azul 3 Porto" - bad match
         {
           human: "Tv Azul 3 Porto",
           database: "Rua Verde 15, 4000-500 Porto",
@@ -1459,6 +1473,8 @@
       
       let currentPairIndex = 0;
       let isAnimating = false;
+      let isLooping = false;
+      let loopTimeoutId = null;
       
       // Dimensions - taller to fit architecture
       const width = 850;
@@ -1478,8 +1494,8 @@
         .style('margin-bottom', '15px')
         .style('flex-wrap', 'wrap');
       
-      const runBtn = controls.append('button')
-        .attr('id', 'bi-encoder-run-btn')
+      const playBtn = controls.append('button')
+        .attr('id', 'bi-encoder-play-btn')
         .style('padding', '12px 28px')
         .style('font-size', '16px')
         .style('font-weight', '600')
@@ -1490,32 +1506,12 @@
         .style('cursor', 'pointer')
         .style('transition', 'all 0.3s ease')
         .style('box-shadow', '0 4px 15px rgba(102, 126, 234, 0.4)')
-        .text('Run Animation')
+        .text('▶ Play Animation')
         .on('mouseover', function() {
           d3.select(this).style('transform', 'translateY(-2px)').style('box-shadow', '0 6px 20px rgba(102, 126, 234, 0.5)');
         })
         .on('mouseout', function() {
           d3.select(this).style('transform', 'translateY(0)').style('box-shadow', '0 4px 15px rgba(102, 126, 234, 0.4)');
-        });
-      
-      const nextBtn = controls.append('button')
-        .attr('id', 'bi-encoder-next-btn')
-        .style('padding', '12px 28px')
-        .style('font-size', '16px')
-        .style('font-weight', '600')
-        .style('background', 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)')
-        .style('color', 'white')
-        .style('border', 'none')
-        .style('border-radius', '8px')
-        .style('cursor', 'pointer')
-        .style('transition', 'all 0.3s ease')
-        .style('box-shadow', '0 4px 15px rgba(17, 153, 142, 0.4)')
-        .text('Next Pair →')
-        .on('mouseover', function() {
-          d3.select(this).style('transform', 'translateY(-2px)').style('box-shadow', '0 6px 20px rgba(17, 153, 142, 0.5)');
-        })
-        .on('mouseout', function() {
-          d3.select(this).style('transform', 'translateY(0)').style('box-shadow', '0 4px 15px rgba(17, 153, 142, 0.4)');
         });
       
       // SVG Canvas
@@ -1577,64 +1573,68 @@
       
       // Draw static structure
       function drawStaticElements() {
-        // === INPUT BOXES (Address A and Address B) ===
-        // Left input (Address A)
+        // === INPUT BOXES (Address A and Address B) - Highlighted with distinct colors ===
+        // Left input (Address A) - Blue theme for query address
         svg.append('rect')
           .attr('id', 'input-left-box')
           .attr('x', leftX - inputBoxWidth/2)
           .attr('y', inputY - inputBoxHeight/2)
           .attr('width', inputBoxWidth)
           .attr('height', inputBoxHeight)
-          .attr('fill', colors.input)
-          .attr('rx', 4);
+          .attr('fill', '#1565C0')
+          .attr('rx', 6)
+          .attr('stroke', '#0D47A1')
+          .attr('stroke-width', 3);
         
         svg.append('text')
           .attr('id', 'input-left-label')
           .attr('x', leftX)
-          .attr('y', inputY - 12)
+          .attr('y', inputY - 14)
           .attr('text-anchor', 'middle')
-          .style('font-size', '14px')
+          .style('font-size', '12px')
           .style('font-weight', '600')
-          .style('fill', 'white')
-          .text('Address A (xₐ)');
+          .style('fill', '#BBDEFB')
+          .text('Query Address (xₐ)');
         
         svg.append('text')
           .attr('id', 'input-left-text')
           .attr('x', leftX)
-          .attr('y', inputY + 10)
+          .attr('y', inputY + 12)
           .attr('text-anchor', 'middle')
-          .style('font-size', '11px')
-          .style('font-weight', '500')
+          .style('font-size', '13px')
+          .style('font-weight', '700')
           .style('fill', '#fff')
           .text('—');
         
-        // Right input (Address B)
+        // Right input (Address B) - Orange theme for candidate address
         svg.append('rect')
           .attr('id', 'input-right-box')
           .attr('x', rightX - inputBoxWidth/2)
           .attr('y', inputY - inputBoxHeight/2)
           .attr('width', inputBoxWidth)
           .attr('height', inputBoxHeight)
-          .attr('fill', colors.input)
-          .attr('rx', 4);
+          .attr('fill', '#E65100')
+          .attr('rx', 6)
+          .attr('stroke', '#BF360C')
+          .attr('stroke-width', 3);
         
         svg.append('text')
           .attr('id', 'input-right-label')
           .attr('x', rightX)
-          .attr('y', inputY - 12)
+          .attr('y', inputY - 14)
           .attr('text-anchor', 'middle')
-          .style('font-size', '14px')
+          .style('font-size', '12px')
           .style('font-weight', '600')
-          .style('fill', 'white')
-          .text('Address B (xᵦ)');
+          .style('fill', '#FFCC80')
+          .text('Candidate Address (xᵦ)');
         
         svg.append('text')
           .attr('id', 'input-right-text')
           .attr('x', rightX)
-          .attr('y', inputY + 10)
+          .attr('y', inputY + 12)
           .attr('text-anchor', 'middle')
-          .style('font-size', '11px')
-          .style('font-weight', '500')
+          .style('font-size', '13px')
+          .style('font-weight', '700')
           .style('fill', '#fff')
           .text('—');
         
@@ -1934,6 +1934,18 @@
           .style('fill', 'white')
           .text('Contrastive Loss');
         
+        // === RESULT STATEMENT (hidden initially) ===
+        svg.append('text')
+          .attr('id', 'result-statement')
+          .attr('x', centerX)
+          .attr('y', 30)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '16px')
+          .style('font-weight', '700')
+          .style('fill', '#333')
+          .style('opacity', 0)
+          .text('');
+        
         // === ARROWS ===
         // Input to DistilBERT
         drawArrow(leftX, inputY - inputBoxHeight/2, leftX, distilbertY + boxHeight/2);
@@ -1970,17 +1982,50 @@
           .attr('marker-end', 'url(#arrowhead-bi)');
       }
       
-      // Update display with current pair
+      // Update display with current pair and resize boxes
       function updatePair(pair) {
+        // Update text
         svg.select('#input-left-text').text(pair.human);
         svg.select('#input-right-text').text(pair.database);
+        
+        // Calculate box widths based on text length (approx 8px per character + padding)
+        const minWidth = 180;
+        const maxWidth = 280;
+        const charWidth = 7.5;
+        const padding = 40;
+        
+        const leftWidth = Math.min(maxWidth, Math.max(minWidth, pair.human.length * charWidth + padding));
+        const rightWidth = Math.min(maxWidth, Math.max(minWidth, pair.database.length * charWidth + padding));
+        
+        // Update left box
+        svg.select('#input-left-box')
+          .transition().duration(300)
+          .attr('x', leftX - leftWidth/2)
+          .attr('width', leftWidth);
+        
+        // Update right box
+        svg.select('#input-right-box')
+          .transition().duration(300)
+          .attr('x', rightX - rightWidth/2)
+          .attr('width', rightWidth);
+      }
+      
+      // Stop looping animation
+      function stopLoop() {
+        isLooping = false;
+        if (loopTimeoutId) {
+          clearTimeout(loopTimeoutId);
+          loopTimeoutId = null;
+        }
+        playBtn.text('▶ Play Animation')
+          .style('background', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')
+          .style('opacity', 1);
       }
       
       // Animation sequence
-      function runAnimation() {
+      function runAnimation(callback) {
         if (isAnimating) return;
         isAnimating = true;
-        runBtn.text('⏳ Running...').style('opacity', 0.7);
         
         const pair = addressPairs[currentPairIndex];
         
@@ -1990,6 +2035,7 @@
         svg.select('#cosine-box').attr('opacity', 0.5).style('filter', 'none');
         svg.select('#loss-box').attr('opacity', 0.5).style('filter', 'none');
         svg.select('#similarity-value').text('—');
+        svg.select('#result-statement').style('opacity', 0);
         svg.select('#distilbert-left').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
         svg.select('#distilbert-right').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
         svg.select('#pooling-left').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
@@ -2165,25 +2211,35 @@
             .style('filter', 'none');
         }, 4000);
         
-        // Animation complete (4800ms)
+        // Step 8: Show result statement (4500ms)
+        setTimeout(() => {
+          const resultText = pair.isMatch 
+            ? '✓ Match Found — Same Address' 
+            : '✗ No Match — Different Addresses';
+          const resultColor = pair.isMatch ? '#2E7D32' : '#C62828';
+          
+          svg.select('#result-statement')
+            .text(resultText)
+            .style('fill', resultColor)
+            .transition().duration(400)
+            .style('opacity', 1);
+        }, 4500);
+        
+        // Animation complete (5300ms)
         setTimeout(() => {
           isAnimating = false;
-          runBtn.text('▶ Run Animation').style('opacity', 1);
-        }, 4800);
+          if (callback) callback();
+        }, 5300);
       }
       
-      // Next pair handler
-      function nextPair() {
-        if (isAnimating) return;
-        currentPairIndex = (currentPairIndex + 1) % addressPairs.length;
-        const pair = addressPairs[currentPairIndex];
-        
-        // Reset states
+      // Reset visual states for next animation
+      function resetVisualStates() {
         svg.select('#embedding-left').attr('opacity', 0.5).style('filter', 'none');
         svg.select('#embedding-right').attr('opacity', 0.5).style('filter', 'none');
         svg.select('#cosine-box').attr('opacity', 0.5).attr('fill', colors.cosine).style('filter', 'none');
         svg.select('#loss-box').attr('opacity', 0.5).style('filter', 'none');
         svg.select('#similarity-value').text('—').style('fill', 'white');
+        svg.select('#result-statement').style('opacity', 0);
         svg.select('#input-left-box').style('filter', 'none');
         svg.select('#input-right-box').style('filter', 'none');
         svg.select('#distilbert-left').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
@@ -2192,11 +2248,38 @@
         svg.select('#pooling-right').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
         svg.select('#ffnn-left').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
         svg.select('#ffnn-right').style('filter', 'none').attr('stroke', 'none').attr('stroke-width', 0);
-        // Reset embedding vectors (show label, hide vector)
         svg.select('#embedding-left-label').style('opacity', 1);
         svg.select('#embedding-left-vector').style('opacity', 0);
         svg.select('#embedding-right-label').style('opacity', 1);
         svg.select('#embedding-right-vector').style('opacity', 0);
+      }
+      
+      // Move to next pair with visual update
+      function goToNextPair() {
+        currentPairIndex = (currentPairIndex + 1) % addressPairs.length;
+        const pair = addressPairs[currentPairIndex];
+        
+        resetVisualStates();
+        
+        // Calculate box widths based on text length
+        const minWidth = 180;
+        const maxWidth = 280;
+        const charWidth = 7.5;
+        const padding = 40;
+        
+        const leftWidth = Math.min(maxWidth, Math.max(minWidth, pair.human.length * charWidth + padding));
+        const rightWidth = Math.min(maxWidth, Math.max(minWidth, pair.database.length * charWidth + padding));
+        
+        // Update box sizes
+        svg.select('#input-left-box')
+          .transition().duration(300)
+          .attr('x', leftX - leftWidth/2)
+          .attr('width', leftWidth);
+        
+        svg.select('#input-right-box')
+          .transition().duration(300)
+          .attr('x', rightX - rightWidth/2)
+          .attr('width', rightWidth);
         
         // Update text with fade
         svg.select('#input-left-text')
@@ -2214,13 +2297,47 @@
           .style('opacity', 1);
       }
       
+      // Start looping animation through all pairs
+      function startLoop() {
+        if (isLooping) {
+          stopLoop();
+          return;
+        }
+        
+        isLooping = true;
+        playBtn.text('⏹ Stop')
+          .style('background', 'linear-gradient(135deg, #e53935 0%, #c62828 100%)');
+        
+        function runNextInLoop() {
+          if (!isLooping) return;
+          
+          runAnimation(() => {
+            if (!isLooping) return;
+            
+            // Wait 1.5 seconds before moving to next pair
+            loopTimeoutId = setTimeout(() => {
+              if (!isLooping) return;
+              
+              goToNextPair();
+              
+              // Wait 0.5 seconds for the text transition, then run next animation
+              loopTimeoutId = setTimeout(() => {
+                if (!isLooping) return;
+                runNextInLoop();
+              }, 500);
+            }, 1500);
+          });
+        }
+        
+        runNextInLoop();
+      }
+      
       // Initialize
       drawStaticElements();
       updatePair(addressPairs[currentPairIndex]);
       
       // Bind events
-      runBtn.on('click', runAnimation);
-      nextBtn.on('click', nextPair);
+      playBtn.on('click', startLoop);
     }
 
     // Function to interpolate DCG values for any theta
@@ -2877,7 +2994,7 @@
       }
     }
 
-    // Function to render inference speed line chart
+    // Function to render inference speed bar chart
     function renderSpeedChart(showWithFilter = false) {
       const container = d3.select('#speed-chart-wrapper');
       container.selectAll('*').remove();
@@ -2889,22 +3006,32 @@
       
       const data = methods.map((method, i) => ({
         method: method,
-        noFilter: noFilterData[i],
-        withFilter: withFilterData[i],
         value: showWithFilter ? withFilterData[i] : noFilterData[i],
         isOurs: method === 'BI+CE'
       }));
       
-      // Dimensions - increased top margin for title and buttons
-      const margin = { top: 110, right: 80, bottom: 100, left: 95 };
-      const width = 900 - margin.left - margin.right;
-      const height = 500 - margin.top - margin.bottom;
+      // Colors for each method (matching accuracy charts)
+      const colors = {
+        'Token Sort': '#e57373',
+        'Token Set': '#ffb74d',
+        'BM25 + CE': '#81c784',
+        'DPR': '#64b5f6',
+        'Bi-Encoder': '#9575cd',
+        'BI+CE': '#ff7043'
+      };
+      
+      // Dimensions - matching accuracy charts style
+      const margin = { top: 110, right: 40, bottom: 100, left: 80 };
+      const chartWidth = 550;
+      const chartHeight = 380;
+      const totalWidth = chartWidth + margin.left + margin.right;
+      const totalHeight = chartHeight + margin.top + margin.bottom;
       
       // Create SVG
       const svg = container.append('svg')
         .attr('width', '100%')
         .attr('height', '100%')
-        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .attr('viewBox', `0 0 ${totalWidth} ${totalHeight}`)
         .attr('preserveAspectRatio', 'xMidYMid meet')
         .style('max-width', '95%')
         .style('display', 'block')
@@ -2916,56 +3043,111 @@
         .attr('transform', `translate(${margin.left},${margin.top})`);
       
       // Scales
-      const x = d3.scalePoint()
+      const xScale = d3.scaleBand()
         .domain(methods)
-        .range([0, width])
-        .padding(0.5);
+        .range([0, chartWidth])
+        .padding(0.3);
       
-      const maxY = 6; // Fixed scale for both views
-      const y = d3.scaleLinear()
+      const maxY = showWithFilter ? 6 : 1; // Adjust scale based on data range
+      const yScale = d3.scaleLinear()
         .domain([0, maxY])
-        .range([height, 0]);
+        .range([chartHeight, 0]);
       
       // Grid lines (horizontal)
-      const yTicks = y.ticks(5).filter(t => t !== 0);
+      const yTicks = yScale.ticks(5).filter(t => t !== 0);
       g.append('g')
         .attr('class', 'grid horizontal-grid')
         .selectAll('line')
         .data(yTicks)
         .join('line')
         .attr('x1', 0)
-        .attr('x2', width)
-        .attr('y1', d => y(d))
-        .attr('y2', d => y(d))
+        .attr('x2', chartWidth)
+        .attr('y1', d => yScale(d))
+        .attr('y2', d => yScale(d))
         .attr('stroke', 'lightgray')
         .attr('stroke-dasharray', '5')
         .attr('stroke-width', 2);
       
+      // Bars
+      const bars = g.selectAll('.bar')
+        .data(data)
+        .join('rect')
+        .attr('class', 'bar')
+        .attr('x', d => xScale(d.method))
+        .attr('y', chartHeight)
+        .attr('width', xScale.bandwidth())
+        .attr('height', 0)
+        .attr('fill', d => colors[d.method])
+        .attr('opacity', d => d.isOurs ? 1 : 0.8)
+        .attr('stroke', d => d.isOurs ? '#d84315' : 'none')
+        .attr('stroke-width', d => d.isOurs ? 3 : 0)
+        .style('cursor', 'pointer')
+        .style('pointer-events', 'none'); // Disable hover during animation
+      
+      // Animate bars
+      const totalAnimationTime = 1000 + (data.length - 1) * 100; // duration + max delay
+      bars.transition()
+        .duration(1000)
+        .delay((d, i) => i * 100)
+        .attr('y', d => yScale(d.value))
+        .attr('height', d => chartHeight - yScale(d.value))
+        .on('end', function() {
+          // Re-enable pointer events after animation
+          d3.select(this).style('pointer-events', 'auto');
+        });
+      
+      // Hover effects (will only work after animation completes due to pointer-events)
+      bars.on('mouseover', function(event, d) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr('opacity', 1);
+        
+        g.append('text')
+          .attr('class', 'speed-tooltip')
+          .attr('x', xScale(d.method) + xScale.bandwidth() / 2)
+          .attr('y', yScale(d.value) - 10)
+          .attr('text-anchor', 'middle')
+          .style('font-size', '16px')
+          .style('font-weight', '700')
+          .style('fill', '#424242')
+          .style('font-family', "'Roboto', sans-serif")
+          .text(`${d.value.toFixed(2)} it/s`);
+      })
+      .on('mouseout', function(event, d) {
+        d3.select(this)
+          .transition()
+          .duration(200)
+          .attr('opacity', d.isOurs ? 1 : 0.8);
+        
+        g.selectAll('.speed-tooltip').remove();
+      });
+      
       // Border frame
-      g.append('line').attr('x1', 0).attr('x2', width).attr('y1', 0).attr('y2', 0).attr('stroke', 'lightgray').attr('stroke-width', 2);
-      g.append('line').attr('x1', width).attr('x2', width).attr('y1', 0).attr('y2', height).attr('stroke', 'lightgray').attr('stroke-width', 2);
-      g.append('line').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', height).attr('stroke', '#36454F').attr('stroke-width', 2);
-      g.append('line').attr('x1', 0).attr('x2', width).attr('y1', height).attr('y2', height).attr('stroke', '#36454F').attr('stroke-width', 2);
+      g.append('line').attr('x1', 0).attr('x2', chartWidth).attr('y1', 0).attr('y2', 0).attr('stroke', 'lightgray').attr('stroke-width', 2);
+      g.append('line').attr('x1', chartWidth).attr('x2', chartWidth).attr('y1', 0).attr('y2', chartHeight).attr('stroke', 'lightgray').attr('stroke-width', 2);
+      g.append('line').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', chartHeight).attr('stroke', '#36454F').attr('stroke-width', 2);
+      g.append('line').attr('x1', 0).attr('x2', chartWidth).attr('y1', chartHeight).attr('y2', chartHeight).attr('stroke', '#36454F').attr('stroke-width', 2);
       
       // X-axis
       const xAxis = g.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(x).tickSize(0).tickSizeOuter(0).tickPadding(15))
-        .style('font-size', '18px');
+        .attr('transform', `translate(0, ${chartHeight})`)
+        .call(d3.axisBottom(xScale).tickSize(0).tickSizeOuter(0).tickPadding(10))
+        .style('font-size', '14px');
       
       xAxis.selectAll('text')
         .style('fill', '#464646')
         .style('font-weight', '500')
         .style('font-family', "'Roboto', sans-serif")
-        .attr('transform', 'rotate(-25)')
+        .attr('transform', 'rotate(-35)')
         .style('text-anchor', 'end');
       
       xAxis.select('.domain').remove();
       
       // Y-axis
       const yAxis = g.append('g')
-        .call(d3.axisLeft(y).ticks(5).tickFormat(d => d.toFixed(1)).tickSize(0).tickSizeOuter(0).tickPadding(12))
-        .style('font-size', '22px');
+        .call(d3.axisLeft(yScale).ticks(5).tickFormat(d => d.toFixed(1)).tickSize(0).tickSizeOuter(0).tickPadding(12))
+        .style('font-size', '18px');
       
       yAxis.selectAll('text')
         .style('fill', '#464646')
@@ -2975,92 +3157,20 @@
       yAxis.select('.domain').remove();
       
       // Y-axis label
-      svg.append('text')
+      g.append('text')
         .attr('transform', 'rotate(-90)')
-        .attr('x', -(height + margin.top + margin.bottom) / 2 + 30)
-        .attr('y', 20)
+        .attr('x', -chartHeight / 2)
+        .attr('y', -55)
         .attr('text-anchor', 'middle')
-        .style('font-size', '24px')
+        .style('font-size', '20px')
         .style('font-weight', '600')
         .style('fill', '#464646')
         .style('font-family', "'Roboto', sans-serif")
         .text('Iterations per Second (it/s)');
       
-      // Line generator
-      const line = d3.line()
-        .x(d => x(d.method))
-        .y(d => y(d.value))
-        .curve(d3.curveMonotoneX);
-      
-      // Draw line
-      const lineColor = showWithFilter ? '#26a69a' : '#1e88e5';
-      const path = g.append('path')
-        .datum(data)
-        .attr('fill', 'none')
-        .attr('stroke', lineColor)
-        .attr('stroke-width', 3)
-        .attr('d', line);
-      
-      // Animate line
-      const pathLength = path.node().getTotalLength();
-      path
-        .attr('stroke-dasharray', pathLength)
-        .attr('stroke-dashoffset', pathLength)
-        .transition()
-        .duration(1500)
-        .ease(d3.easeQuadInOut)
-        .attr('stroke-dashoffset', 0);
-      
-      // Draw markers
-      const markers = g.selectAll('.marker')
-        .data(data)
-        .join('circle')
-        .attr('class', 'marker')
-        .attr('cx', d => x(d.method))
-        .attr('cy', d => y(d.value))
-        .attr('r', d => d.isOurs ? 8 : 6)
-        .attr('fill', d => d.isOurs ? '#ff7043' : 'white')
-        .attr('stroke', d => d.isOurs ? '#ff7043' : lineColor)
-        .attr('stroke-width', d => d.isOurs ? 3 : 2.5)
-        .attr('opacity', 0)
-        .style('cursor', 'pointer');
-      
-      // Animate markers
-      markers.transition()
-        .delay((d, i) => 1500 + i * 100)
-        .duration(300)
-        .attr('opacity', 1);
-      
-      // Hover effects
-      markers.on('mouseover', function(event, d) {
-        d3.select(this)
-          .transition()
-          .duration(150)
-          .attr('r', d.isOurs ? 10 : 8);
-        
-        g.append('text')
-          .attr('class', 'speed-tooltip')
-          .attr('x', x(d.method))
-          .attr('y', y(d.value) - 15)
-          .attr('text-anchor', 'middle')
-          .style('font-size', '17px')
-          .style('font-weight', '700')
-          .style('fill', d.isOurs ? '#ff7043' : lineColor)
-          .style('font-family', "'Roboto', sans-serif")
-          .text(`${d.value.toFixed(2)} it/s`);
-      })
-      .on('mouseout', function(event, d) {
-        d3.select(this)
-          .transition()
-          .duration(150)
-          .attr('r', d.isOurs ? 8 : 6);
-        
-        g.selectAll('.speed-tooltip').remove();
-      });
-      
       // Title
       svg.append('text')
-        .attr('x', (width + margin.left + margin.right) / 2)
+        .attr('x', totalWidth / 2)
         .attr('y', 30)
         .attr('text-anchor', 'middle')
         .style('font-size', '22px')
@@ -3071,7 +3181,7 @@
       
       // Toggle buttons using foreignObject
       const buttonGroup = svg.append('foreignObject')
-        .attr('x', (width + margin.left + margin.right) / 2 - 150)
+        .attr('x', totalWidth / 2 - 150)
         .attr('y', 45)
         .attr('width', 300)
         .attr('height', 50);
@@ -3110,27 +3220,6 @@
         .style('transition', 'all 0.25s ease')
         .text('With CP4 Filter')
         .on('click', function() { renderSpeedChart(true); });
-      
-      // Legend for BI+CE highlight - moved with more padding from edge
-      const legend = svg.append('g')
-        .attr('transform', `translate(${width + margin.left - 100}, ${margin.top + 20})`);
-      
-      legend.append('circle')
-        .attr('cx', 0)
-        .attr('cy', 0)
-        .attr('r', 6)
-        .attr('fill', '#ff7043')
-        .attr('stroke', '#ff7043')
-        .attr('stroke-width', 2);
-      
-      legend.append('text')
-        .attr('x', 12)
-        .attr('y', 5)
-        .style('font-size', '14px')
-        .style('font-weight', '600')
-        .style('fill', '#464646')
-        .style('font-family', "'Roboto', sans-serif")
-        .text('BI+CE (ours)');
     }
 
     // Function to render QA Accuracy bar chart
