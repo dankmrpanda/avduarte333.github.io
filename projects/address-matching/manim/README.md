@@ -31,13 +31,13 @@ conda activate manim_stable
 
 ```bash
 # Preview (low quality)
-manim -pql address_matching.py AddressMatchingArchitecture
+manim -pql --renderer=cairo address_matching.py AddressMatchingArchitecture
 
 # High quality render
-manim -pqh address_matching.py AddressMatchingArchitecture
+manim -pqh --renderer=cairo address_matching.py AddressMatchingArchitecture
 
 # Production quality (4K)
-manim -pqk address_matching.py AddressMatchingArchitecture
+manim -pqk --renderer=cairo address_matching.py AddressMatchingArchitecture
 ```
 
 ## 📁 Project Structure
