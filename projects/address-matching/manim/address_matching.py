@@ -510,6 +510,8 @@ class AddressMatchingArchitecture(Scene):
         compare_text = create_text("Cosine-Similarity\nSearch", font_size=14, color=WHITE, font=CLEAN_FONT).move_to(compare_box)
         compare_group = VGroup(compare_box, compare_text)
         compare_group.next_to(aux_group, DOWN, buff=0.8)
+        # Shift up to align perfectly with E1 vector so the arrow is straight
+        compare_group.set_y(e1_vec.get_y())
         
         # Arrow from Aux Databases DOWN to Search box
         arrow_aux_to_search = Arrow(

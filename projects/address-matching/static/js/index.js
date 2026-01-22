@@ -1,10 +1,14 @@
 window.HELP_IMPROVE_VIDEOJS = false;
 
-var INTERP_BASE = "./static/interpolation/stacked";
-var NUM_INTERP_FRAMES = 240;
+// Interpolation feature disabled - images not available
+// var INTERP_BASE = "./static/interpolation/stacked";
+// var NUM_INTERP_FRAMES = 240;
+var INTERP_BASE = "";
+var NUM_INTERP_FRAMES = 0;
 
 var interp_images = [];
 function preloadInterpolationImages() {
+  if (NUM_INTERP_FRAMES === 0) return; // Skip if no frames configured
   for (var i = 0; i < NUM_INTERP_FRAMES; i++) {
     var path = INTERP_BASE + '/' + String(i).padStart(6, '0') + '.jpg';
     interp_images[i] = new Image();
@@ -14,6 +18,7 @@ function preloadInterpolationImages() {
 
 function setInterpolationImage(i) {
   var image = interp_images[i];
+  if (!image) return; // No image available, skip
   image.ondragstart = function() { return false; };
   image.oncontextmenu = function() { return false; };
   $('#interpolation-image-wrapper').empty().append(image);

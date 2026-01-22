@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta name="description" content="Improving Address Matching Using Siamese Transformer Networks">
@@ -16,36 +17,33 @@
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
   <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
-  
+
   <!-- FontAwesome & Academicons -->
-  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  
+
   <!-- Your Custom CSS -->
   <link rel="stylesheet" href="./static/css/index.css">
-  
+
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='https://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>LC</text></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='https://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>LC</text></svg>">
 
   <!-- jQuery -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  
+
   <!-- Bootstrap CSS AFTER Bulma so that the navbar styles take precedence -->
-  <link rel="stylesheet" 
-        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
-        integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA=="
-        crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"
+    integrity="sha512-P5MgMn1jBN01asBgU0z60Qk4QxiXo86+wlFahKrsQf37c9cro517WzVSPPV1tDKzhku2iJ2FVgL67wG03SGnNA=="
+    crossorigin="anonymous" />
 
   <!-- Bootstrap JS (with Popper.js) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-          integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-          crossorigin="anonymous"></script>
+    crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"
-          integrity="sha512-XKa9Hemdy1Ui3KSGJdgMyYlUg1gM+QhL6cnlyTe2qzMCYm4nAZ1PsVerQzTTXzonUR+dmswHqgJPuwCq1MaAg=="
-          crossorigin="anonymous"></script>
-  
-  <!-- FontAwesome, Bulma Carousel, etc. -->
-  <script defer src="./static/js/fontawesome.all.min.js"></script>
+    crossorigin="anonymous"></script>
+
+  <!-- Bulma Carousel, etc. -->
   <script src="./static/js/bulma-carousel.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
@@ -96,6 +94,7 @@
       .image-wrapper {
         width: 100% !important;
       }
+
       .image-wrapper img {
         width: 90% !important;
       }
@@ -130,14 +129,14 @@
 
     .candidate-card:hover {
       border-color: #9e9e9e;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       transform: translateY(-1px);
     }
 
     .candidate-card.selected {
       border-color: #464646;
       background-color: #f0f8ff;
-      box-shadow: 0 2px 8px rgba(70,70,70,0.15);
+      box-shadow: 0 2px 8px rgba(70, 70, 70, 0.15);
     }
 
     .candidate-card.correct {
@@ -254,16 +253,18 @@
       box-sizing: border-box;
     }
 
-    .chunk-group.chunk-1 { 
-      background-color: #fff5f5; 
+    .chunk-group.chunk-1 {
+      background-color: #fff5f5;
       border-left-color: #e57373;
     }
-    .chunk-group.chunk-2 { 
-      background-color: #f0f8ff; 
+
+    .chunk-group.chunk-2 {
+      background-color: #f0f8ff;
       border-left-color: #64b5f6;
     }
-    .chunk-group.chunk-3 { 
-      background-color: #fffef0; 
+
+    .chunk-group.chunk-3 {
+      background-color: #fffef0;
       border-left-color: #ffd54f;
     }
 
@@ -293,7 +294,8 @@
       font-family: 'Roboto', sans-serif;
     }
 
-    .answer-phase, .solution-phase {
+    .answer-phase,
+    .solution-phase {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -333,14 +335,14 @@
 
     .option-card:hover {
       border-color: #9e9e9e;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       transform: translateY(-1px);
     }
 
     .option-card.selected {
       border-color: #464646;
       background-color: #f8f9fa;
-      box-shadow: 0 4px 12px rgba(70,70,70,0.15);
+      box-shadow: 0 4px 12px rgba(70, 70, 70, 0.15);
     }
 
     .option-header {
@@ -442,6 +444,7 @@
       .final-row {
         flex-direction: column;
       }
+
       .final-actions {
         margin-left: 0 !important;
       }
@@ -526,12 +529,12 @@
       font-family: 'Roboto', sans-serif;
       background-color: #ffffff;
       color: #464646;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
 
     .quiz-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
     }
 
     .submit-btn {
@@ -716,9 +719,9 @@
       cursor: pointer;
       border: none;
     }
-
   </style>
 </head>
+
 <body>
 
   <!-- Begin Bulma-Based Page Content -->
@@ -749,14 +752,16 @@
               <div class="publication-links">
                 <!-- PDF Link -->
                 <span class="link-block">
-                  <a href="https://arxiv.org/pdf/2307.02300" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                  <a href="https://arxiv.org/pdf/2307.02300" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
                     <span class="icon"><i class="fas fa-file-pdf"></i></span>
                     <span>Paper</span>
                   </a>
                 </span>
                 <!-- Code Link -->
                 <span class="link-block">
-                  <a href="https://github.com/avduarte333/adress-matching" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                  <a href="https://github.com/avduarte333/adress-matching" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
                     <span class="icon"><i class="fab fa-github"></i></span>
                     <span>Code</span>
                   </a>
@@ -775,63 +780,84 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column is-four-fifths has-text-centered">
-          <div class="image-wrapper" id="pipeline-image-wrapper" style="display: flex; justify-content: center; align-items: center;">
-          </div>
           <p style="margin-top: 1rem;">
-            We present a Siamese Transformer system for large-scale address matching, combining a fast bi-encoder retriever with a precise cross-encoder reranker to achieve over 95% door-level accuracy and 4.5× faster inference than traditional methods.
+            We present a Siamese Transformer system for large-scale address matching, combining a fast bi-encoder
+            retriever with a precise cross-encoder reranker to achieve over 95% door-level accuracy and 4.5× faster
+            inference than traditional methods.
           </p>
+          <div class="image-wrapper" style="margin-top: 2rem;">
+            <video autoplay controls muted loop playsinline width="100%">
+              <source src="./static/AddressMatchingArchitecture.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  
-<!-- Introduction & Key Idea -->
-<section class="section">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-left">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Introduction</h2>
-        <div class="content has-text-justified">
-          <p>
-            Unstructured postal addresses rarely follow a consistent template. The same physical location may appear with <strong>missing fields</strong>, <strong>reordered components</strong>, typos, or redundant descriptors. Traditional approaches such as edit distance, token sorting, and rule-based normalization are fast but brittle because they operate only on surface text. They struggle when two visually different address strings refer to the same real-world doorstep, and as national-scale databases grow, comparison becomes slow and increasingly inaccurate.
-          </p>
-          <p>
-            <span style="font-weight: 600;">So how do we capture an address's semantic meaning while keeping matching practical at postal scale?</span>
-          </p>
 
-          <h2 class="title is-4">The Key Idea</h2>
-          <p>
-            Treat address matching as a <strong>two-stage semantic retrieval problem</strong>. First, embed every normalized address into a dense vector space using a Siamese bi-encoder. When a new unnormalized address arrives, embed it once and retrieve the <strong>top 10 most similar candidates</strong> using cosine similarity.
-          </p>
-          <p>
-            Then apply a cross-encoder to those candidates for <strong>deep pairwise comparison</strong>, allowing the model to rerank them and identify the true match with high precision.
-          </p>
+  <!-- Introduction & Key Idea -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-left">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Introduction</h2>
+          <div class="content has-text-justified">
+            <p>
+              Unstructured postal addresses rarely follow a consistent template. The same physical location may appear
+              with <strong>missing fields</strong>, <strong>reordered components</strong>, typos, or redundant
+              descriptors. Traditional approaches such as edit distance, token sorting, and rule-based normalization are
+              fast but brittle because they operate only on surface text. They struggle when two visually different
+              address strings refer to the same real-world doorstep, and as national-scale databases grow, comparison
+              becomes slow and increasingly inaccurate.
+            </p>
+            <p>
+              <span style="font-weight: 600;">So how do we capture an address's semantic meaning while keeping matching
+                practical at postal scale?</span>
+            </p>
 
-          <p>This design works because:</p>
-          <ul>
-            <li>
-              <strong>Low false negatives during retrieval.</strong>
-              The bi-encoder retrieves the correct address in the top 10 for 99.41 percent of cases, even when the input is noisy or unstructured.
-            </li>
-            <li>
-              <strong>High precision when a match exists.</strong>
-              The cross-encoder captures fine structural details such as artery type, house number, floor information, and ZIP code, enabling door-level accuracy above 95 percent.
-            </li>
-          </ul>
+            <h2 class="title is-4">The Key Idea</h2>
+            <p>
+              Treat address matching as a <strong>two-stage semantic retrieval problem</strong>. First, embed every
+              normalized address into a dense vector space using a Siamese bi-encoder. When a new unnormalized address
+              arrives, embed it once and retrieve the <strong>top 10 most similar candidates</strong> using cosine
+              similarity.
+            </p>
+            <p>
+              Then apply a cross-encoder to those candidates for <strong>deep pairwise comparison</strong>, allowing the
+              model to rerank them and identify the true match with high precision.
+            </p>
 
-          <p>
-            In practice, combining postal code prefix filtering with confidence-based thresholds provides a strong balance. Retrieval offers high recall, reranking delivers high precision, and the overall system runs <strong>four to five times faster</strong> than BM25 when using GPU inference.
-          </p>
+            <p>This design works because:</p>
+            <ul>
+              <li>
+                <strong>Low false negatives during retrieval.</strong>
+                The bi-encoder retrieves the correct address in the top 10 for 99.41 percent of cases, even when the
+                input is noisy or unstructured.
+              </li>
+              <li>
+                <strong>High precision when a match exists.</strong>
+                The cross-encoder captures fine structural details such as artery type, house number, floor information,
+                and ZIP code, enabling door-level accuracy above 95 percent.
+              </li>
+            </ul>
 
-          <p>
-            Want to test your intuition? Try the interactive challenge below to match messy unnormalized Portuguese addresses to their correct normalized forms and see how well you understand address matching.
-          </p>
+            <p>
+              In practice, combining postal code prefix filtering with confidence-based thresholds provides a strong
+              balance. Retrieval offers high recall, reranking delivers high precision, and the overall system runs
+              <strong>four to five times faster</strong> than BM25 when using GPU inference.
+            </p>
+
+            <p>
+              Want to test your intuition? Try the interactive challenge below to match messy unnormalized Portuguese
+              addresses to their correct normalized forms and see how well you understand address matching.
+            </p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
 
 
@@ -841,22 +867,27 @@
     <div class="container is-max-widescreen">
       <div class="quiz-section">
         <div class="quiz-header">
-          <h3 style="color: #3e3e3e; font-size: 1.4em; margin-bottom: 8px; font-weight: 600; text-align: center;">Address Matching Challenge</h3>
-          <p style="color: #686868; font-size: 0.9em; text-align: center; margin-bottom: 20px;">Can you match messy addresses to their normalized forms?</p>
+          <h3 style="color: #3e3e3e; font-size: 1.4em; margin-bottom: 8px; font-weight: 600; text-align: center;">
+            Address Matching Challenge</h3>
+          <p style="color: #686868; font-size: 0.9em; text-align: center; margin-bottom: 20px;">Can you match messy
+            addresses to their normalized forms?</p>
         </div>
-        
+
         <div class="quiz-container" id="quizContainer">
           <!-- Left Side - Unnormalized Address -->
           <div class="passage-section">
             <h4>Unnormalized Address:</h4>
-            <div id="unnormalizedAddress" style="padding: 20px; background: #fff5f5; border-radius: 8px; font-size: 1.1em; line-height: 1.6; color: #424242; margin-bottom: 20px;">
+            <div id="unnormalizedAddress"
+              style="padding: 20px; background: #fff5f5; border-radius: 8px; font-size: 1.1em; line-height: 1.6; color: #424242; margin-bottom: 20px;">
               <!-- Unnormalized address will be inserted here -->
             </div>
             <h4 style="margin-top: 20px;">Your Task:</h4>
             <p style="font-size: 0.9em; line-height: 1.5; color: #666;">
-              Select your <strong>top 3 candidates</strong> in order of likelihood to match the unnormalized address above. Click candidates to select them.
+              Select your <strong>top 3 candidates</strong> in order of likelihood to match the unnormalized address
+              above. Click candidates to select them.
             </p>
-            <div id="selectedRanking" style="margin-top: 15px; padding: 15px; background: #f0f8ff; border-radius: 8px; min-height: 120px;">
+            <div id="selectedRanking"
+              style="margin-top: 15px; padding: 15px; background: #f0f8ff; border-radius: 8px; min-height: 120px;">
               <div style="font-weight: 600; margin-bottom: 10px; color: #464646;">Your Ranking:</div>
               <div id="rankingList">
                 <div class="rank-slot" data-rank="1">1. <span class="rank-placeholder">Click a candidate</span></div>
@@ -904,17 +935,24 @@
           <h2 class="title is-3">The BI+CE Address Matching Model</h2>
           <div class="content has-text-justified">
 
+            <!-- Figure 4: Architecture -->
+            <div class="image-wrapper" id="pipeline-image-wrapper"
+              style="display: flex; justify-content: center; align-items: center; margin: 2rem 0;">
+            </div>
             <p>
               The BI+CE architecture approaches postal address matching as a two-stage semantic similarity task.
-              Instead of relying on symbolic string metrics, the system retrieves likely candidates using dense embeddings
+              Instead of relying on symbolic string metrics, the system retrieves likely candidates using dense
+              embeddings
               and then performs deep pairwise reasoning to determine which normalized address truly corresponds to the
-              provided unnormalized input. This results in highly accurate retrieval even when the original address is noisy,
+              provided unnormalized input. This results in highly accurate retrieval even when the original address is
+              noisy,
               incomplete, or formatted inconsistently.
             </p>
 
             <!-- Portuguese Address Structure Figure -->
             <div style="margin: 2rem 0; text-align: center;">
-              <div style="display: inline-block; background-color: #f8f9fa; padding: 2rem; border-radius: 8px; border: 1px solid #e0e0e0;">
+              <div
+                style="display: inline-block; background-color: #f8f9fa; padding: 2rem; border-radius: 8px; border: 1px solid #e0e0e0;">
                 <table style="border-collapse: collapse; margin: 0 auto; font-family: 'Roboto', sans-serif;">
                   <tr style="border: 2px solid #424242;">
                     <td style="padding: 12px 20px; border-right: 2px solid #424242; background-color: white;">
@@ -938,7 +976,8 @@
                       <div style="font-weight: 600; color: #424242;">2685-187</div>
                     </td>
                     <td style="padding: 12px 20px; background-color: white;">
-                      <div style="font-size: 0.75em; color: #666; margin-bottom: 4px;">Postal Designation of ZIP-Code</div>
+                      <div style="font-size: 0.75em; color: #666; margin-bottom: 4px;">Postal Designation of ZIP-Code
+                      </div>
                       <div style="font-weight: 600; color: #424242;">Portela LRS</div>
                     </td>
                   </tr>
@@ -949,16 +988,12 @@
               </div>
             </div>
 
-            <!-- <div class="notification is-info is-light">
-              <strong>Include Figure 4 here (full-width):</strong>
-              Architecture of the bi-encoder + cross-encoder model, showing the database pre-embedding module
-              and the predicting module.
-            </div> -->
 
             <h3 class="title is-4" id="step1-extraction">1) Normalized Address Pre-Embedding</h3>
             <p>
               Before processing any real-world queries, the system embeds every normalized Portuguese address in the
-              database. Each address is passed through a bi-encoder to produce a fixed-length vector representation. This
+              database. Each address is passed through a bi-encoder to produce a fixed-length vector representation.
+              This
               produces a static embedding index that enables fast cosine-similarity retrieval.
             </p>
 
@@ -971,13 +1006,13 @@
             </div>
 
             <!-- Interactive Bi-Encoder Architecture Figure -->
-            <div class="image-wrapper" style="margin: 2rem 0; text-align: center;">
+            <!-- <div class="image-wrapper" style="margin: 2rem 0; text-align: center;">
               <div id="bi-encoder-interactive-wrapper" style="display: flex; justify-content: center; align-items: center; min-height: 750px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; padding: 1rem;">
               </div>
               <p style="margin-top: 1rem; font-size: 0.9em; color: #666; font-style: italic;">
                 Figure 2: Interactive bi-encoder architecture.
               </p>
-            </div>
+            </div> -->
 
             <h3 class="title is-4" id="step2-grouping">2) ZIP-Based Filtering for Efficient Retrieval</h3>
             <p>
@@ -997,7 +1032,8 @@
             <p>
               When an unnormalized address is provided, it is embedded using the same bi-encoder. The embedding is then
               compared against the filtered group using cosine similarity, producing the top-k most similar candidates.
-              The system uses <code>k = 10</code>, which was found to reliably include the correct address in nearly all cases.
+              The system uses <code>k = 10</code>, which was found to reliably include the correct address in nearly all
+              cases.
             </p>
 
             <div class="algorithm-box">
@@ -1019,9 +1055,9 @@
 
             <!-- Cross-Encoder Architecture Figure -->
             <div class="image-wrapper" style="margin: 2rem 0; text-align: center;">
-                <img src="cross_encoder_architecture.png" class="no-img-shadow"
-                  alt="Cross-encoder architecture for address matching classification with joint sentence pair processing"
-                  style="max-width: 90%; height: auto; border-radius: 8px;">
+              <img src="cross_encoder_architecture.png" class="no-img-shadow"
+                alt="Cross-encoder architecture for address matching classification with joint sentence pair processing"
+                style="max-width: 90%; height: auto; border-radius: 8px;">
               <p style="margin-top: 1rem; font-size: 0.9em; color: #666; font-style: italic;">
                 Figure 3: Cross-encoder architecture for address matching classification (adapted from [3] and [14])
               </p>
@@ -1039,32 +1075,39 @@
             <h3 class="title is-4">Choosing the matching probability threshold</h3>
             <p>
               After reranking, the system applies a threshold to determine which predictions can be safely automated.
-              Evaluations show that a cutoff at <strong>0.90</strong> maximizes operational reliability, retaining nearly all
+              Evaluations show that a cutoff at <strong>0.90</strong> maximizes operational reliability, retaining
+              nearly all
               correct predictions while ensuring ambiguous cases are routed for manual review.
             </p>
 
             <p>
-              The histogram below illustrates why this threshold works so well. The bi-encoder (left) concentrates nearly all 
-              predictions at very high probability, making it difficult to distinguish confident from uncertain matches. 
-              In contrast, the BI+CE model (right) creates clear separation: low-confidence predictions cluster near 0, 
+              The histogram below illustrates why this threshold works so well. The bi-encoder (left) concentrates
+              nearly all
+              predictions at very high probability, making it difficult to distinguish confident from uncertain matches.
+              In contrast, the BI+CE model (right) creates clear separation: low-confidence predictions cluster near 0,
               while high-confidence predictions cluster near 1, enabling effective automated filtering at τ = 0.90.
             </p>
 
-            <div class="image-wrapper" id="dcg-image-wrapper" style="display: flex; justify-content: center; align-items: center; margin: 2rem 0;">
+            <div class="image-wrapper" id="dcg-image-wrapper"
+              style="display: flex; justify-content: center; align-items: center; margin: 2rem 0;">
             </div>
 
             <h3 class="title is-5">Why this works</h3>
             <p>
               The bi-encoder provides fast, scalable retrieval by capturing coarse semantic similarity, while the
-              cross-encoder provides deeper contextual reasoning necessary for final disambiguation. Together, they deliver
-              high precision and robustness, even when unnormalized addresses contain typos, missing fields, or nonstandard
+              cross-encoder provides deeper contextual reasoning necessary for final disambiguation. Together, they
+              deliver
+              high precision and robustness, even when unnormalized addresses contain typos, missing fields, or
+              nonstandard
               formatting.
             </p>
 
             <h3 class="title is-4">Performance at Operational Granularity</h3>
             <p>
-              With thresholding applied, door-level accuracy reaches <strong>98.35%</strong>, and artery-level accuracy rises to
-              <strong>99.71%</strong>. Only about <strong>18%</strong> of addresses require manual intervention, representing a substantial
+              With thresholding applied, door-level accuracy reaches <strong>98.35%</strong>, and artery-level accuracy
+              rises to
+              <strong>99.71%</strong>. Only about <strong>18%</strong> of addresses require manual intervention,
+              representing a substantial
               improvement over traditional string-based methods.
             </p>
 
@@ -1072,7 +1115,8 @@
             <div class="table-card" aria-labelledby="table10-caption">
               <table class="table is-bordered is-hoverable">
                 <caption id="table10-caption">
-                  Table: Retrieval and accuracy statistics across model components (adapted from the experimental results).
+                  Table: Retrieval and accuracy statistics across model components (adapted from the experimental
+                  results).
                 </caption>
                 <thead>
                   <tr>
@@ -1105,14 +1149,6 @@
                 </tbody>
               </table>
             </div>
-
-            <!-- Optional: another figure placeholder that matches the paper -->
-            <!-- <div class="notification is-info is-light">
-              <strong>Optionally include Figure 7 here:</strong>
-              Bar plots with error bars showing the median accuracy and standard deviation for the bi-encoder
-              and BI+CE across multiple runs.
-            </div> -->
-
           </div>
         </div>
       </div>
@@ -1120,7 +1156,7 @@
   </section>
 
 
-    <!-- Results / Key Findings Section: Address Matching -->
+  <!-- Results / Key Findings Section: Address Matching -->
   <section class="section" id="results">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-left">
@@ -1142,8 +1178,9 @@
               matching probability &gt; 0.90, BI+CE reaches <strong>98.35% door-level</strong> and
               <strong>99.71% artery-level</strong> accuracy while discarding only ~18% for manual review.
 
-            <!-- Accuracy Charts Container -->
-            <div class="image-wrapper" id="accuracy-charts-wrapper" style="display: flex; flex-direction: column; align-items: center; margin: 2rem 0;">
+              <!-- Accuracy Charts Container -->
+            <div class="image-wrapper" id="accuracy-charts-wrapper"
+              style="display: flex; flex-direction: column; align-items: center; margin: 2rem 0;">
             </div>
 
             <!-- Hidden table data for reference -->
@@ -1228,7 +1265,8 @@
 
             <!-- Inference Speed Line Chart -->
             <div style="margin-top: 2rem;">
-              <div class="image-wrapper" id="speed-chart-wrapper" style="display: flex; justify-content: center; align-items: center;">
+              <div class="image-wrapper" id="speed-chart-wrapper"
+                style="display: flex; justify-content: center; align-items: center;">
               </div>
             </div>
 
@@ -1298,19 +1336,33 @@
           <h2 class="title is-3">Conclusion</h2>
           <div class="content has-text-justified">
             <p>
-              This work demonstrates that <strong>Siamese Transformer Networks</strong> provide an effective solution for large-scale address matching. By combining a fast bi-encoder for candidate retrieval with a precise cross-encoder for reranking, the proposed BI+CE system achieves <strong>over 95% door-level accuracy</strong> while maintaining practical inference speeds.
+              This work demonstrates that <strong>Siamese Transformer Networks</strong> provide an effective solution
+              for large-scale address matching. By combining a fast bi-encoder for candidate retrieval with a precise
+              cross-encoder for reranking, the proposed BI+CE system achieves <strong>over 95% door-level
+                accuracy</strong> while maintaining practical inference speeds.
             </p>
 
             <p>
-              The two-stage retrieval approach proves particularly powerful: the bi-encoder successfully retrieves the correct address in the top-10 candidates for <strong>99.41%</strong> of queries, while the cross-encoder refines these results with fine-grained semantic understanding. When combined with confidence-based thresholds (τ = 0.90), the system reaches <strong>98.35% door-level accuracy</strong> and <strong>99.71% artery-level accuracy</strong>, with uncertain cases flagged for human review.
+              The two-stage retrieval approach proves particularly powerful: the bi-encoder successfully retrieves the
+              correct address in the top-10 candidates for <strong>99.41%</strong> of queries, while the cross-encoder
+              refines these results with fine-grained semantic understanding. When combined with confidence-based
+              thresholds (τ = 0.90), the system reaches <strong>98.35% door-level accuracy</strong> and <strong>99.71%
+                artery-level accuracy</strong>, with uncertain cases flagged for human review.
             </p>
 
             <p>
-              Compared to traditional string matching methods like Token Sort and Token Set, which achieve only 17-27% door-level accuracy, and even strong neural baselines like DPR (85.91%), the BI+CE system offers substantial improvements. Furthermore, the use of ZIP-code-based filtering enables the system to run <strong>4.5× faster</strong> than BM25-based approaches when using GPU inference.
+              Compared to traditional string matching methods like Token Sort and Token Set, which achieve only 17-27%
+              door-level accuracy, and even strong neural baselines like DPR (85.91%), the BI+CE system offers
+              substantial improvements. Furthermore, the use of ZIP-code-based filtering enables the system to run
+              <strong>4.5× faster</strong> than BM25-based approaches when using GPU inference.
             </p>
 
             <p style="margin-top: 1.5rem;">
-              As postal services and logistics companies continue to handle growing volumes of unstructured address data, <strong>semantic address matching</strong> becomes increasingly critical. The BI+CE architecture offers a practical, scalable solution that balances accuracy, speed, and the ability to defer uncertain cases to human operators—making it well-suited for real-world deployment in address normalization pipelines.
+              As postal services and logistics companies continue to handle growing volumes of unstructured address
+              data, <strong>semantic address matching</strong> becomes increasingly critical. The BI+CE architecture
+              offers a practical, scalable solution that balances accuracy, speed, and the ability to defer uncertain
+              cases to human operators—making it well-suited for real-world deployment in address normalization
+              pipelines.
             </p>
           </div>
         </div>
@@ -1327,14 +1379,18 @@
           <div class="content">
             <p>If you found this useful in your research, please consider citing:</p>
             <div style="position: relative;">
-              <button id="copy-citation-btn" style="position: absolute; top: 10px; right: 10px; padding: 8px 16px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 500; transition: background-color 0.3s; z-index: 10; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.backgroundColor='#1976D2'" onmouseout="this.style.backgroundColor='#2196F3'">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button id="copy-citation-btn"
+                style="position: absolute; top: 10px; right: 10px; padding: 8px 16px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 500; transition: background-color 0.3s; z-index: 10; display: flex; align-items: center; gap: 6px;"
+                onmouseover="this.style.backgroundColor='#1976D2'" onmouseout="this.style.backgroundColor='#2196F3'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
                 <span id="copy-btn-text">Copy</span>
               </button>
-              <pre id="citation-text" style="background-color: #ffffff; padding: 1rem; padding-top: 2.5rem; border-radius: 5px; overflow-x: auto;"><code>@misc{duarte2023improvingaddressmatchingusing,
+              <pre id="citation-text"
+                style="background-color: #ffffff; padding: 1rem; padding-top: 2.5rem; border-radius: 5px; overflow-x: auto;"><code>@misc{duarte2023improvingaddressmatchingusing,
       title={Improving Address Matching using Siamese Transformer Networks}, 
       author={André V. Duarte and Arlindo L. Oliveira},
       year={2023},
@@ -1355,7 +1411,9 @@
     <div class="container">
       <div class="content has-text-centered">
         <p>
-          This website is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+          This website is licensed under a <a rel="license"
+            href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0
+            International License</a>.
         </p>
         <p>
           Website template adapted from <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
@@ -1366,28 +1424,27 @@
 
   <script>
     // D3.js Image and Chart Rendering
-    
+
     // Function to render pipeline image using d3.js
     function renderPipelineImage() {
       const container = d3.select('#pipeline-image-wrapper');
       container.selectAll('*').remove();
-      
+
       const svg = container.append('svg')
         .attr('width', '100%')
-        .attr('height', 'auto')
         .style('max-width', '80%')
         .style('border-radius', '8px')
         .style('display', 'block')
         .style('margin', '0 auto');
-      
+
       const img = new Image();
-      img.onload = function() {
+      img.onload = function () {
         const imgWidth = this.width;
         const imgHeight = this.height;
-        
+
         svg.attr('viewBox', `0 0 ${imgWidth} ${imgHeight}`)
-           .attr('preserveAspectRatio', 'xMidYMid meet');
-        
+          .attr('preserveAspectRatio', 'xMidYMid meet');
+
         // Add the image
         svg.append('image')
           .attr('href', 'model_architecture.png')
@@ -1395,24 +1452,15 @@
           .attr('y', 0)
           .attr('width', imgWidth)
           .attr('height', imgHeight);
-
-        // NOTE: Clickable image-map overlays were previously present here.
-        // We've removed the interactive overlays so the image renders as a static
-        // model architecture illustration. If you want a different behavior
-        // (lightbox, links, or tooltips) let me know and I can add it back in
-        // as a separate, accessible component.
-              
-          // removed: overlay rectangles / hover tooltips / click-to-scroll handlers
-          // to keep the figure static and non-clickable as requested
       };
-        img.src = 'model_architecture.png';
+      img.src = 'model_architecture.png';
     }
 
     // Interactive Bi-Encoder Visualization
     function renderBiEncoderInteractive() {
       const container = d3.select('#bi-encoder-interactive-wrapper');
       container.selectAll('*').remove();
-      
+
       // Address pairs for demonstration - grouped by query address (good match first, then bad match)
       const addressPairs = [
         // Pair 1: "Rua Flor 12 Lisboa" - good match
@@ -1470,22 +1518,22 @@
           embeddingB: [-0.33, 0.12, 0.68, -0.45]
         }
       ];
-      
+
       let currentPairIndex = 0;
       let isAnimating = false;
       let isLooping = false;
       let loopTimeoutId = null;
-      
+
       // Dimensions - taller to fit architecture
       const width = 850;
       const height = 720;
-      
+
       // Create main container
       const mainDiv = container.append('div')
         .style('width', '100%')
         .style('max-width', width + 'px')
         .style('margin', '0 auto');
-      
+
       // Controls
       const controls = mainDiv.append('div')
         .style('display', 'flex')
@@ -1493,7 +1541,7 @@
         .style('gap', '15px')
         .style('margin-bottom', '15px')
         .style('flex-wrap', 'wrap');
-      
+
       const playBtn = controls.append('button')
         .attr('id', 'bi-encoder-play-btn')
         .style('padding', '12px 28px')
@@ -1507,13 +1555,13 @@
         .style('transition', 'all 0.3s ease')
         .style('box-shadow', '0 4px 15px rgba(102, 126, 234, 0.4)')
         .text('▶ Play Animation')
-        .on('mouseover', function() {
+        .on('mouseover', function () {
           d3.select(this).style('transform', 'translateY(-2px)').style('box-shadow', '0 6px 20px rgba(102, 126, 234, 0.5)');
         })
-        .on('mouseout', function() {
+        .on('mouseout', function () {
           d3.select(this).style('transform', 'translateY(0)').style('box-shadow', '0 4px 15px rgba(102, 126, 234, 0.4)');
         });
-      
+
       // SVG Canvas
       const svg = mainDiv.append('svg')
         .attr('width', '100%')
@@ -1522,10 +1570,10 @@
         .style('background', 'white')
         .style('border-radius', '12px')
         .style('box-shadow', '0 8px 32px rgba(0,0,0,0.1)');
-      
+
       // Define gradients and colors matching the paper figure
       const defs = svg.append('defs');
-      
+
       // Arrow marker
       defs.append('marker')
         .attr('id', 'arrowhead-bi')
@@ -1538,12 +1586,12 @@
         .append('path')
         .attr('d', 'M 0,-4 L 10,0 L 0,4')
         .attr('fill', '#555');
-      
+
       // Layout positions (bottom to top like the paper figure)
       const leftX = 220;
       const rightX = width - 220;
       const centerX = width / 2;
-      
+
       // Y positions (from bottom to top)
       const inputY = 660;
       const distilbertY = 545;
@@ -1552,14 +1600,14 @@
       const embeddingY = 285;
       const cosineY = 175;
       const lossY = 75;
-      
+
       // Box dimensions
       const boxWidth = 180;
       const inputBoxWidth = 220;
       const inputBoxHeight = 60;
       const boxHeight = 45;
       const smallBoxHeight = 40;
-      
+
       // Colors matching the paper
       const colors = {
         input: '#9E9E9E',        // Gray for input
@@ -1570,22 +1618,22 @@
         cosine: '#00838F',       // Dark cyan for cosine
         loss: '#212121'          // Dark for loss
       };
-      
+
       // Draw static structure
       function drawStaticElements() {
         // === INPUT BOXES (Address A and Address B) - Highlighted with distinct colors ===
         // Left input (Address A) - Blue theme for query address
         svg.append('rect')
           .attr('id', 'input-left-box')
-          .attr('x', leftX - inputBoxWidth/2)
-          .attr('y', inputY - inputBoxHeight/2)
+          .attr('x', leftX - inputBoxWidth / 2)
+          .attr('y', inputY - inputBoxHeight / 2)
           .attr('width', inputBoxWidth)
           .attr('height', inputBoxHeight)
           .attr('fill', '#1565C0')
           .attr('rx', 6)
           .attr('stroke', '#0D47A1')
           .attr('stroke-width', 3);
-        
+
         svg.append('text')
           .attr('id', 'input-left-label')
           .attr('x', leftX)
@@ -1595,7 +1643,7 @@
           .style('font-weight', '600')
           .style('fill', '#BBDEFB')
           .text('Query Address (xₐ)');
-        
+
         svg.append('text')
           .attr('id', 'input-left-text')
           .attr('x', leftX)
@@ -1605,19 +1653,19 @@
           .style('font-weight', '700')
           .style('fill', '#fff')
           .text('—');
-        
+
         // Right input (Address B) - Orange theme for candidate address
         svg.append('rect')
           .attr('id', 'input-right-box')
-          .attr('x', rightX - inputBoxWidth/2)
-          .attr('y', inputY - inputBoxHeight/2)
+          .attr('x', rightX - inputBoxWidth / 2)
+          .attr('y', inputY - inputBoxHeight / 2)
           .attr('width', inputBoxWidth)
           .attr('height', inputBoxHeight)
           .attr('fill', '#E65100')
           .attr('rx', 6)
           .attr('stroke', '#BF360C')
           .attr('stroke-width', 3);
-        
+
         svg.append('text')
           .attr('id', 'input-right-label')
           .attr('x', rightX)
@@ -1627,7 +1675,7 @@
           .style('font-weight', '600')
           .style('fill', '#FFCC80')
           .text('Candidate Address (xᵦ)');
-        
+
         svg.append('text')
           .attr('id', 'input-right-text')
           .attr('x', rightX)
@@ -1637,17 +1685,17 @@
           .style('font-weight', '700')
           .style('fill', '#fff')
           .text('—');
-        
+
         // === DISTILBERT BOXES ===
         svg.append('rect')
           .attr('id', 'distilbert-left')
-          .attr('x', leftX - boxWidth/2)
-          .attr('y', distilbertY - boxHeight/2)
+          .attr('x', leftX - boxWidth / 2)
+          .attr('y', distilbertY - boxHeight / 2)
           .attr('width', boxWidth)
           .attr('height', boxHeight)
           .attr('fill', colors.distilbert)
           .attr('rx', 4);
-        
+
         svg.append('text')
           .attr('x', leftX)
           .attr('y', distilbertY - 5)
@@ -1656,7 +1704,7 @@
           .style('font-weight', '700')
           .style('fill', 'white')
           .text('DistilBERT');
-        
+
         svg.append('text')
           .attr('x', leftX)
           .attr('y', distilbertY + 12)
@@ -1665,16 +1713,16 @@
           .style('fill', 'white')
           .style('opacity', 0.9)
           .text('Multilingual');
-        
+
         svg.append('rect')
           .attr('id', 'distilbert-right')
-          .attr('x', rightX - boxWidth/2)
-          .attr('y', distilbertY - boxHeight/2)
+          .attr('x', rightX - boxWidth / 2)
+          .attr('y', distilbertY - boxHeight / 2)
           .attr('width', boxWidth)
           .attr('height', boxHeight)
           .attr('fill', colors.distilbert)
           .attr('rx', 4);
-        
+
         svg.append('text')
           .attr('x', rightX)
           .attr('y', distilbertY - 5)
@@ -1683,7 +1731,7 @@
           .style('font-weight', '700')
           .style('fill', 'white')
           .text('DistilBERT');
-        
+
         svg.append('text')
           .attr('x', rightX)
           .attr('y', distilbertY + 12)
@@ -1692,17 +1740,17 @@
           .style('fill', 'white')
           .style('opacity', 0.9)
           .text('Multilingual');
-        
+
         // Horizontal line connecting DistilBERTs (left side)
         svg.append('line')
-          .attr('x1', leftX + boxWidth/2 + 5)
+          .attr('x1', leftX + boxWidth / 2 + 5)
           .attr('y1', distilbertY)
           .attr('x2', centerX - 70)
           .attr('y2', distilbertY)
           .attr('stroke', '#999')
           .attr('stroke-width', 1.5)
           .attr('stroke-dasharray', '5,3');
-        
+
         // Same Weights label (centered between the two DistilBERT boxes)
         svg.append('text')
           .attr('x', centerX)
@@ -1712,27 +1760,27 @@
           .style('font-weight', '500')
           .style('fill', '#666')
           .text('Same Weights');
-        
+
         // Horizontal line connecting DistilBERTs (right side)
         svg.append('line')
           .attr('x1', centerX + 70)
           .attr('y1', distilbertY)
-          .attr('x2', rightX - boxWidth/2 - 5)
+          .attr('x2', rightX - boxWidth / 2 - 5)
           .attr('y2', distilbertY)
           .attr('stroke', '#999')
           .attr('stroke-width', 1.5)
           .attr('stroke-dasharray', '5,3');
-        
+
         // === POOLING BOXES ===
         svg.append('rect')
           .attr('id', 'pooling-left')
-          .attr('x', leftX - boxWidth/2)
-          .attr('y', poolingY - smallBoxHeight/2)
+          .attr('x', leftX - boxWidth / 2)
+          .attr('y', poolingY - smallBoxHeight / 2)
           .attr('width', boxWidth)
           .attr('height', smallBoxHeight)
           .attr('fill', colors.pooling)
           .attr('rx', 4);
-        
+
         svg.append('text')
           .attr('x', leftX)
           .attr('y', poolingY + 5)
@@ -1741,16 +1789,16 @@
           .style('font-weight', '600')
           .style('fill', 'white')
           .text('pooling');
-        
+
         svg.append('rect')
           .attr('id', 'pooling-right')
-          .attr('x', rightX - boxWidth/2)
-          .attr('y', poolingY - smallBoxHeight/2)
+          .attr('x', rightX - boxWidth / 2)
+          .attr('y', poolingY - smallBoxHeight / 2)
           .attr('width', boxWidth)
           .attr('height', smallBoxHeight)
           .attr('fill', colors.pooling)
           .attr('rx', 4);
-        
+
         svg.append('text')
           .attr('x', rightX)
           .attr('y', poolingY + 5)
@@ -1759,17 +1807,17 @@
           .style('font-weight', '600')
           .style('fill', 'white')
           .text('pooling');
-        
+
         // === FFNN BOXES ===
         svg.append('rect')
           .attr('id', 'ffnn-left')
-          .attr('x', leftX - boxWidth/2)
-          .attr('y', ffnnY - smallBoxHeight/2)
+          .attr('x', leftX - boxWidth / 2)
+          .attr('y', ffnnY - smallBoxHeight / 2)
           .attr('width', boxWidth)
           .attr('height', smallBoxHeight)
           .attr('fill', colors.ffnn)
           .attr('rx', 4);
-        
+
         svg.append('text')
           .attr('x', leftX)
           .attr('y', ffnnY + 5)
@@ -1778,16 +1826,16 @@
           .style('font-weight', '600')
           .style('fill', 'white')
           .text('FFNN');
-        
+
         svg.append('rect')
           .attr('id', 'ffnn-right')
-          .attr('x', rightX - boxWidth/2)
-          .attr('y', ffnnY - smallBoxHeight/2)
+          .attr('x', rightX - boxWidth / 2)
+          .attr('y', ffnnY - smallBoxHeight / 2)
           .attr('width', boxWidth)
           .attr('height', smallBoxHeight)
           .attr('fill', colors.ffnn)
           .attr('rx', 4);
-        
+
         svg.append('text')
           .attr('x', rightX)
           .attr('y', ffnnY + 5)
@@ -1796,18 +1844,18 @@
           .style('font-weight', '600')
           .style('fill', 'white')
           .text('FFNN');
-        
+
         // === EMBEDDING BOXES ===
         svg.append('rect')
           .attr('id', 'embedding-left')
-          .attr('x', leftX - boxWidth/2)
-          .attr('y', embeddingY - boxHeight/2)
+          .attr('x', leftX - boxWidth / 2)
+          .attr('y', embeddingY - boxHeight / 2)
           .attr('width', boxWidth)
           .attr('height', boxHeight)
           .attr('fill', colors.embedding)
           .attr('rx', 4)
           .attr('opacity', 0.5);
-        
+
         svg.append('text')
           .attr('x', leftX)
           .attr('y', embeddingY - 5)
@@ -1816,7 +1864,7 @@
           .style('font-weight', '600')
           .style('fill', 'white')
           .text('Embedding of');
-        
+
         svg.append('text')
           .attr('id', 'embedding-left-label')
           .attr('x', leftX)
@@ -1827,7 +1875,7 @@
           .style('font-style', 'italic')
           .style('fill', 'white')
           .text('xₐ');
-        
+
         // Sample embedding vector display (hidden initially)
         svg.append('text')
           .attr('id', 'embedding-left-vector')
@@ -1840,17 +1888,17 @@
           .style('fill', '#A5D6A7')
           .style('opacity', 0)
           .text('');
-        
+
         svg.append('rect')
           .attr('id', 'embedding-right')
-          .attr('x', rightX - boxWidth/2)
-          .attr('y', embeddingY - boxHeight/2)
+          .attr('x', rightX - boxWidth / 2)
+          .attr('y', embeddingY - boxHeight / 2)
           .attr('width', boxWidth)
           .attr('height', boxHeight)
           .attr('fill', colors.embedding)
           .attr('rx', 4)
           .attr('opacity', 0.5);
-        
+
         svg.append('text')
           .attr('x', rightX)
           .attr('y', embeddingY - 5)
@@ -1859,7 +1907,7 @@
           .style('font-weight', '600')
           .style('fill', 'white')
           .text('Embedding of');
-        
+
         svg.append('text')
           .attr('id', 'embedding-right-label')
           .attr('x', rightX)
@@ -1870,7 +1918,7 @@
           .style('font-style', 'italic')
           .style('fill', 'white')
           .text('xᵦ');
-        
+
         // Sample embedding vector display (hidden initially)
         svg.append('text')
           .attr('id', 'embedding-right-vector')
@@ -1883,7 +1931,7 @@
           .style('fill', '#A5D6A7')
           .style('opacity', 0)
           .text('');
-        
+
         // === COSINE SIMILARITY BOX ===
         svg.append('rect')
           .attr('id', 'cosine-box')
@@ -1894,7 +1942,7 @@
           .attr('fill', colors.cosine)
           .attr('rx', 6)
           .attr('opacity', 0.5);
-        
+
         svg.append('text')
           .attr('x', centerX)
           .attr('y', cosineY - 5)
@@ -1903,7 +1951,7 @@
           .style('font-weight', '600')
           .style('fill', 'white')
           .text('Cosine-Similarity');
-        
+
         svg.append('text')
           .attr('id', 'similarity-value')
           .attr('x', centerX)
@@ -1913,7 +1961,7 @@
           .style('font-weight', '700')
           .style('fill', 'white')
           .text('—');
-        
+
         // === CONTRASTIVE LOSS BOX ===
         svg.append('rect')
           .attr('id', 'loss-box')
@@ -1924,7 +1972,7 @@
           .attr('fill', colors.loss)
           .attr('rx', 6)
           .attr('opacity', 0.5);
-        
+
         svg.append('text')
           .attr('x', centerX)
           .attr('y', lossY + 6)
@@ -1933,7 +1981,7 @@
           .style('font-weight', '700')
           .style('fill', 'white')
           .text('Contrastive Loss');
-        
+
         // === RESULT STATEMENT (hidden initially) ===
         svg.append('text')
           .attr('id', 'result-statement')
@@ -1945,32 +1993,32 @@
           .style('fill', '#333')
           .style('opacity', 0)
           .text('');
-        
+
         // === ARROWS ===
         // Input to DistilBERT
-        drawArrow(leftX, inputY - inputBoxHeight/2, leftX, distilbertY + boxHeight/2);
-        drawArrow(rightX, inputY - inputBoxHeight/2, rightX, distilbertY + boxHeight/2);
-        
+        drawArrow(leftX, inputY - inputBoxHeight / 2, leftX, distilbertY + boxHeight / 2);
+        drawArrow(rightX, inputY - inputBoxHeight / 2, rightX, distilbertY + boxHeight / 2);
+
         // DistilBERT to pooling
-        drawArrow(leftX, distilbertY - boxHeight/2, leftX, poolingY + smallBoxHeight/2);
-        drawArrow(rightX, distilbertY - boxHeight/2, rightX, poolingY + smallBoxHeight/2);
-        
+        drawArrow(leftX, distilbertY - boxHeight / 2, leftX, poolingY + smallBoxHeight / 2);
+        drawArrow(rightX, distilbertY - boxHeight / 2, rightX, poolingY + smallBoxHeight / 2);
+
         // Pooling to FFNN
-        drawArrow(leftX, poolingY - smallBoxHeight/2, leftX, ffnnY + smallBoxHeight/2);
-        drawArrow(rightX, poolingY - smallBoxHeight/2, rightX, ffnnY + smallBoxHeight/2);
-        
+        drawArrow(leftX, poolingY - smallBoxHeight / 2, leftX, ffnnY + smallBoxHeight / 2);
+        drawArrow(rightX, poolingY - smallBoxHeight / 2, rightX, ffnnY + smallBoxHeight / 2);
+
         // FFNN to Embedding
-        drawArrow(leftX, ffnnY - smallBoxHeight/2, leftX, embeddingY + boxHeight/2);
-        drawArrow(rightX, ffnnY - smallBoxHeight/2, rightX, embeddingY + boxHeight/2);
-        
+        drawArrow(leftX, ffnnY - smallBoxHeight / 2, leftX, embeddingY + boxHeight / 2);
+        drawArrow(rightX, ffnnY - smallBoxHeight / 2, rightX, embeddingY + boxHeight / 2);
+
         // Embedding to Cosine (diagonal)
-        drawArrow(leftX + 30, embeddingY - boxHeight/2, centerX - 40, cosineY + 30);
-        drawArrow(rightX - 30, embeddingY - boxHeight/2, centerX + 40, cosineY + 30);
-        
+        drawArrow(leftX + 30, embeddingY - boxHeight / 2, centerX - 40, cosineY + 30);
+        drawArrow(rightX - 30, embeddingY - boxHeight / 2, centerX + 40, cosineY + 30);
+
         // Cosine to Loss
         drawArrow(centerX, cosineY - 30, centerX, lossY + 25);
       }
-      
+
       function drawArrow(x1, y1, x2, y2) {
         svg.append('line')
           .attr('x1', x1)
@@ -1981,35 +2029,35 @@
           .attr('stroke-width', 2)
           .attr('marker-end', 'url(#arrowhead-bi)');
       }
-      
+
       // Update display with current pair and resize boxes
       function updatePair(pair) {
         // Update text
         svg.select('#input-left-text').text(pair.human);
         svg.select('#input-right-text').text(pair.database);
-        
+
         // Calculate box widths based on text length (approx 8px per character + padding)
         const minWidth = 180;
         const maxWidth = 280;
         const charWidth = 7.5;
         const padding = 40;
-        
+
         const leftWidth = Math.min(maxWidth, Math.max(minWidth, pair.human.length * charWidth + padding));
         const rightWidth = Math.min(maxWidth, Math.max(minWidth, pair.database.length * charWidth + padding));
-        
+
         // Update left box
         svg.select('#input-left-box')
           .transition().duration(300)
-          .attr('x', leftX - leftWidth/2)
+          .attr('x', leftX - leftWidth / 2)
           .attr('width', leftWidth);
-        
+
         // Update right box
         svg.select('#input-right-box')
           .transition().duration(300)
-          .attr('x', rightX - rightWidth/2)
+          .attr('x', rightX - rightWidth / 2)
           .attr('width', rightWidth);
       }
-      
+
       // Stop looping animation
       function stopLoop() {
         isLooping = false;
@@ -2021,14 +2069,14 @@
           .style('background', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')
           .style('opacity', 1);
       }
-      
+
       // Animation sequence
       function runAnimation(callback) {
         if (isAnimating) return;
         isAnimating = true;
-        
+
         const pair = addressPairs[currentPairIndex];
-        
+
         // Reset states
         svg.select('#embedding-left').attr('opacity', 0.5).style('filter', 'none');
         svg.select('#embedding-right').attr('opacity', 0.5).style('filter', 'none');
@@ -2047,7 +2095,7 @@
         svg.select('#embedding-left-vector').style('opacity', 0);
         svg.select('#embedding-right-label').style('opacity', 1);
         svg.select('#embedding-right-vector').style('opacity', 0);
-        
+
         // Step 1: Highlight inputs (0ms)
         svg.select('#input-left-box')
           .transition().duration(300)
@@ -2063,7 +2111,7 @@
           .transition().duration(400)
           .style('filter', 'none')
           .attr('opacity', 0.9);
-        
+
         // Step 2: DistilBERT processing (600ms)
         setTimeout(() => {
           svg.select('#distilbert-left')
@@ -2085,7 +2133,7 @@
             .attr('stroke', 'none')
             .attr('stroke-width', 0);
         }, 600);
-        
+
         // Step 3: Pooling (1200ms)
         setTimeout(() => {
           svg.select('#pooling-left')
@@ -2107,7 +2155,7 @@
             .attr('stroke', 'none')
             .attr('stroke-width', 0);
         }, 1200);
-        
+
         // Step 4: FFNN (1800ms)
         setTimeout(() => {
           svg.select('#ffnn-left')
@@ -2129,12 +2177,12 @@
             .attr('stroke', 'none')
             .attr('stroke-width', 0);
         }, 1800);
-        
+
         // Step 5: Embeddings generated (2400ms)
         setTimeout(() => {
           // Format embedding vectors for display
           const formatEmb = (emb) => '[' + emb.map(v => v.toFixed(2)).join(', ') + ', ...]';
-          
+
           svg.select('#embedding-left')
             .transition().duration(400)
             .style('filter', 'drop-shadow(0 0 10px rgba(0, 131, 143, 0.7))')
@@ -2147,7 +2195,7 @@
             .attr('opacity', 1)
             .transition().duration(300)
             .style('filter', 'none');
-          
+
           // Show embedding vectors (fade out label, fade in vector)
           svg.select('#embedding-left-label')
             .transition().duration(200)
@@ -2156,7 +2204,7 @@
             .text(formatEmb(pair.embeddingA))
             .transition().delay(200).duration(300)
             .style('opacity', 1);
-          
+
           svg.select('#embedding-right-label')
             .transition().duration(200)
             .style('opacity', 0);
@@ -2165,21 +2213,21 @@
             .transition().delay(200).duration(300)
             .style('opacity', 1);
         }, 2400);
-        
+
         // Step 6: Cosine similarity calculation (3000ms)
         setTimeout(() => {
           svg.select('#cosine-box')
             .transition().duration(400)
             .style('filter', 'drop-shadow(0 0 12px rgba(0, 131, 143, 0.7))')
             .attr('opacity', 1);
-          
+
           // Animate similarity value
           const similarity = pair.similarity;
           const simText = svg.select('#similarity-value');
           let currentVal = 0;
           const steps = 25;
           const stepTime = 25;
-          
+
           const interval = setInterval(() => {
             currentVal += similarity / steps;
             if (currentVal >= similarity) {
@@ -2188,7 +2236,7 @@
             }
             simText.text(currentVal.toFixed(2));
           }, stepTime);
-          
+
           // Color based on match after animation
           setTimeout(() => {
             if (pair.isMatch) {
@@ -2200,7 +2248,7 @@
             }
           }, 700);
         }, 3000);
-        
+
         // Step 7: Loss box (4000ms)
         setTimeout(() => {
           svg.select('#loss-box')
@@ -2210,28 +2258,28 @@
             .transition().duration(300)
             .style('filter', 'none');
         }, 4000);
-        
+
         // Step 8: Show result statement (4500ms)
         setTimeout(() => {
-          const resultText = pair.isMatch 
-            ? '✓ Match Found — Same Address' 
+          const resultText = pair.isMatch
+            ? '✓ Match Found — Same Address'
             : '✗ No Match — Different Addresses';
           const resultColor = pair.isMatch ? '#2E7D32' : '#C62828';
-          
+
           svg.select('#result-statement')
             .text(resultText)
             .style('fill', resultColor)
             .transition().duration(400)
             .style('opacity', 1);
         }, 4500);
-        
+
         // Animation complete (5300ms)
         setTimeout(() => {
           isAnimating = false;
           if (callback) callback();
         }, 5300);
       }
-      
+
       // Reset visual states for next animation
       function resetVisualStates() {
         svg.select('#embedding-left').attr('opacity', 0.5).style('filter', 'none');
@@ -2253,34 +2301,34 @@
         svg.select('#embedding-right-label').style('opacity', 1);
         svg.select('#embedding-right-vector').style('opacity', 0);
       }
-      
+
       // Move to next pair with visual update
       function goToNextPair() {
         currentPairIndex = (currentPairIndex + 1) % addressPairs.length;
         const pair = addressPairs[currentPairIndex];
-        
+
         resetVisualStates();
-        
+
         // Calculate box widths based on text length
         const minWidth = 180;
         const maxWidth = 280;
         const charWidth = 7.5;
         const padding = 40;
-        
+
         const leftWidth = Math.min(maxWidth, Math.max(minWidth, pair.human.length * charWidth + padding));
         const rightWidth = Math.min(maxWidth, Math.max(minWidth, pair.database.length * charWidth + padding));
-        
+
         // Update box sizes
         svg.select('#input-left-box')
           .transition().duration(300)
-          .attr('x', leftX - leftWidth/2)
+          .attr('x', leftX - leftWidth / 2)
           .attr('width', leftWidth);
-        
+
         svg.select('#input-right-box')
           .transition().duration(300)
-          .attr('x', rightX - rightWidth/2)
+          .attr('x', rightX - rightWidth / 2)
           .attr('width', rightWidth);
-        
+
         // Update text with fade
         svg.select('#input-left-text')
           .transition().duration(150)
@@ -2288,7 +2336,7 @@
           .transition().duration(150)
           .text(pair.human)
           .style('opacity', 1);
-        
+
         svg.select('#input-right-text')
           .transition().duration(150)
           .style('opacity', 0)
@@ -2296,30 +2344,30 @@
           .text(pair.database)
           .style('opacity', 1);
       }
-      
+
       // Start looping animation through all pairs
       function startLoop() {
         if (isLooping) {
           stopLoop();
           return;
         }
-        
+
         isLooping = true;
         playBtn.text('⏹ Stop')
           .style('background', 'linear-gradient(135deg, #e53935 0%, #c62828 100%)');
-        
+
         function runNextInLoop() {
           if (!isLooping) return;
-          
+
           runAnimation(() => {
             if (!isLooping) return;
-            
+
             // Wait 1.5 seconds before moving to next pair
             loopTimeoutId = setTimeout(() => {
               if (!isLooping) return;
-              
+
               goToNextPair();
-              
+
               // Wait 0.5 seconds for the text transition, then run next animation
               loopTimeoutId = setTimeout(() => {
                 if (!isLooping) return;
@@ -2328,14 +2376,14 @@
             }, 1500);
           });
         }
-        
+
         runNextInLoop();
       }
-      
+
       // Initialize
       drawStaticElements();
       updatePair(addressPairs[currentPairIndex]);
-      
+
       // Bind events
       playBtn.on('click', startLoop);
     }
@@ -2383,7 +2431,7 @@
       // Find bracketing theta values
       let lowerTheta = knownThetas[0];
       let upperTheta = knownThetas[knownThetas.length - 1];
-      
+
       for (let i = 0; i < knownThetas.length - 1; i++) {
         if (theta >= knownThetas[i] && theta <= knownThetas[i + 1]) {
           lowerTheta = knownThetas[i];
@@ -2407,7 +2455,7 @@
     function renderProbabilityHistogram() {
       const container = d3.select('#dcg-image-wrapper');
       container.selectAll('*').remove();
-      
+
       // Data for histograms - matching probability distributions
       const biEncoderData = [
         { range: '0.0-0.1', count: 0, probability: 0.0 },
@@ -2421,7 +2469,7 @@
         { range: '0.8-0.9', count: 0, probability: 0.8 },
         { range: '0.9-1.0', count: 60000, probability: 0.9 }
       ];
-      
+
       const biCEData = [
         { range: '0.0-0.1', count: 10000, probability: 0.0 },
         { range: '0.1-0.2', count: 0, probability: 0.1 },
@@ -2434,7 +2482,7 @@
         { range: '0.8-0.9', count: 0, probability: 0.8 },
         { range: '0.9-1.0', count: 50000, probability: 0.9 }
       ];
-      
+
       // Dimensions
       const margin = { top: 80, right: 60, bottom: 120, left: 100 };
       const chartWidth = 420;
@@ -2442,7 +2490,7 @@
       const gap = 140;
       const totalWidth = chartWidth * 2 + gap + margin.left + margin.right;
       const totalHeight = chartHeight + margin.top + margin.bottom;
-      
+
       // Create SVG container
       const svg = container.append('svg')
         .attr('width', '100%')
@@ -2454,27 +2502,27 @@
         .style('margin', '0 auto')
         .style('background-color', 'white')
         .style('border-radius', '8px');
-      
+
       // Create two chart groups
       const biEncoderGroup = svg.append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`);
-      
+
       const biCEGroup = svg.append('g')
         .attr('transform', `translate(${margin.left + chartWidth + gap}, ${margin.top})`);
-      
+
       // Scales
       const xScale = d3.scaleLinear()
         .domain([0, 1])
         .range([0, chartWidth]);
-      
+
       const yScale = d3.scaleLinear()
         .domain([0, 60000])
         .range([chartHeight, 0]);
-      
+
       // Function to create histogram
       function createHistogram(group, data, color, title) {
         const barWidth = chartWidth / data.length;
-        
+
         // Grid lines (horizontal)
         const yTicks = yScale.ticks(5).filter(t => t !== 0);
         group.append('g')
@@ -2489,7 +2537,7 @@
           .attr('stroke', 'lightgray')
           .attr('stroke-dasharray', '5')
           .attr('stroke-width', 2);
-        
+
         // Bars
         const bars = group.selectAll('.bar')
           .data(data)
@@ -2502,21 +2550,21 @@
           .attr('fill', color)
           .attr('opacity', 0.8)
           .style('cursor', 'pointer');
-        
+
         // Animate bars
         bars.transition()
           .duration(1000)
           .delay((d, i) => i * 50)
           .attr('y', d => yScale(d.count))
           .attr('height', d => chartHeight - yScale(d.count));
-        
+
         // Hover effects
-        bars.on('mouseover', function(event, d) {
+        bars.on('mouseover', function (event, d) {
           d3.select(this)
             .transition()
             .duration(200)
             .attr('opacity', 1);
-          
+
           // Show tooltip
           if (d.count > 0) {
             group.append('text')
@@ -2531,15 +2579,15 @@
               .text(`${d.count.toLocaleString()}`);
           }
         })
-        .on('mouseout', function() {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('opacity', 0.8);
-          
-          group.selectAll('.tooltip').remove();
-        });
-        
+          .on('mouseout', function () {
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr('opacity', 0.8);
+
+            group.selectAll('.tooltip').remove();
+          });
+
         // X-axis
         const xAxis = group.append('g')
           .attr('transform', `translate(0, ${chartHeight})`)
@@ -2550,14 +2598,14 @@
             .tickSizeOuter(0)
             .tickPadding(12))
           .style('font-size', '22px');
-        
+
         xAxis.selectAll('text')
           .style('fill', '#464646')
           .style('font-weight', '500')
           .style('font-family', "'Roboto', sans-serif");
-        
+
         xAxis.select('.domain').remove();
-        
+
         // Y-axis
         const yAxis = group.append('g')
           .call(d3.axisLeft(yScale)
@@ -2567,14 +2615,14 @@
             .tickSizeOuter(0)
             .tickPadding(12))
           .style('font-size', '22px');
-        
+
         yAxis.selectAll('text')
           .style('fill', '#464646')
           .style('font-weight', '500')
           .style('font-family', "'Roboto', sans-serif");
-        
+
         yAxis.select('.domain').remove();
-        
+
         // Add border frame
         // Top border (light grey)
         group.append('line')
@@ -2584,7 +2632,7 @@
           .attr('y2', 0)
           .attr('stroke', 'lightgray')
           .attr('stroke-width', 2);
-        
+
         // Right border (light grey)
         group.append('line')
           .attr('x1', chartWidth)
@@ -2593,7 +2641,7 @@
           .attr('y2', chartHeight)
           .attr('stroke', 'lightgray')
           .attr('stroke-width', 2);
-        
+
         // Left border (dark)
         group.append('line')
           .attr('x1', 0)
@@ -2602,7 +2650,7 @@
           .attr('y2', chartHeight)
           .attr('stroke', '#36454F')
           .attr('stroke-width', 2);
-        
+
         // Bottom border (dark)
         group.append('line')
           .attr('x1', 0)
@@ -2611,7 +2659,7 @@
           .attr('y2', chartHeight)
           .attr('stroke', '#36454F')
           .attr('stroke-width', 2);
-        
+
         // X-axis label
         group.append('text')
           .attr('x', chartWidth / 2)
@@ -2622,7 +2670,7 @@
           .style('fill', '#464646')
           .style('font-family', "'Roboto', sans-serif")
           .text('Matching Probability');
-        
+
         // Y-axis label
         group.append('text')
           .attr('transform', 'rotate(-90)')
@@ -2634,7 +2682,7 @@
           .style('fill', '#464646')
           .style('font-family', "'Roboto', sans-serif")
           .text('Count');
-        
+
         // Title
         group.append('text')
           .attr('x', chartWidth / 2)
@@ -2646,11 +2694,11 @@
           .style('font-family', "'Roboto', sans-serif")
           .text(title);
       }
-      
+
       // Create both histograms
       createHistogram(biEncoderGroup, biEncoderData, '#9c27b0', '(a) Bi-Encoder');
       createHistogram(biCEGroup, biCEData, '#00bcd4', '(b) BI+CE');
-      
+
       // Add overall caption below the charts
       svg.append('text')
         .attr('x', totalWidth / 2)
@@ -2667,12 +2715,12 @@
     function renderAccuracyCharts() {
       const container = d3.select('#accuracy-charts-wrapper');
       container.selectAll('*').remove();
-      
+
       // Data from the accuracy table (No Filter values) with descriptions
       const methods = ['Token Sort', 'Token Set', 'BM25 + CE', 'DPR', 'Bi-Encoder', 'BI+CE'];
       const arteryData = [51.09, 64.67, 79.78, 95.48, 96.49, 97.08];
       const doorData = [17.57, 27.09, 63.31, 85.91, 95.68, 95.32];
-      
+
       // Method descriptions and details
       const methodDetails = {
         'Token Sort': {
@@ -2724,7 +2772,7 @@
           discarded: 18.08
         }
       };
-      
+
       // Dimensions
       const margin = { top: 80, right: 40, bottom: 100, left: 80 };
       const chartWidth = 420;
@@ -2732,7 +2780,7 @@
       const gap = 100;
       const totalWidth = chartWidth * 2 + gap + margin.left + margin.right;
       const totalHeight = chartHeight + margin.top + margin.bottom;
-      
+
       // Create SVG container
       const svg = container.append('svg')
         .attr('width', '100%')
@@ -2744,24 +2792,24 @@
         .style('margin', '0 auto')
         .style('background-color', 'white')
         .style('border-radius', '8px');
-      
+
       // Create two chart groups
       const arteryGroup = svg.append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`);
-      
+
       const doorGroup = svg.append('g')
         .attr('transform', `translate(${margin.left + chartWidth + gap}, ${margin.top})`);
-      
+
       // Scales
       const xScale = d3.scaleBand()
         .domain(methods)
         .range([0, chartWidth])
         .padding(0.3);
-      
+
       const yScale = d3.scaleLinear()
         .domain([0, 100])
         .range([chartHeight, 0]);
-      
+
       // Colors for each method
       const colors = {
         'Token Sort': '#e57373',
@@ -2771,16 +2819,16 @@
         'Bi-Encoder': '#9575cd',
         'BI+CE': '#ff7043'
       };
-      
 
-      
+
+
       // Function to show detail panel
       function showDetailPanel(method, isArtery) {
         const details = methodDetails[method];
         const currentValue = isArtery ? arteryData[methods.indexOf(method)] : doorData[methods.indexOf(method)];
         const filteredValue = isArtery ? details.arteryFiltered : details.doorFiltered;
         const levelType = isArtery ? 'Artery' : 'Door';
-        
+
         const detailPanel = container.select('.detail-panel');
         detailPanel.style('display', 'block')
           .style('border-left-color', colors[method])
@@ -2818,7 +2866,7 @@
             </div>
           `);
       }
-      
+
       // Function to create bar chart
       function createBarChart(group, data, title, isArtery) {
         const chartData = methods.map((method, i) => ({
@@ -2826,7 +2874,7 @@
           value: data[i],
           isOurs: method === 'BI+CE'
         }));
-        
+
         // Grid lines (horizontal)
         const yTicks = yScale.ticks(5).filter(t => t !== 0);
         group.append('g')
@@ -2841,7 +2889,7 @@
           .attr('stroke', 'lightgray')
           .attr('stroke-dasharray', '5')
           .attr('stroke-width', 2);
-        
+
         // Bars
         const bars = group.selectAll('.bar')
           .data(chartData)
@@ -2851,26 +2899,32 @@
           .attr('y', chartHeight)
           .attr('width', xScale.bandwidth())
           .attr('height', 0)
-          .attr('fill', d => colors[d.method])
-          .attr('opacity', d => d.isOurs ? 1 : 0.8)
-          .attr('stroke', d => d.isOurs ? '#d84315' : 'none')
-          .attr('stroke-width', d => d.isOurs ? 3 : 0)
+          .attr('fill', d => {
+            const c = d3.hsl(colors[d.method]);
+            if (!d.isOurs) {
+              c.s *= 0.3; // Desaturate non-bi+ce
+            }
+            return c;
+          })
+          .attr('opacity', 1)
+          .attr('stroke', '#333')
+          .attr('stroke-width', 2)
           .style('cursor', 'pointer');
-        
+
         // Animate bars
         bars.transition()
           .duration(1000)
           .delay((d, i) => i * 100)
           .attr('y', d => yScale(d.value))
           .attr('height', d => chartHeight - yScale(d.value));
-        
+
         // Hover effects
-        bars.on('mouseover', function(event, d) {
+        bars.on('mouseover', function (event, d) {
           d3.select(this)
             .transition()
             .duration(200)
             .attr('opacity', 1);
-          
+
           group.append('text')
             .attr('class', 'tooltip')
             .attr('x', xScale(d.method) + xScale.bandwidth() / 2)
@@ -2882,62 +2936,62 @@
             .style('font-family', "'Roboto', sans-serif")
             .text(`${d.value.toFixed(2)}%`);
         })
-        .on('mouseout', function(event, d) {
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .attr('opacity', d.isOurs ? 1 : 0.8);
-          
-          group.selectAll('.tooltip').remove();
-        })
-        .on('click', function(event, d) {
-          // Remove previous selection highlight
-          svg.selectAll('.bar').attr('stroke-width', function(barData) {
-            return barData.isOurs ? 3 : 0;
+          .on('mouseout', function (event, d) {
+            d3.select(this)
+              .transition()
+              .duration(200)
+              .attr('opacity', 1);
+
+            group.selectAll('.tooltip').remove();
+          })
+          .on('click', function (event, d) {
+            // Remove previous selection highlight
+            svg.selectAll('.bar')
+              .attr('stroke', '#333')
+              .attr('stroke-width', 2);
+
+            // Highlight selected bar
+            d3.select(this)
+              .attr('stroke', colors[d.method])
+              .attr('stroke-width', 4);
+
+            // Show detail panel
+            showDetailPanel(d.method, isArtery);
           });
-          
-          // Highlight selected bar
-          d3.select(this)
-            .attr('stroke', colors[d.method])
-            .attr('stroke-width', 4);
-          
-          // Show detail panel
-          showDetailPanel(d.method, isArtery);
-        });
-        
+
         // Border frame
         group.append('line').attr('x1', 0).attr('x2', chartWidth).attr('y1', 0).attr('y2', 0).attr('stroke', 'lightgray').attr('stroke-width', 2);
         group.append('line').attr('x1', chartWidth).attr('x2', chartWidth).attr('y1', 0).attr('y2', chartHeight).attr('stroke', 'lightgray').attr('stroke-width', 2);
         group.append('line').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', chartHeight).attr('stroke', '#36454F').attr('stroke-width', 2);
         group.append('line').attr('x1', 0).attr('x2', chartWidth).attr('y1', chartHeight).attr('y2', chartHeight).attr('stroke', '#36454F').attr('stroke-width', 2);
-        
+
         // X-axis
         const xAxis = group.append('g')
           .attr('transform', `translate(0, ${chartHeight})`)
           .call(d3.axisBottom(xScale).tickSize(0).tickSizeOuter(0).tickPadding(10))
           .style('font-size', '14px');
-        
+
         xAxis.selectAll('text')
           .style('fill', '#464646')
           .style('font-weight', '500')
           .style('font-family', "'Roboto', sans-serif")
           .attr('transform', 'rotate(-35)')
           .style('text-anchor', 'end');
-        
+
         xAxis.select('.domain').remove();
-        
+
         // Y-axis
         const yAxis = group.append('g')
           .call(d3.axisLeft(yScale).ticks(5).tickFormat(d => d + '%').tickSize(0).tickSizeOuter(0).tickPadding(12))
           .style('font-size', '18px');
-        
+
         yAxis.selectAll('text')
           .style('fill', '#464646')
           .style('font-weight', '500')
           .style('font-family', "'Roboto', sans-serif");
-        
+
         yAxis.select('.domain').remove();
-        
+
         // Y-axis label
         group.append('text')
           .attr('transform', 'rotate(-90)')
@@ -2949,7 +3003,7 @@
           .style('fill', '#464646')
           .style('font-family', "'Roboto', sans-serif")
           .text('Accuracy (%)');
-        
+
         // Title
         group.append('text')
           .attr('x', chartWidth / 2)
@@ -2961,11 +3015,11 @@
           .style('font-family', "'Roboto', sans-serif")
           .text(title);
       }
-      
+
       // Create both charts
       createBarChart(arteryGroup, arteryData, '(a) Artery-Level Accuracy', true);
       createBarChart(doorGroup, doorData, '(b) Door-Level Accuracy', false);
-      
+
       // Add overall caption
       svg.append('text')
         .attr('x', totalWidth / 2)
@@ -2976,7 +3030,7 @@
         .style('fill', '#666')
         .style('font-family', "'Roboto', sans-serif")
         .text('Test-set accuracy comparison across methods (No Filter)');
-      
+
       // Create detail panel container AFTER the SVG (so it appears below)
       let detailPanel = container.select('.detail-panel');
       if (detailPanel.empty()) {
@@ -2998,18 +3052,18 @@
     function renderSpeedChart(showWithFilter = false) {
       const container = d3.select('#speed-chart-wrapper');
       container.selectAll('*').remove();
-      
+
       // Data from the inference speed table
       const methods = ['Token Sort', 'Token Set', 'BM25 + CE', 'DPR', 'Bi-Encoder', 'BI+CE'];
       const noFilterData = [0.01, 0.07, 0.09, 0.76, 0.91, 0.80];
       const withFilterData = [0.96, 0.61, 0.83, 3.64, 5.40, 3.70];
-      
+
       const data = methods.map((method, i) => ({
         method: method,
         value: showWithFilter ? withFilterData[i] : noFilterData[i],
         isOurs: method === 'BI+CE'
       }));
-      
+
       // Colors for each method (matching accuracy charts)
       const colors = {
         'Token Sort': '#e57373',
@@ -3019,14 +3073,14 @@
         'Bi-Encoder': '#9575cd',
         'BI+CE': '#ff7043'
       };
-      
+
       // Dimensions - matching accuracy charts style
       const margin = { top: 110, right: 40, bottom: 100, left: 80 };
       const chartWidth = 550;
       const chartHeight = 380;
       const totalWidth = chartWidth + margin.left + margin.right;
       const totalHeight = chartHeight + margin.top + margin.bottom;
-      
+
       // Create SVG
       const svg = container.append('svg')
         .attr('width', '100%')
@@ -3038,21 +3092,21 @@
         .style('margin', '0 auto')
         .style('background-color', 'white')
         .style('border-radius', '8px');
-      
+
       const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
-      
+
       // Scales
       const xScale = d3.scaleBand()
         .domain(methods)
         .range([0, chartWidth])
         .padding(0.3);
-      
+
       const maxY = showWithFilter ? 6 : 1; // Adjust scale based on data range
       const yScale = d3.scaleLinear()
         .domain([0, maxY])
         .range([chartHeight, 0]);
-      
+
       // Grid lines (horizontal)
       const yTicks = yScale.ticks(5).filter(t => t !== 0);
       g.append('g')
@@ -3067,7 +3121,7 @@
         .attr('stroke', 'lightgray')
         .attr('stroke-dasharray', '5')
         .attr('stroke-width', 2);
-      
+
       // Bars
       const bars = g.selectAll('.bar')
         .data(data)
@@ -3077,13 +3131,19 @@
         .attr('y', chartHeight)
         .attr('width', xScale.bandwidth())
         .attr('height', 0)
-        .attr('fill', d => colors[d.method])
-        .attr('opacity', d => d.isOurs ? 1 : 0.8)
-        .attr('stroke', d => d.isOurs ? '#d84315' : 'none')
-        .attr('stroke-width', d => d.isOurs ? 3 : 0)
+        .attr('fill', d => {
+          const c = d3.hsl(colors[d.method]);
+          if (!d.isOurs) {
+            c.s *= 0.3; // Desaturate non-bi+ce
+          }
+          return c;
+        })
+        .attr('opacity', 1)
+        .attr('stroke', '#333')
+        .attr('stroke-width', 2)
         .style('cursor', 'pointer')
         .style('pointer-events', 'none'); // Disable hover during animation
-      
+
       // Animate bars
       const totalAnimationTime = 1000 + (data.length - 1) * 100; // duration + max delay
       bars.transition()
@@ -3091,18 +3151,18 @@
         .delay((d, i) => i * 100)
         .attr('y', d => yScale(d.value))
         .attr('height', d => chartHeight - yScale(d.value))
-        .on('end', function() {
+        .on('end', function () {
           // Re-enable pointer events after animation
           d3.select(this).style('pointer-events', 'auto');
         });
-      
+
       // Hover effects (will only work after animation completes due to pointer-events)
-      bars.on('mouseover', function(event, d) {
+      bars.on('mouseover', function (event, d) {
         d3.select(this)
           .transition()
           .duration(200)
           .attr('opacity', 1);
-        
+
         g.append('text')
           .attr('class', 'speed-tooltip')
           .attr('x', xScale(d.method) + xScale.bandwidth() / 2)
@@ -3114,48 +3174,48 @@
           .style('font-family', "'Roboto', sans-serif")
           .text(`${d.value.toFixed(2)} it/s`);
       })
-      .on('mouseout', function(event, d) {
-        d3.select(this)
-          .transition()
-          .duration(200)
-          .attr('opacity', d.isOurs ? 1 : 0.8);
-        
-        g.selectAll('.speed-tooltip').remove();
-      });
-      
+        .on('mouseout', function (event, d) {
+          d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('opacity', 1);
+
+          g.selectAll('.speed-tooltip').remove();
+        });
+
       // Border frame
       g.append('line').attr('x1', 0).attr('x2', chartWidth).attr('y1', 0).attr('y2', 0).attr('stroke', 'lightgray').attr('stroke-width', 2);
       g.append('line').attr('x1', chartWidth).attr('x2', chartWidth).attr('y1', 0).attr('y2', chartHeight).attr('stroke', 'lightgray').attr('stroke-width', 2);
       g.append('line').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', chartHeight).attr('stroke', '#36454F').attr('stroke-width', 2);
       g.append('line').attr('x1', 0).attr('x2', chartWidth).attr('y1', chartHeight).attr('y2', chartHeight).attr('stroke', '#36454F').attr('stroke-width', 2);
-      
+
       // X-axis
       const xAxis = g.append('g')
         .attr('transform', `translate(0, ${chartHeight})`)
         .call(d3.axisBottom(xScale).tickSize(0).tickSizeOuter(0).tickPadding(10))
         .style('font-size', '14px');
-      
+
       xAxis.selectAll('text')
         .style('fill', '#464646')
         .style('font-weight', '500')
         .style('font-family', "'Roboto', sans-serif")
         .attr('transform', 'rotate(-35)')
         .style('text-anchor', 'end');
-      
+
       xAxis.select('.domain').remove();
-      
+
       // Y-axis
       const yAxis = g.append('g')
         .call(d3.axisLeft(yScale).ticks(5).tickFormat(d => d.toFixed(1)).tickSize(0).tickSizeOuter(0).tickPadding(12))
         .style('font-size', '18px');
-      
+
       yAxis.selectAll('text')
         .style('fill', '#464646')
         .style('font-weight', '500')
         .style('font-family', "'Roboto', sans-serif");
-      
+
       yAxis.select('.domain').remove();
-      
+
       // Y-axis label
       g.append('text')
         .attr('transform', 'rotate(-90)')
@@ -3167,7 +3227,7 @@
         .style('fill', '#464646')
         .style('font-family', "'Roboto', sans-serif")
         .text('Iterations per Second (it/s)');
-      
+
       // Title
       svg.append('text')
         .attr('x', totalWidth / 2)
@@ -3178,19 +3238,19 @@
         .style('fill', '#3e3e3e')
         .style('font-family', "'Roboto', sans-serif")
         .text('Inference Speed Comparison');
-      
+
       // Toggle buttons using foreignObject
       const buttonGroup = svg.append('foreignObject')
         .attr('x', totalWidth / 2 - 150)
         .attr('y', 45)
         .attr('width', 300)
         .attr('height', 50);
-      
+
       const buttonDiv = buttonGroup.append('xhtml:div')
         .style('display', 'flex')
         .style('justify-content', 'center')
         .style('gap', '15px');
-      
+
       const noFilterBtn = buttonDiv.append('xhtml:button')
         .attr('id', 'speed-no-filter-btn-inner')
         .style('padding', '8px 20px')
@@ -3204,8 +3264,8 @@
         .style('color', showWithFilter ? '#464646' : 'white')
         .style('transition', 'all 0.25s ease')
         .text('No CP4 Filter')
-        .on('click', function() { renderSpeedChart(false); });
-      
+        .on('click', function () { renderSpeedChart(false); });
+
       const withFilterBtn = buttonDiv.append('xhtml:button')
         .attr('id', 'speed-with-filter-btn-inner')
         .style('padding', '8px 20px')
@@ -3219,58 +3279,58 @@
         .style('color', showWithFilter ? 'white' : '#464646')
         .style('transition', 'all 0.25s ease')
         .text('With CP4 Filter')
-        .on('click', function() { renderSpeedChart(true); });
+        .on('click', function () { renderSpeedChart(true); });
     }
 
     // Function to render QA Accuracy bar chart
     function renderQAChart() {
       const container = d3.select('#qa-image-wrapper');
       container.selectAll('*').remove();
-      
+
       // Data: QA Accuracy percentages with descriptions
       const data = [
-        { 
-          method: 'Closed-Book', 
-          accuracy: 26.43, 
-          color: '#FF6B6B', 
+        {
+          method: 'Closed-Book',
+          accuracy: 26.43,
+          color: '#FF6B6B',
           label: 'Closed-Book',
           description: 'No context given. Model answers from pre-trained knowledge only.'
         },
-        { 
-          method: 'Open-Book', 
-          accuracy: 37.76, 
-          color: '#4ECDC4', 
+        {
+          method: 'Open-Book',
+          accuracy: 37.76,
+          color: '#4ECDC4',
           label: 'Open-Book',
           description: 'Full document provided. Model can reference any part of the text.'
         },
-        { 
-          method: 'RAG - Recursive Chunks', 
-          accuracy: 84.96, 
-          color: '#45B7D1', 
+        {
+          method: 'RAG - Recursive Chunks',
+          accuracy: 84.96,
+          color: '#45B7D1',
           label: 'RAG - Recursive Chunks',
           description: 'Documents split at fixed token boundaries, then relevant chunks retrieved.'
         },
-        { 
-          method: 'RAG - LumberChunker', 
-          accuracy: 88.89, 
-          color: '#96CEB4', 
+        {
+          method: 'RAG - LumberChunker',
+          accuracy: 88.89,
+          color: '#96CEB4',
           label: 'RAG - LumberChunker',
           description: 'Documents segmented at semantic boundaries by LLM for better context.'
         },
-        { 
-          method: 'RAG - Manual Chunks', 
-          accuracy: 90.53, 
-          color: '#FFEAA7', 
+        {
+          method: 'RAG - Manual Chunks',
+          accuracy: 90.53,
+          color: '#FFEAA7',
           label: 'RAG - Manual Chunks',
           description: 'Human experts segment at natural topic boundaries (gold standard).'
         }
       ];
-      
+
       // Dimensions - increased size
       const margin = { top: 80, right: 60, bottom: 120, left: 120 };
       const width = 1600 - margin.left - margin.right;
       const height = 800 - margin.top - margin.bottom;
-      
+
       // Create SVG
       const svg = container.append('svg')
         .attr('width', '100%')
@@ -3280,19 +3340,19 @@
         .style('max-width', '95%')
         .style('display', 'block')
         .style('margin', '0 auto');
-      
+
       const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
-      
+
       // Scales
       const x = d3.scaleLinear()
         .domain([1, 20])
         .range([0, width]);
-      
+
       const y = d3.scaleLinear()
         .domain([0.40, 0.665]) // reduced buffer zone by half
         .range([height, 0]);
-      
+
       // Grid lines (disco style)
       // Horizontal grid lines
       const yTicks = y.ticks(6).filter(t => t !== y.domain()[0] && t !== y.domain()[1]);
@@ -3308,7 +3368,7 @@
         .attr('stroke', 'lightgray')
         .attr('stroke-dasharray', '5')
         .attr('stroke-width', 2);
-      
+
       // Vertical grid lines
       const xTicks = [1, 2, 5, 10, 20];
       g.append('g')
@@ -3323,33 +3383,33 @@
         .attr('stroke', 'lightgray')
         .attr('stroke-dasharray', '5')
         .attr('stroke-width', 2);
-      
+
       // Axes with black borders
       const xAxis = g.append('g')
         .attr('transform', `translate(0,${height})`)
         .call(d3.axisBottom(x).tickValues([1, 2, 5, 10, 20]).tickFormat(d => d).tickSize(0).tickSizeOuter(0).tickPadding(12))
         .style('font-size', '22px');
-      
+
       xAxis.selectAll('text')
         .style('fill', '#464646')
         .style('font-weight', '500')
         .style('font-family', "'Roboto', sans-serif");
-      
+
       // Remove the x-axis domain line
       xAxis.select('.domain').remove();
-      
+
       const yAxis = g.append('g')
         .call(d3.axisLeft(y).ticks(6).tickFormat(d => d.toFixed(2)).tickSize(0).tickSizeOuter(0).tickPadding(12))
         .style('font-size', '22px');
-      
+
       yAxis.selectAll('text')
         .style('fill', '#464646')
         .style('font-weight', '500')
         .style('font-family', "'Roboto', sans-serif");
-      
+
       // Remove the y-axis domain line
       yAxis.select('.domain').remove();
-      
+
       // Add border frame (disco style)
       // Top border (light grey)
       g.append('line')
@@ -3359,7 +3419,7 @@
         .attr('y2', 0)
         .attr('stroke', 'lightgray')
         .attr('stroke-width', 2);
-      
+
       // Right border (light grey)
       g.append('line')
         .attr('x1', width)
@@ -3368,7 +3428,7 @@
         .attr('y2', height)
         .attr('stroke', 'lightgray')
         .attr('stroke-width', 2);
-      
+
       // Left border (dark)
       g.append('line')
         .attr('x1', 0)
@@ -3377,7 +3437,7 @@
         .attr('y2', height)
         .attr('stroke', '#36454F')
         .attr('stroke-width', 2);
-      
+
       // Bottom border (dark)
       g.append('line')
         .attr('x1', 0)
@@ -3386,7 +3446,7 @@
         .attr('y2', height)
         .attr('stroke', '#36454F')
         .attr('stroke-width', 2);
-      
+
       // Axis labels
       svg.append('text')
         .attr('x', (width + margin.left + margin.right) / 2)
@@ -3397,7 +3457,7 @@
         .style('fill', '#464646')
         .style('font-family', "'Roboto', sans-serif")
         .text('k');
-      
+
       svg.append('text')
         .attr('transform', 'rotate(-90)')
         .attr('x', -(height + margin.top + margin.bottom) / 2 + 30)
@@ -3408,13 +3468,13 @@
         .style('fill', '#464646')
         .style('font-family', "'Roboto', sans-serif")
         .text('DCG');
-      
+
       // Line generator
       const line = d3.line()
         .x(d => x(d.k))
         .y(d => y(d.dcg))
         .curve(d3.curveMonotoneX);
-      
+
       // All reference theta values to show as transparent lines
       const referenceThetaValues = [
         { theta: 450, color: '#1e88e5', dashArray: '4,2' },
@@ -3422,18 +3482,18 @@
         { theta: 650, color: '#26a69a', dashArray: '6,3' },
         { theta: 1000, color: '#ff7043', dashArray: '2,3' }
       ];
-      
+
       // Set initial color to match the theta value
       const initialSliderIndex = parseInt(slider.value);
       thetaValueDisplay.style.color = referenceThetaValues[initialSliderIndex].color;
-      
+
       // Create a group for all reference lines
       const referenceLinesGroup = g.append('g').attr('class', 'reference-lines-group');
-      
+
       // Draw all reference lines as transparent
       referenceThetaValues.forEach((refConfig, index) => {
         const refData = interpolateDCGData(refConfig.theta);
-        
+
         // Reference line
         const refLine = referenceLinesGroup.append('path')
           .datum(refData)
@@ -3444,7 +3504,7 @@
           .attr('stroke-dasharray', refConfig.dashArray)
           .attr('opacity', 0.2)
           .attr('d', line);
-        
+
         // Reference markers
         referenceLinesGroup.selectAll(`.reference-marker-${refConfig.theta}`)
           .data(refData)
@@ -3458,7 +3518,7 @@
           .attr('stroke-width', 1.5)
           .attr('opacity', 0.2);
       });
-      
+
       // Active line (changes with slider)
       const activeLine = g.append('path')
         .attr('class', 'active-line')
@@ -3466,19 +3526,19 @@
         .attr('stroke', referenceThetaValues[initialSliderIndex].color)
         .attr('stroke-width', 3)
         .attr('d', line(interpolateDCGData(currentTheta)));
-      
+
       // Active markers
       const activeMarkersGroup = g.append('g').attr('class', 'active-markers-group');
-      
+
       function updateActiveMarkers(theta, color = '#2196F3') {
         const data = interpolateDCGData(theta);
-        
+
         const markers = activeMarkersGroup.selectAll('.active-marker')
           .data(data);
-        
+
         // Exit
         markers.exit().remove();
-        
+
         // Enter + Update
         const markersEnter = markers.enter()
           .append('circle')
@@ -3488,22 +3548,22 @@
           .attr('stroke', color)
           .attr('stroke-width', 2.5)
           .style('cursor', 'pointer');
-        
+
         markers.merge(markersEnter)
           .transition()
           .duration(300)
           .attr('cx', d => x(d.k))
           .attr('cy', d => y(d.dcg))
           .attr('stroke', color);
-        
+
         // Hover effects
         activeMarkersGroup.selectAll('.active-marker')
-          .on('mouseover', function(event, d) {
+          .on('mouseover', function (event, d) {
             d3.select(this)
               .transition()
               .duration(150)
               .attr('r', 7);
-            
+
             // Show tooltip
             const tooltip = g.append('text')
               .attr('class', 'dcg-tooltip')
@@ -3516,36 +3576,36 @@
               .style('font-family', "'Roboto', sans-serif")
               .text(`θ=${theta}: ${d.dcg.toFixed(3)}`);
           })
-          .on('mouseout', function() {
+          .on('mouseout', function () {
             d3.select(this)
               .transition()
               .duration(150)
               .attr('r', 5);
-            
+
             g.selectAll('.dcg-tooltip').remove();
           });
       }
-      
+
       // Initial markers
       updateActiveMarkers(currentTheta, referenceThetaValues[initialSliderIndex].color);
-      
-  // Add labels at the top of the chart in legend format
+
+      // Add labels at the top of the chart in legend format
       const legendGroup = g.append('g').attr('class', 'line-labels-group');
-      
+
       // Store references to legend text elements for updating
       const legendTexts = [];
-      
-  // Calculate spacing for horizontal legend (increased for larger labels)
-  const legendSpacing = 200;
+
+      // Calculate spacing for horizontal legend (increased for larger labels)
+      const legendSpacing = 200;
       const legendStartX = (width - (referenceThetaValues.length - 1) * legendSpacing) / 2;
-      
+
       // Reference theta labels positioned at the top with symbols
       referenceThetaValues.forEach((refConfig, i) => {
         const labelGroup = legendGroup.append('g')
           .attr('class', `label-${refConfig.theta}`);
-        
+
         const labelX = legendStartX + (i * legendSpacing);
-        
+
         // Add line segment as symbol (no pattern, extends both sides around the circle like -o-)
         const centerX = labelX - 12.5; // circle center
         const symbolY = -38;
@@ -3557,7 +3617,7 @@
           .attr('y2', symbolY)
           .attr('stroke', refConfig.color)
           .attr('stroke-width', 6);
-        
+
         // Add circle marker (ring style so line is visible through it)
         const symbolCircle = labelGroup.append('circle')
           .attr('cx', centerX)
@@ -3566,7 +3626,7 @@
           .attr('fill', 'white')
           .attr('stroke', refConfig.color)
           .attr('stroke-width', 5);
-        
+
         const labelText = labelGroup.append('text')
           .attr('x', labelX + 8)
           .attr('y', symbolY)
@@ -3577,20 +3637,20 @@
           .style('font-weight', refConfig.theta === currentTheta ? '700' : '400')
           .style('fill', '#424242')
           .text(`θ=${refConfig.theta}`);
-        
+
         // Store reference for updating
         legendTexts.push({ element: labelText, theta: refConfig.theta });
       });
-      
+
       // Slider interaction - map slider positions to predefined theta values
-      slider.addEventListener('input', function() {
+      slider.addEventListener('input', function () {
         const sliderIndex = parseInt(this.value);
         const newTheta = thetaValues[sliderIndex];
         const newColor = referenceThetaValues[sliderIndex].color;
         currentTheta = newTheta;
         thetaValueDisplay.textContent = newTheta;
         thetaValueDisplay.style.color = newColor;
-        
+
         // Update slider markers
         document.querySelectorAll('.slider-marker').forEach((marker, idx) => {
           const circle = marker.querySelector('div');
@@ -3600,26 +3660,26 @@
             circle.style.backgroundColor = 'white';
           }
         });
-        
+
         // Update the active line
         const newData = interpolateDCGData(newTheta);
-        
+
         // Interrupt any ongoing transitions and clear dasharray
         activeLine
           .interrupt()
           .attr('stroke-dasharray', 'none')
           .attr('stroke-dashoffset', 0);
-        
+
         // Now transition to the new line
         activeLine
           .transition()
           .duration(300)
           .attr('d', line(newData))
           .attr('stroke', newColor);
-        
+
         // Update markers
         updateActiveMarkers(newTheta, newColor);
-        
+
         // Update legend - bold the selected theta value
         legendTexts.forEach(({ element, theta }) => {
           const isSelected = theta === newTheta;
@@ -3628,22 +3688,22 @@
             .style('opacity', isSelected ? 1 : 0.7);
         });
       });
-      
+
       // Set up Intersection Observer for scroll-triggered animation
       const dcgWrapper = document.getElementById('dcg-image-wrapper');
       let hasAnimatedDCG = false;
-      
+
       const dcgObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting && !hasAnimatedDCG) {
             hasAnimatedDCG = true;
-            
+
             // Animate all reference lines
             referenceThetaValues.forEach((refConfig, index) => {
               const refLine = referenceLinesGroup.select(`.reference-line-${refConfig.theta}`);
               const refPath = refLine.node();
               const refLength = refPath.getTotalLength();
-              
+
               refLine
                 .attr('stroke-dasharray', `${refConfig.dashArray},${refLength}`)
                 .attr('stroke-dashoffset', refLength)
@@ -3652,10 +3712,10 @@
                 .delay(index * 150)
                 .ease(d3.easeQuadInOut)
                 .attr('stroke-dashoffset', 0)
-                .on('end', function() {
+                .on('end', function () {
                   d3.select(this).attr('stroke-dasharray', refConfig.dashArray);
                 });
-              
+
               // Animate reference markers
               referenceLinesGroup.selectAll(`.reference-marker-${refConfig.theta}`)
                 .attr('opacity', 0)
@@ -3664,11 +3724,11 @@
                 .duration(400)
                 .attr('opacity', 0.2);
             });
-            
+
             // Animate active line
             const activePath = activeLine.node();
             const activeLength = activePath.getTotalLength();
-            
+
             activeLine
               .attr('stroke-dasharray', activeLength)
               .attr('stroke-dashoffset', activeLength)
@@ -3677,10 +3737,10 @@
               .delay(800)
               .ease(d3.easeQuadInOut)
               .attr('stroke-dashoffset', 0)
-              .on('end', function() {
+              .on('end', function () {
                 d3.select(this).attr('stroke-dasharray', 'none');
               });
-            
+
             // Animate active markers
             activeMarkersGroup.selectAll('.active-marker')
               .attr('opacity', 0)
@@ -3688,7 +3748,7 @@
               .delay((d, i) => 2600 + i * 150)
               .duration(400)
               .attr('opacity', 1);
-            
+
             // Animate legend
             legendGroup
               .attr('opacity', 0)
@@ -3702,7 +3762,7 @@
         threshold: 0.3,
         rootMargin: '0px'
       });
-      
+
       if (dcgWrapper) {
         dcgObserver.observe(dcgWrapper);
       }
@@ -3712,51 +3772,51 @@
     function renderQAChart() {
       const container = d3.select('#qa-image-wrapper');
       container.selectAll('*').remove();
-      
+
       // Data: QA Accuracy percentages with descriptions
       const data = [
-        { 
-          method: 'Closed-Book', 
-          accuracy: 26.43, 
-          color: '#FF6B6B', 
+        {
+          method: 'Closed-Book',
+          accuracy: 26.43,
+          color: '#FF6B6B',
           label: 'Closed-Book',
           description: 'No context given. Model answers from pre-trained knowledge only.'
         },
-        { 
-          method: 'Open-Book', 
-          accuracy: 37.76, 
-          color: '#4ECDC4', 
+        {
+          method: 'Open-Book',
+          accuracy: 37.76,
+          color: '#4ECDC4',
           label: 'Open-Book',
           description: 'Full document provided. Model can reference any part of the text.'
         },
-        { 
-          method: 'RAG - Recursive Chunks', 
-          accuracy: 84.96, 
-          color: '#45B7D1', 
+        {
+          method: 'RAG - Recursive Chunks',
+          accuracy: 84.96,
+          color: '#45B7D1',
           label: 'RAG - Recursive Chunks',
           description: 'Documents split at fixed token boundaries, then relevant chunks retrieved.'
         },
-        { 
-          method: 'RAG - LumberChunker', 
-          accuracy: 88.89, 
-          color: '#96CEB4', 
+        {
+          method: 'RAG - LumberChunker',
+          accuracy: 88.89,
+          color: '#96CEB4',
           label: 'RAG - LumberChunker',
           description: 'Documents segmented at semantic boundaries by LLM for better context.'
         },
-        { 
-          method: 'RAG - Manual Chunks', 
-          accuracy: 90.53, 
-          color: '#FFEAA7', 
+        {
+          method: 'RAG - Manual Chunks',
+          accuracy: 90.53,
+          color: '#FFEAA7',
           label: 'RAG - Manual Chunks',
           description: 'Human experts segment at natural topic boundaries (gold standard).'
         }
       ];
-      
+
       // Dimensions - increased size
       const margin = { top: 80, right: 60, bottom: 120, left: 120 };
       const width = 1600 - margin.left - margin.right;
       const height = 800 - margin.top - margin.bottom;
-      
+
       // Create SVG
       const svg = container.append('svg')
         .attr('width', '100%')
@@ -3769,23 +3829,23 @@
         .style('background-color', 'white')
         .style('border-radius', '8px')
         .style('box-shadow', 'none');
-      
+
       const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
-      
+
       // Tooltip group for click interactions
       let activeTooltip = null;
-      
+
       // Scales
       const x = d3.scaleBand()
         .domain(data.map((d, i) => i))
         .range([0, width])
         .padding(0.4);
-      
+
       const y = d3.scaleLinear()
         .domain([0, 105]) // up to 105% for buffer zone like disco
         .range([height, 0]);
-      
+
       // Dashed grid lines in background (disco style)
       const yTicksQA = y.ticks(5).filter(t => t !== 0);
       g.append('g')
@@ -3800,26 +3860,26 @@
         .attr('stroke', 'lightgray')
         .attr('stroke-width', 2)
         .attr('stroke-dasharray', '5');
-      
+
       // Axes with borders
       const xAxis = g.append('g')
         .attr('transform', `translate(0,${height})`)
         .call(d3.axisBottom(x).tickFormat(() => '').tickSize(0).tickSizeOuter(0));
-      
+
       xAxis.select('.domain').remove();
       xAxis.selectAll('.tick').remove();
-      
+
       const yAxis = g.append('g')
         .call(d3.axisLeft(y).ticks(5).tickFormat(d => d).tickSize(0).tickSizeOuter(0).tickPadding(12));
-      
+
       yAxis.selectAll('text')
         .style('fill', '#464646')
         .style('font-size', '28px')
         .style('font-weight', '500')
         .style('font-family', "'Roboto', sans-serif");
-      
+
       yAxis.select('.domain').remove();
-      
+
       // Borders (disco style)
       // Top border (light grey)
       g.append('line')
@@ -3829,7 +3889,7 @@
         .attr('y2', 0)
         .attr('stroke', 'lightgray')
         .attr('stroke-width', 2);
-      
+
       // Right border (light grey)
       g.append('line')
         .attr('x1', width)
@@ -3838,7 +3898,7 @@
         .attr('y2', height)
         .attr('stroke', 'lightgray')
         .attr('stroke-width', 2);
-      
+
       // Left border (dark)
       g.append('line')
         .attr('x1', 0)
@@ -3847,7 +3907,7 @@
         .attr('y2', height)
         .attr('stroke', '#36454F')
         .attr('stroke-width', 2);
-      
+
       // Bottom border (dark)
       g.append('line')
         .attr('x1', 0)
@@ -3856,7 +3916,7 @@
         .attr('y2', height)
         .attr('stroke', '#36454F')
         .attr('stroke-width', 2);
-      
+
       // Axis label
       svg.append('text')
         .attr('transform', 'rotate(-90)')
@@ -3868,10 +3928,10 @@
         .style('font-family', "'Roboto', sans-serif")
         .style('fill', '#464646')
         .text('Accuracy (%)');
-      
+
       // Draw bars (without animation initially)
       let isAnimating = false;
-      
+
       const bars = g.selectAll('.bar')
         .data(data)
         .join('rect')
@@ -3885,7 +3945,7 @@
         .attr('stroke-width', 1.5)
         .attr('opacity', 0.7)
         .style('cursor', 'pointer')
-        .on('mouseover', function(event, d) {
+        .on('mouseover', function (event, d) {
           // Only allow hover effect if not currently animating
           if (!isAnimating) {
             d3.select(this)
@@ -3894,7 +3954,7 @@
               .attr('opacity', 0.5);
           }
         })
-        .on('mouseout', function() {
+        .on('mouseout', function () {
           // Only allow hover effect if not currently animating
           if (!isAnimating) {
             d3.select(this)
@@ -3903,32 +3963,32 @@
               .attr('opacity', 0.7);
           }
         })
-        .on('click', function(event, d) {
+        .on('click', function (event, d) {
           event.stopPropagation();
-          
+
           // Remove existing tooltip if any
           if (activeTooltip) {
             activeTooltip.remove();
             activeTooltip = null;
           }
-          
+
           // Get bar position
           const barIndex = data.indexOf(d);
           const barX = x(barIndex);
           const barY = y(d.accuracy);
-          
+
           // Create tooltip group
           const tooltip = g.append('g')
             .attr('class', 'info-tooltip')
             .style('pointer-events', 'all');
-          
+
           activeTooltip = tooltip;
-          
+
           // Tooltip dimensions
           const padding = 20;
           const maxTooltipWidth = 400;
           const lineHeight = 24;
-          
+
           // Create temporary text to measure title width
           const tempTitle = tooltip.append('text')
             .style('font-size', '26px')
@@ -3938,11 +3998,11 @@
             .text(d.label);
           const titleWidth = tempTitle.node().getComputedTextLength();
           tempTitle.remove();
-          
+
           // Calculate tooltip width based on content
           const tooltipWidth = Math.min(Math.max(titleWidth + 2 * padding + 30, 320), maxTooltipWidth);
           const maxWidth = tooltipWidth - 2 * padding;
-          
+
           // Calculate wrapped text lines to determine height
           const words = d.description.split(' ');
           let line = '';
@@ -3951,28 +4011,28 @@
             .style('font-size', '22px')
             .style('font-family', "'Roboto', sans-serif")
             .style('visibility', 'hidden');
-          
+
           words.forEach((word, i) => {
             const testLine = line + word + ' ';
             tempText.text(testLine);
             const testWidth = tempText.node().getComputedTextLength();
-            
+
             if (testWidth > maxWidth && line !== '') {
               lineCount++;
               line = word + ' ';
             } else {
               line = testLine;
             }
-            
+
             if (i === words.length - 1) {
               lineCount++;
             }
           });
           tempText.remove();
-          
+
           // Calculate tooltip height based on number of lines
           const tooltipHeight = padding * 2 + 14 + 28 + (lineCount * lineHeight);
-          
+
           // Position tooltip to the right of the bar, or left if near edge
           let tooltipX = barX + x.bandwidth() + 15;
           if (tooltipX + tooltipWidth > width) {
@@ -3981,7 +4041,7 @@
           let tooltipY = barY - tooltipHeight / 2;
           if (tooltipY < 0) tooltipY = 10;
           if (tooltipY + tooltipHeight > height) tooltipY = height - tooltipHeight - 10;
-          
+
           // Tooltip background
           const bgRect = tooltip.append('rect')
             .attr('x', tooltipX)
@@ -3994,26 +4054,26 @@
             .attr('rx', 6)
             .style('filter', 'none')
             .attr('opacity', 0);
-          
+
           bgRect.transition()
             .duration(200)
             .attr('opacity', 1);
-          
+
           // Close button - better positioned
           const closeBtn = tooltip.append('g')
             .attr('transform', `translate(${tooltipX + tooltipWidth - 24}, ${tooltipY + 14})`)
             .style('cursor', 'pointer')
             .attr('opacity', 0)
-            .on('click', function(e) {
+            .on('click', function (e) {
               e.stopPropagation();
               tooltip.transition().duration(150).attr('opacity', 0).remove();
               activeTooltip = null;
             });
-          
+
           closeBtn.append('circle')
             .attr('r', 10)
             .attr('fill', '#e0e0e0');
-          
+
           closeBtn.append('text')
             .attr('text-anchor', 'middle')
             .attr('dy', '0.35em')
@@ -4021,9 +4081,9 @@
             .style('font-weight', 'bold')
             .style('fill', '#424242')
             .text('×');
-          
+
           closeBtn.transition().duration(200).attr('opacity', 1);
-          
+
           // Tooltip title - larger font
           tooltip.append('text')
             .attr('x', tooltipX + padding)
@@ -4037,12 +4097,12 @@
             .transition()
             .duration(200)
             .attr('opacity', 1);
-          
+
           // Tooltip description (wrapped text) - larger font
           line = '';
           let lineNumber = 0;
           const textY = tooltipY + padding + 42;
-          
+
           words.forEach((word, i) => {
             const testLine = line + word + ' ';
             const testText = tooltip.append('text')
@@ -4051,10 +4111,10 @@
               .style('font-size', '22px')
               .style('font-family', "'Roboto', sans-serif")
               .text(testLine);
-            
+
             const testWidth = testText.node().getComputedTextLength();
             testText.remove();
-            
+
             if (testWidth > maxWidth && line !== '') {
               tooltip.append('text')
                 .attr('x', tooltipX + padding)
@@ -4067,13 +4127,13 @@
                 .transition()
                 .duration(200)
                 .attr('opacity', 1);
-              
+
               line = word + ' ';
               lineNumber++;
             } else {
               line = testLine;
             }
-            
+
             // Last word
             if (i === words.length - 1) {
               tooltip.append('text')
@@ -4090,7 +4150,7 @@
             }
           });
         });
-      
+
       // Add value labels (hidden initially)
       const labels = g.selectAll('.label')
         .data(data)
@@ -4105,7 +4165,7 @@
         .style('fill', '#333')
         .attr('opacity', 0)
         .text(d => d.accuracy.toFixed(2));
-      
+
       // Add method labels at bottom of each bar
       const bottomLabels = g.selectAll('.bottom-label')
         .data(data)
@@ -4118,10 +4178,10 @@
         .style('font-weight', '500')
         .style('font-family', "'Roboto', sans-serif")
         .style('fill', '#464646')
-        .each(function(d, i) {
+        .each(function (d, i) {
           const text = d3.select(this);
           const words = d.label.split(' - ');
-          
+
           if (words.length > 1) {
             // Multi-line label for methods with " - "
             text.append('tspan')
@@ -4137,12 +4197,12 @@
             text.text(d.label);
           }
         });
-      
+
       // Add legend in top-left corner
       const legendGroup = g.append('g')
         .attr('transform', `translate(30, 30)`)
         .attr('opacity', 0);
-      
+
       // Legend background
       legendGroup.append('rect')
         .attr('x', -15)
@@ -4153,15 +4213,15 @@
         .attr('stroke', '#464646')
         .attr('stroke-width', 2)
         .attr('rx', 3);
-      
+
       // Legend items with compact formatting
       let yOffset = 12;
-      
+
       for (let i = 0; i < data.length; i++) {
         const d = data[i];
         const legendRow = legendGroup.append('g')
           .attr('transform', `translate(5, ${yOffset})`);
-        
+
         // Color box
         legendRow.append('rect')
           .attr('x', 0)
@@ -4171,7 +4231,7 @@
           .attr('fill', d.color)
           .attr('stroke', '#464646')
           .attr('stroke-width', 1.5);
-        
+
         // Single line label for all entries
         legendRow.append('text')
           .attr('x', 32)
@@ -4181,20 +4241,20 @@
           .style('font-family', "'Roboto', sans-serif")
           .style('fill', '#464646')
           .text(d.label);
-        
+
         yOffset += 36;
       }
-      
+
       // Set up Intersection Observer for scroll-triggered animation
       const qaWrapper = document.getElementById('qa-image-wrapper');
       let hasAnimated = false;
-      
+
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting && !hasAnimated) {
             hasAnimated = true;
             isAnimating = true;
-            
+
             // Animate bars sliding up
             bars.transition()
               .delay((d, i) => i * 150)
@@ -4202,19 +4262,19 @@
               .ease(d3.easeCubicOut)
               .attr('y', d => y(d.accuracy))
               .attr('height', d => height - y(d.accuracy))
-              .on('end', function(d, i) {
+              .on('end', function (d, i) {
                 // Re-enable hover effects after the last bar finishes animating
                 if (i === data.length - 1) {
                   isAnimating = false;
                 }
               });
-            
+
             // Animate labels fading in
             labels.transition()
               .delay((d, i) => i * 150 + 800)
               .duration(500)
               .attr('opacity', 1);
-            
+
             // Animate legend appearance
             legendGroup.transition()
               .delay(1200)
@@ -4226,20 +4286,20 @@
         threshold: 0.3,
         rootMargin: '0px'
       });
-      
+
       if (qaWrapper) {
         observer.observe(qaWrapper);
       }
-      
+
       // Click outside to close tooltip
-      svg.on('click', function(event) {
+      svg.on('click', function (event) {
         if (activeTooltip && event.target.tagName === 'svg') {
           activeTooltip.transition().duration(150).attr('opacity', 0).remove();
           activeTooltip = null;
         }
       });
-      
-      g.on('click', function(event) {
+
+      g.on('click', function (event) {
         if (activeTooltip && !event.target.classList.contains('bar')) {
           activeTooltip.transition().duration(150).attr('opacity', 0).remove();
           activeTooltip = null;
@@ -4248,36 +4308,36 @@
     }
 
     // Render all visualizations when DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       renderPipelineImage();
       renderBiEncoderInteractive();
       renderProbabilityHistogram();
       renderAccuracyCharts();
       renderSpeedChart(false);
       renderQAChart();
-      
+
       // Copy citation button functionality
       const copyBtn = document.getElementById('copy-citation-btn');
       const citationText = document.getElementById('citation-text');
       const btnText = document.getElementById('copy-btn-text');
-      
+
       if (copyBtn && citationText) {
-        copyBtn.addEventListener('click', function() {
+        copyBtn.addEventListener('click', function () {
           // Get the text content from the citation
           const textToCopy = citationText.textContent.trim();
-          
+
           // Copy to clipboard
-          navigator.clipboard.writeText(textToCopy).then(function() {
+          navigator.clipboard.writeText(textToCopy).then(function () {
             // Success feedback
             btnText.textContent = 'Copied!';
             copyBtn.style.backgroundColor = '#4CAF50';
-            
+
             // Reset after 2 seconds
-            setTimeout(function() {
+            setTimeout(function () {
               btnText.textContent = 'Copy';
               copyBtn.style.backgroundColor = '#2196F3';
             }, 2000);
-          }).catch(function(err) {
+          }).catch(function (err) {
             // Fallback for older browsers
             const textArea = document.createElement('textarea');
             textArea.value = textToCopy;
@@ -4285,24 +4345,24 @@
             textArea.style.left = '-999999px';
             document.body.appendChild(textArea);
             textArea.select();
-            
+
             try {
               document.execCommand('copy');
               btnText.textContent = 'Copied!';
               copyBtn.style.backgroundColor = '#4CAF50';
-              
-              setTimeout(function() {
+
+              setTimeout(function () {
                 btnText.textContent = 'Copy';
                 copyBtn.style.backgroundColor = '#2196F3';
               }, 2000);
             } catch (err) {
               console.error('Failed to copy text: ', err);
               btnText.textContent = 'Failed';
-              setTimeout(function() {
+              setTimeout(function () {
                 btnText.textContent = 'Copy';
               }, 2000);
             }
-            
+
             document.body.removeChild(textArea);
           });
         });
@@ -4386,8 +4446,9 @@
 
       renderPassage() {
         const container = document.getElementById('passageContainer');
+        if (!container) return; // Element doesn't exist, skip rendering
         container.innerHTML = '';
-        
+
         QUIZ_DATA.passage.forEach((sentence, index) => {
           const p = document.createElement('p');
           p.className = 'passage-sentence';
@@ -4399,31 +4460,32 @@
 
       renderOptions() {
         const container = document.getElementById('optionsContainer');
+        if (!container) return; // Element doesn't exist, skip rendering
         container.className = 'options-container';
         container.innerHTML = '';
-        
+
         QUIZ_DATA.options.forEach(option => {
           const card = document.createElement('div');
           card.className = 'option-card';
           card.setAttribute('data-option-id', option.id);
-          
+
           const header = document.createElement('div');
           header.className = 'option-header';
-          
+
           const radio = document.createElement('input');
           radio.type = 'radio';
           radio.name = 'chunking-option';
           radio.id = `option-${option.id}`;
           radio.value = option.id;
-          
+
           const label = document.createElement('label');
           label.setAttribute('for', `option-${option.id}`);
           label.innerHTML = `<strong>Option ${option.id}:</strong> ${option.label}`;
-          
+
           header.appendChild(radio);
           header.appendChild(label);
           card.appendChild(header);
-          
+
           card.addEventListener('click', () => this.selectOption(option.id));
           container.appendChild(card);
         });
@@ -4431,19 +4493,19 @@
 
       selectOption(optionId) {
         this.selectedOption = optionId;
-        
+
         // Update visual selection
         document.querySelectorAll('.option-card').forEach(card => {
           card.classList.remove('selected');
         });
         document.querySelector(`[data-option-id="${optionId}"]`).classList.add('selected');
-        
+
         // Update radio button
         document.querySelectorAll('input[name="chunking-option"]').forEach(radio => {
           radio.checked = false;
         });
         document.getElementById(`option-${optionId}`).checked = true;
-        
+
         // Highlight passage chunks
         this.highlightPassageChunks(optionId);
       }
@@ -4452,34 +4514,41 @@
         // Clear existing highlights
         const container = document.getElementById('passageContainer');
         container.innerHTML = '';
-        
+
         const selectedOption = QUIZ_DATA.options.find(opt => opt.id === optionId);
         if (!selectedOption) return;
-        
+
         // Group sentences by chunks and create combined highlights
         selectedOption.chunks.forEach((chunk, chunkIndex) => {
           const chunkDiv = document.createElement('div');
           chunkDiv.className = `chunk-group chunk-${(chunkIndex % 3) + 1}`;
-          
+
           chunk.sentences.forEach(sentenceIdx => {
             const p = document.createElement('p');
             p.className = 'chunk-sentence';
             p.textContent = QUIZ_DATA.passage[sentenceIdx];
             chunkDiv.appendChild(p);
           });
-          
+
           container.appendChild(chunkDiv);
         });
       }
 
       setupEventListeners() {
-        document.getElementById('submitBtn').addEventListener('click', () => {
-          this.submitAnswer();
-        });
+        const submitBtn = document.getElementById('submitBtn');
+        const backBtn = document.getElementById('backBtn');
         
-        document.getElementById('backBtn').addEventListener('click', () => {
-          this.resetQuiz();
-        });
+        if (submitBtn) {
+          submitBtn.addEventListener('click', () => {
+            this.submitAnswer();
+          });
+        }
+
+        if (backBtn) {
+          backBtn.addEventListener('click', () => {
+            this.resetQuiz();
+          });
+        }
       }
 
       submitAnswer() {
@@ -4487,7 +4556,7 @@
           alert('Please select an option before submitting!');
           return;
         }
-        
+
         this.showSolution();
       }
 
@@ -4495,13 +4564,13 @@
         const answerPhase = document.getElementById('answerPhase');
         const solutionPhase = document.getElementById('solutionPhase');
         const solutionContent = document.getElementById('solutionContent');
-        
+
         const selectedOption = QUIZ_DATA.options.find(opt => opt.id === this.selectedOption);
         const isCorrect = selectedOption.isCorrect || false;
-        
+
         // Build solution content
         solutionContent.innerHTML = '';
-        
+
         // Result header
         const header = document.createElement('div');
         header.className = `result-header ${isCorrect ? 'correct' : 'incorrect'}`;
@@ -4510,7 +4579,7 @@
           <p>${isCorrect ? 'You identified the optimal semantic segmentation!' : 'Let\'s review why this segmentation isn\'t ideal.'}</p>
         `;
         solutionContent.appendChild(header);
-        
+
         // Your answer section
         const yourAnswer = document.createElement('div');
         yourAnswer.innerHTML = `
@@ -4518,7 +4587,7 @@
           <div class="feedback-box">${selectedOption.feedback}</div>
         `;
         solutionContent.appendChild(yourAnswer);
-        
+
         // Show optimal segmentation (always show correct answer)
         const correctOption = QUIZ_DATA.options.find(opt => opt.id === QUIZ_DATA.correctAnswer);
         if (!isCorrect) {
@@ -4530,13 +4599,13 @@
           `;
           solutionContent.appendChild(correctSection);
         }
-        
+
         // Show optimal segmentation explanation
         this.renderOptimalSegmentation(solutionContent, correctOption);
-        
+
         // Highlight the correct segmentation on the left passage
         this.highlightPassageChunks(QUIZ_DATA.correctAnswer);
-        
+
         // Fade transition
         answerPhase.style.opacity = '0';
         setTimeout(() => {
@@ -4551,28 +4620,28 @@
       renderOptimalSegmentation(container, option) {
         const chunksSection = document.createElement('div');
         chunksSection.innerHTML = `<h4 style="margin: 10px 0 8px 0; font-size: 0.95em;">Optimal Segmentation:</h4>`;
-        
+
         const definitionsContainer = document.createElement('div');
         definitionsContainer.className = 'chunk-definitions';
-        
+
         option.chunks.forEach((chunk, index) => {
           const chunkDiv = document.createElement('div');
           chunkDiv.className = `chunk-definition chunk-display chunk-${(index % 2) + 1}`;
-          
+
           const chunkTitle = document.createElement('h5');
           chunkTitle.textContent = chunk.name;
           chunkDiv.appendChild(chunkTitle);
-          
+
           if (chunk.reasoning) {
             const reasoningDiv = document.createElement('div');
             reasoningDiv.className = 'reasoning-box';
             reasoningDiv.innerHTML = `<strong>Why these belong together:</strong><br>${chunk.reasoning}`;
             chunkDiv.appendChild(reasoningDiv);
           }
-          
+
           definitionsContainer.appendChild(chunkDiv);
         });
-        
+
         chunksSection.appendChild(definitionsContainer);
         container.appendChild(chunksSection);
       }
@@ -4582,15 +4651,15 @@
         setTimeout(() => {
           const passageSection = document.querySelector('.passage-section');
           const interactionSection = document.querySelector('.interaction-section');
-          
+
           if (passageSection && interactionSection) {
             const passageHeight = passageSection.offsetHeight;
             interactionSection.style.height = passageHeight + 'px';
-            
+
             // Set overflow for scrolling when content is too long
             const answerPhase = document.getElementById('answerPhase');
             const solutionPhase = document.getElementById('solutionPhase');
-            
+
             if (answerPhase) {
               answerPhase.style.height = (passageHeight - 40) + 'px'; // Account for padding
               answerPhase.style.overflowY = 'auto';
@@ -4606,10 +4675,10 @@
       resetQuiz() {
         const answerPhase = document.getElementById('answerPhase');
         const solutionPhase = document.getElementById('solutionPhase');
-        
+
         // Reset state
         this.selectedOption = null;
-        
+
         // Clear selections
         document.querySelectorAll('.option-card').forEach(card => {
           card.classList.remove('selected');
@@ -4617,13 +4686,13 @@
         document.querySelectorAll('input[name="chunking-option"]').forEach(radio => {
           radio.checked = false;
         });
-        
+
         // Reset passage display
         this.renderPassage();
-        
+
         // Re-match heights after content change
         this.matchHeights();
-        
+
         // Fade transition
         solutionPhase.classList.remove('show');
         setTimeout(() => {
@@ -4637,7 +4706,7 @@
     }
 
     // Initialize embedded quiz when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Only initialize if quiz container exists
       if (document.getElementById('quizContainer')) {
         new EmbeddedQuiz();
@@ -4646,4 +4715,5 @@
   </script>
 
 </body>
-</html>
+
+</html>>
