@@ -1,10 +1,14 @@
 window.HELP_IMPROVE_VIDEOJS = false;
 
+// Interpolation images disabled - folder does not exist
+// To enable, create ./static/interpolation/stacked/ with 000000.jpg through 000239.jpg
 var INTERP_BASE = "./static/interpolation/stacked";
 var NUM_INTERP_FRAMES = 240;
+var INTERP_ENABLED = false; // Set to true when interpolation images are available
 
 var interp_images = [];
 function preloadInterpolationImages() {
+  if (!INTERP_ENABLED) return;
   for (var i = 0; i < NUM_INTERP_FRAMES; i++) {
     var path = INTERP_BASE + '/' + String(i).padStart(6, '0') + '.jpg';
     interp_images[i] = new Image();
@@ -13,6 +17,7 @@ function preloadInterpolationImages() {
 }
 
 function setInterpolationImage(i) {
+  if (!INTERP_ENABLED || !interp_images[i]) return;
   var image = interp_images[i];
   image.ondragstart = function() { return false; };
   image.oncontextmenu = function() { return false; };
