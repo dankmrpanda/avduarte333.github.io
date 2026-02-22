@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>LumberChunker: Segment 3 (Method)</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700">
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+    <style>
+        body {
+            font-size: 20px;
+            color: #424242 !important;
+            font-family: 'Noto Sans', sans-serif;
+        }
+
+        p {
+            margin-bottom: 12px !important;
+        }
+
+        .title.is-3 {
+            color: #3e3e3e !important;
+            font-weight: bold;
+        }
+
+        .title.is-4 {
+            color: #686868 !important;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .algorithm-box {
+            background-color: #f5f5f5;
+            border-left: 4px solid #626161;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .algorithm-box code {
+            background-color: #fff;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- [WP IMAGE BLOCK: LumberChunker_pipeline.png GOES HERE] -->
+
+    <!-- SEGMENT 3 START: METHOD STEPS -->
+    <section class="section">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-left">
+                <div class="column is-four-fifths">
+                    <div class="content has-text-justified">
+                        <p>
+                            <strong>LumberChunker</strong> approaches this by treating segmentation as a
+                            boundary-finding problem:
+                            given a short sequence of consecutive paragraphs, we ask a language model to identify the
+                            earliest point
+                            where the content clearly shifts. This formulation allows segments to vary in length while
+                            remaining
+                            aligned with the underlying narrative structure. In practice, LumberChunker consists of
+                            <strong>these</strong> steps:
+                        </p>
+
+                        <h3 class="title is-4" id="step1-extraction">1) Document i Paragraph Extraction</h3>
+                        <p>
+                            Cleanly split the book into paragraphs and assign stable IDs (<code>ID:1, ID:2, …</code>).
+                            This preserves
+                            the document’s natural discourse units and gives us safe candidate boundaries.
+                        </p>
+
+                        <div class="algorithm-box">
+                            <strong>Example:</strong> From a novel, we extract:<br><br>
+                            <code>ID:1</code> "The morning sun filtered through the dusty windows..."<br>
+                            <code>ID:2</code> "She walked slowly to the door, hesitating..."<br>
+                            <code>ID:3</code> "Meanwhile, across town, Detective Morrison reviewed the case
+                            files..."<br>
+                            <code>ID:4</code> "The previous night's events had left him puzzled..."<br><br>
+                            Each paragraph gets a unique ID for tracking boundaries.
+                        </div>
+
+                        <h3 class="title is-4" id="step2-grouping">2) IDs Grouping (G<sub>i</sub>) for LLM</h3>
+                        <p>
+                            Build a group <code>G<sub>i</sub></code> by appending paragraphs until the group’s length
+                            reaches a token
+                            budget <code>θ</code>. This provides enough context for the model to judge when a
+                            topic/scene actually
+                            shifts.
+                        </p>
+
+                        <div class="algorithm-box">
+                            <strong>Example:</strong> With <code>θ = 550</code> tokens, we build, per example:<br><br>
+                            <code>G<sub>1</sub></code> = [<code>ID:1</code>, <code>ID:2</code>, <code>ID:3</code>,
+                            <code>ID:4</code>,
+                            <code>ID:5</code>, <code>ID:6</code>]<br><br>
+                            This window, by spanning multiple paragraphs, increases the chance that at least one
+                            meaningful narrative
+                            shift is present within the context.
+                        </div>
+
+                        <h3 class="title is-4" id="step3-query">3) LLM Query</h3>
+                        <p>
+                            Prompt the model with the paragraphs in <code>G<sub>i</sub></code> and ask it to return the
+                            <em>first
+                                paragraph where content clearly changes relative to what came before</em>. Use that
+                            returned ID as the
+                            chunk boundary; start the next group at that paragraph and repeat to the end of the book.
+                        </p>
+
+                        <div class="algorithm-box">
+                            <strong>Example:</strong> Given <code>G<sub>1</sub></code> = [<code>p1</code>,
+                            <code>p2</code>,
+                            <code>p3</code>, <code>p4</code>, <code>p5</code>, <code>p6</code>], the LLM responds:
+                            <code>p3</code><br><br>
+                            <strong>Step 4: Answer Extraction</strong><br>
+                            We extract <code>p3</code> as the boundary. This creates:<br>
+                            • <strong>Chunk 1</strong>: [<code>p1</code>, <code>p2</code>]<br>
+                            • <strong>Next group (<code>G<sub>2</sub></code>) starts at</strong> <code>p3</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section Intro -->
+    <section class="section" id="gutenqa">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-left">
+                <div class="column is-four-fifths">
+                    <h2 class="title is-3">GutenQA: A Benchmark for Long-Form Narrative Retrieval</h2>
+                    <div class="content has-text-justified">
+                        <p>
+                            To evaluate our chunking approach, we introduce <a
+                                href="https://huggingface.co/datasets/LumberChunker/GutenQA"><strong>GutenQA</strong></a>,
+                            a benchmark
+                            of <strong>100</strong> carefully cleaned public-domain books paired with
+                            <strong>3,000</strong>
+                            needle-in-a-haystack type of questions. This allows us to measure retrieval quality directly
+                            and then
+                            observe how better retrieval leads to more accurate answers in a RAG system.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- SEGMENT 3 END -->
+</body>
+
+</html>

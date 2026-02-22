@@ -16,7 +16,7 @@ const QUIZ_DATA = {
   options: [
     {
       id: 'A',
-      label: 'Split after every sentence (10 chunks)',
+      label: 'One chunk per sentence — 10 chunks total',
       breaks: [0, 1, 2, 3, 4, 5, 6, 7, 8],
       chunks: [
         { sentences: [0], name: "Chunk 1" },
@@ -30,11 +30,11 @@ const QUIZ_DATA = {
         { sentences: [8], name: "Chunk 9" },
         { sentences: [9], name: "Chunk 10" }
       ],
-      feedback: "This creates too many tiny chunks! Each sentence is isolated, losing the semantic connections between related dialogue. This approach would make retrieval inefficient and fail to capture the conversational flow."
+      feedback: "This creates too many tiny chunks, isolating each sentence and losing the semantic connections between related dialogue. This approach makes retrieval inefficient and fails to capture the conversational flow."
     },
     {
       id: 'B',
-      label: 'Keep everything together (1 chunk)',
+      label: 'No split, keep the full passage — 1 chunk',
       breaks: [],
       chunks: [
         { sentences: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], name: "Entire Passage" }
@@ -43,7 +43,7 @@ const QUIZ_DATA = {
     },
     {
       id: 'C',
-      label: 'Split between dialogue and story (2 chunks)',
+      label: 'Split between dialogue and story — 2 chunks',
       breaks: [7],
       chunks: [
         {
@@ -57,7 +57,7 @@ const QUIZ_DATA = {
           reasoning: "These sentences transition from the setup dialogue into the actual storytelling. The narrator begins the story with a classic fairy tale opening, immediately followed by Christopher Robin's interruption with a question about the story."
         }
       ],
-      feedback: "Correct! This segmentation recognizes the semantic boundary between the meta-dialogue (discussing what story to tell) and the actual storytelling. The first chunk captures the complete request-and-agreement exchange, while the second chunk begins the narrative with its classic opening and immediate interruption.",
+      feedback: "This segmentation recognizes the semantic boundary between the meta-dialogue about what story to tell and the actual storytelling. The split cleanly separates the setup conversation from the narrative opening.",
       isCorrect: true
     }
   ],
@@ -284,10 +284,10 @@ class TextChunkingQuiz {
 
   setupEventListeners() {
     const submitBtn = d3.select('#submitBtn');
+    const backBtn = d3.select('#backBtn');
 
-    // Click animation
+    // Submit click
     submitBtn.on('click', () => {
-      // Pulse animation on click
       submitBtn
         .transition()
         .duration(100)
@@ -297,6 +297,11 @@ class TextChunkingQuiz {
         .style('transform', 'scale(1)');
 
       this.submitAnswer();
+    });
+
+    // Back click
+    backBtn.on('click', () => {
+      this.hideResults();
     });
 
     // Hover effects
@@ -362,313 +367,89 @@ class TextChunkingQuiz {
   }
 
   showResults() {
-    const resultsContainer = d3.select('#resultsContainer');
-    const quizContent = d3.select('.quiz-content');
-    const controls = d3.select('.controls');
+    const answerPhase = d3.select('#answerPhase');
+    const solutionPhase = d3.select('#solutionPhase');
+    const solutionContent = d3.select('#solutionContent');
 
-    // Fade out quiz with d3 transition
-    quizContent
+    const selectedOptionData = this.quizData.options.find(opt => opt.id === this.selectedOption);
+    const isCorrect = selectedOptionData.isCorrect || false;
+
+    // Highlight passage with the correct answer always
+    const correctOption = this.quizData.options.find(opt => opt.id === this.quizData.correctAnswer);
+    this.highlightPassageChunks(correctOption);
+
+    // Build solution content
+    solutionContent.selectAll('*').remove();
+
+    // Result banner
+    const banner = solutionContent.append('div')
+      .attr('class', `result-header ${isCorrect ? 'correct' : 'incorrect'}`);
+    banner.append('h3')
+      .text(isCorrect ? 'Correct!' : 'Not Quite');
+    banner.append('p')
+      .text(isCorrect
+        ? 'You identified the optimal semantic segmentation!'
+        : `You chose Option ${this.selectedOption}. The correct answer is Option ${this.quizData.correctAnswer}.`);
+
+    // Feedback
+    solutionContent.append('div')
+      .attr('class', `feedback-box ${isCorrect ? 'correct-feedback' : ''}`)
+      .html(isCorrect ? selectedOptionData.feedback : correctOption.feedback);
+
+    // Fade out answer phase, fade in solution phase
+    answerPhase
       .transition()
-      .duration(400)
-      .style('opacity', 0);
-
-    controls
-      .transition()
-      .duration(400)
-      .style('opacity', 0);
-
-    setTimeout(() => {
-      quizContent.classed('hidden', true);
-      controls.classed('hidden', true);
-
-      // Clear and build results
-      resultsContainer.selectAll('*').remove();
-
-      // Trigger resize after clearing
-      if (window.sendHeightToParent) {
-        window.sendHeightToParent();
-      }
-
-      const selectedOptionData = this.quizData.options.find(opt => opt.id === this.selectedOption);
-      const isCorrect = selectedOptionData.isCorrect || false;
-
-      // Result header with animation
-      const header = resultsContainer.append('div')
-        .attr('class', `result-header ${isCorrect ? 'correct' : 'incorrect'}`)
-        .style('opacity', 0)
-        .style('transform', 'translateY(-20px)');
-
-      header.append('h2')
-        .text(isCorrect ? 'Correct!' : 'Not Quite');
-
-      header.append('p')
-        .text(isCorrect ?
-          'You identified the optimal semantic segmentation!' :
-          'Let\'s review why this segmentation isn\'t ideal.');
-
-      // Animate header entrance
-      header.transition()
-        .duration(600)
-        .style('opacity', 1)
-        .style('transform', 'translateY(0)')
-        .on('end', () => {
-          if (window.sendHeightToParent) {
-            window.sendHeightToParent();
-          }
-        });
-
-      // Show selected answer with data-driven approach
-      const selectedSection = resultsContainer.append('div')
-        .attr('class', 'result-section')
-        .style('opacity', 0);
-
-      selectedSection.append('h3')
-        .html(`Your Answer: <span class="option-label">Option ${this.selectedOption}</span>`);
-
-      selectedSection.append('div')
-        .attr('class', 'feedback-box')
-        .html(selectedOptionData.feedback);
-
-      // Animate section entrance
-      selectedSection
-        .transition()
-        .duration(600)
-        .delay(300)
-        .style('opacity', 1)
-        .on('end', () => {
-          if (window.sendHeightToParent) {
-            window.sendHeightToParent();
-          }
-        });
-
-      // Show selected option's chunks using data binding
-      const chunksDiv = selectedSection.append('div')
-        .attr('class', 'chunks-display');
-
-      const chunks = chunksDiv.selectAll('.chunk-display')
-        .data(selectedOptionData.chunks);
-
-      const chunksEnter = chunks.enter()
-        .append('div')
-        .attr('class', 'chunk-display')
-        .style('opacity', 0)
-        .style('transform', 'translateY(20px)');
-
-      chunksEnter.append('h4')
-        .text(d => d.name);
-
-      const sentencesDiv = chunksEnter.append('div')
-        .attr('class', 'chunk-sentences');
-
-      chunksEnter.each((chunk, idx, nodes) => {
-        const chunkNode = d3.select(nodes[idx]);
-        const sentencesContainer = chunkNode.select('.chunk-sentences');
-
-        const sentences = sentencesContainer.selectAll('.chunk-sentence')
-          .data(chunk.sentences);
-
-        sentences.enter()
-          .append('p')
-          .attr('class', `chunk-sentence chunk-${(idx % 5) + 1}`)
-          .text(sentenceIdx => this.quizData.passage[sentenceIdx])
+      .duration(300)
+      .style('opacity', 0)
+      .on('end', () => {
+        answerPhase.style('display', 'none');
+        solutionPhase
+          .style('display', 'flex')
           .style('opacity', 0)
           .transition()
           .duration(400)
-          .delay((d, i) => 900 + idx * 200 + i * 100)
           .style('opacity', 1);
-
-        if (chunk.reasoning) {
-          chunkNode.append('div')
-            .attr('class', 'reasoning-box')
-            .html(`<strong>Why these belong together:</strong><br>${chunk.reasoning}`)
-            .style('opacity', 0)
-            .transition()
-            .duration(400)
-            .delay(1200 + idx * 200)
-            .style('opacity', 1);
-        }
       });
-
-      // Animate chunks
-      chunksEnter
-        .transition()
-        .duration(500)
-        .delay((d, i) => 600 + i * 150)
-        .style('opacity', 1)
-        .style('transform', 'translateY(0)')
-        .on('end', () => {
-          if (window.sendHeightToParent) {
-            window.sendHeightToParent();
-          }
-        });
-
-      // If wrong, show correct answer
-      if (!isCorrect) {
-        const correctSection = resultsContainer.append('div')
-          .attr('class', 'result-section correct-answer-section')
-          .style('opacity', 0)
-          .style('transform', 'scale(0.95)');
-
-        correctSection.append('h3')
-          .html(`Correct Answer: <span class="option-label">Option ${this.quizData.correctAnswer}</span>`);
-
-        const correctOption = this.quizData.options.find(opt => opt.id === this.quizData.correctAnswer);
-
-        correctSection.append('div')
-          .attr('class', 'feedback-box correct-feedback')
-          .html(correctOption.feedback);
-
-        // Show correct chunks using data binding
-        const correctChunksDiv = correctSection.append('div')
-          .attr('class', 'chunks-display');
-
-        const correctChunks = correctChunksDiv.selectAll('.chunk-display')
-          .data(correctOption.chunks);
-
-        const correctChunksEnter = correctChunks.enter()
-          .append('div')
-          .attr('class', 'chunk-display');
-
-        correctChunksEnter.append('h4')
-          .text(d => d.name);
-
-        correctChunksEnter.append('div')
-          .attr('class', 'chunk-sentences');
-
-        correctChunksEnter.each((chunk, idx, nodes) => {
-          const chunkNode = d3.select(nodes[idx]);
-          const sentencesContainer = chunkNode.select('.chunk-sentences');
-
-          const sentences = sentencesContainer.selectAll('.chunk-sentence')
-            .data(chunk.sentences);
-
-          sentences.enter()
-            .append('p')
-            .attr('class', `chunk-sentence chunk-${(idx % 5) + 1}`)
-            .text(sentenceIdx => this.quizData.passage[sentenceIdx]);
-
-          if (chunk.reasoning) {
-            chunkNode.append('div')
-              .attr('class', 'reasoning-box')
-              .html(`<strong>Why these belong together:</strong><br>${chunk.reasoning}`);
-          }
-        });
-
-        // Animate correct section
-        correctSection
-          .transition()
-          .duration(700)
-          .delay(1500)
-          .style('opacity', 1)
-          .style('transform', 'scale(1)')
-          .on('end', () => {
-            if (window.sendHeightToParent) {
-              window.sendHeightToParent();
-            }
-          });
-      }
-
-      // Back button with animation
-      const backButton = resultsContainer.append('div')
-        .attr('class', 'action-buttons')
-        .style('margin-top', '30px')
-        .style('text-align', 'center')
-        .style('opacity', 0);
-
-      backButton.append('button')
-        .attr('class', 'btn back-btn')
-        .text('← Back to Quiz')
-        .on('click', () => this.hideResults());
-
-      backButton
-        .transition()
-        .duration(500)
-        .delay(2000)
-        .style('opacity', 1);
-
-      // Show results with fade in
-      resultsContainer.classed('show', true);
-
-      // Trigger resize when results become visible and scroll to top
-      if (window.sendHeightToParent) {
-        window.sendHeightToParent(true);
-      }
-
-      setTimeout(() => {
-        resultsContainer
-          .transition()
-          .duration(400)
-          .style('opacity', 1)
-          .on('end', () => {
-            if (window.sendHeightToParent) {
-              window.sendHeightToParent();
-            }
-          });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 50);
-    }, 400);
   }
 
   hideResults() {
-    const resultsContainer = d3.select('#resultsContainer');
-    const quizContent = d3.select('.quiz-content');
-    const controls = d3.select('.controls');
+    const answerPhase = d3.select('#answerPhase');
+    const solutionPhase = d3.select('#solutionPhase');
 
-    // Reset selection state
+    // Reset state
     this.selectedOption = null;
     this.hasSubmitted = false;
-
-    // Reset progress to 0
     this.updateProgress(0);
 
-    // Fade out results with d3 transition
-    resultsContainer
+    // Fade out solution phase
+    solutionPhase
       .transition()
-      .duration(400)
-      .style('opacity', 0);
+      .duration(300)
+      .style('opacity', 0)
+      .on('end', () => {
+        solutionPhase.style('display', 'none');
 
-    setTimeout(() => {
-      resultsContainer.classed('show', false);
+        // Clear passage highlighting
+        this.highlightPassageChunks(null);
 
-      // Clear passage highlighting
-      this.highlightPassageChunks(null);
+        // Deselect all options
+        d3.selectAll('.option-card')
+          .classed('selected', false)
+          .style('border-color', '#e4e4e4')
+          .style('background-color', '#fafafa')
+          .style('box-shadow', 'none');
 
-      // Deselect all options
-      d3.selectAll('.option-card')
-        .classed('selected', false)
-        .style('border-color', '#e0e0e0')
-        .style('background-color', 'white')
-        .style('box-shadow', 'none');
+        d3.selectAll('input[name="chunking-option"]')
+          .property('checked', false);
 
-      // Uncheck all radio buttons
-      d3.selectAll('input[name="chunking-option"]')
-        .property('checked', false);
-
-      // Show quiz
-      quizContent.classed('hidden', false).style('opacity', 0);
-      controls.classed('hidden', false).style('opacity', 0);
-
-      // Scroll to top first, before resizing
-      if (window.sendHeightToParent) {
-        window.sendHeightToParent(true);
-      }
-
-      setTimeout(() => {
-        // Fade in quiz with staggered animation
-        quizContent
+        // Show answer phase
+        answerPhase
+          .style('display', 'flex')
+          .style('opacity', 0)
           .transition()
-          .duration(500)
+          .duration(400)
           .style('opacity', 1);
-
-        controls
-          .transition()
-          .duration(500)
-          .delay(200)
-          .style('opacity', 1);
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 50);
-    }, 400);
+      });
   }
 }
 
