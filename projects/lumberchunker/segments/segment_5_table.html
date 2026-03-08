@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>LumberChunker: Segment 5 (Token Count Table)</title>
+    <style>
+        .table-card {
+            margin: 0 auto !important;
+            max-width: 100% !important;
+        }
+
+        table.table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
+
+        table.table th,
+        table.table td {
+            padding: 0.75rem !important;
+            border: 1px solid #f0f0f0 !important;
+            text-align: center !important;
+            font-size: clamp(0.65rem, 2vw, 1rem) !important;
+            color: #464646 !important;
+        }
+
+        table.table th {
+            background: #fafafa !important;
+            vertical-align: middle !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="table-card" aria-labelledby="table10-caption">
+        <table class="table is-bordered is-hoverable">
+            <caption id="table10-caption"
+                style="caption-side: top; text-align: center; font-weight: 600; font-size: 0.95em; color: #555; padding-bottom: 0.5rem;">
+                Average number of tokens per chunk and the total number of
+                chunks after segmenting GutenQA</caption>
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Method</th>
+                    <th>Avg. #Tokens / Chunk</th>
+                    <th>Total #Chunks</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Semantic Chunking</td>
+                    <td>185 tokens</td>
+                    <td>191059</td>
+                </tr>
+                <tr>
+                    <td>Paragraph Level</td>
+                    <td>79 tokens</td>
+                    <td>248307</td>
+                </tr>
+                <tr>
+                    <td>Recursive Chunking</td>
+                    <td>399 tokens</td>
+                    <td>31787</td>
+                </tr>
+                <tr>
+                    <td>Proposition-Level</td>
+                    <td>12 tokens</td>
+                    <td>914493</td>
+                </tr>
+                <tr style="background-color: #f0f8ff;">
+                    <td style="text-align: left;">LumberChunker</td>
+                    <td><strong>334 tokens</strong></td>
+                    <td><strong>36917</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

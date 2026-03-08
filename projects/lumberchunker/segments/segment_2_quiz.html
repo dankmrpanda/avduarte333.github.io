@@ -3,32 +3,11 @@
 
 <head>
     <meta charset="utf-8">
-    <title>LumberChunker: Segment 2 (Intro + Quiz)</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,500,700">
-    <!-- Bulma CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+    <title>LumberChunker: Segment 2 (Quiz)</title>
     <!-- jQuery & d3 -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        body {
-            font-size: 20px;
-            color: #424242 !important;
-            font-family: 'Noto Sans', sans-serif;
-        }
-
-        p {
-            margin-bottom: 12px !important;
-        }
-
-        .title.is-3 {
-            color: #3e3e3e !important;
-            font-weight: bold;
-            margin-top: -2rem;
-        }
-
         .quiz-section {
             padding: 1.5rem;
             border-radius: 12px;
@@ -59,7 +38,6 @@
             letter-spacing: 0.08em;
             color: #909090;
             margin-bottom: 12px;
-            font-family: 'Roboto', sans-serif;
         }
 
         .quiz-step-label .step-number {
@@ -139,7 +117,6 @@
             cursor: pointer;
             font-size: 0.92em;
             color: #424242;
-            font-family: 'Roboto', sans-serif;
             line-height: 1.4;
         }
 
@@ -161,7 +138,6 @@
             box-shadow: 0 4px 0 #cccccc;
             cursor: pointer;
             transition: all 0.1s ease-in-out;
-            font-family: 'Roboto', sans-serif;
             letter-spacing: 0.02em;
         }
 
@@ -187,7 +163,6 @@
             padding: 12px 14px;
             font-size: 0.84em;
             color: #444;
-            font-family: 'Roboto', sans-serif;
         }
 
         .reasoning-box {
@@ -201,75 +176,8 @@
 </head>
 
 <body>
-    <!-- [WP IMAGE BLOCK: crown_figure_blog.png GOES HERE] -->
-
-    <!-- SEGMENT 2 START: INTRO + QUIZ -->
-    <section class="section" style="padding-top: 0rem; padding-bottom: 1rem;">
-        <div class="container is-max-desktop">
-            <div class="columns is-centered">
-                <div class="column is-four-fifths has-text-centered">
-                    <p style="margin-top: 1rem;">
-                        LumberChunker lets an LLM decide where a long story should be split, creating more natural
-                        chunks that help
-                        RAG systems retrieve the right information.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section">
-        <div class="container is-max-desktop">
-            <div class="columns is-centered has-text-left">
-                <div class="column is-four-fifths">
-                    <h2 class="title is-3">Introduction</h2>
-                    <div class="content has-text-justified">
-                        <p>
-                            Long-form narrative documents usually have an explicit structure, such as chapters or
-                            sections, but these
-                            units are often too broad for retrieval tasks. At a lower level, important semantic shifts
-                            happen inside
-                            these larger segments without any visible structural break. When we split text only by
-                            formatting cues,
-                            like paragraphs or fixed token windows, passages that belong to the same narrative unit may
-                            be separated,
-                            while unrelated content can be grouped together. This misalignment between structure and
-                            meaning produces
-                            chunks that contain incomplete or mixed context, which reduces retrieval quality and affects
-                            downstream
-                            RAG performance. For this reason, segmentation should aim to create chunks that are
-                            semantically
-                            independent, rather than relying only on document structure.
-                        </p>
-                        <p>
-                            <span style="font-weight: 600;">So how do we preserve the story’s flow and still keep
-                                chunking
-                                practical?</span>
-                        </p>
-                        <p>
-                            In many cases, a reader can easily recognize where the narrative begins to shift—for
-                            example, when the
-                            text moves to a different scene, introduces a new entity, or changes its objective. The
-                            difficulty is that
-                            most automated chunking methods do not consider this semantic signal and instead rely only
-                            on surface
-                            structure. As a result, they may produce segmentations that look reasonable from a
-                            formatting perspective
-                            but break the underlying narrative coherence.
-                        </p>
-                        <p>
-                            <br>To make this concrete, consider the short passage below and decide the optimal chunking
-                            boundary!
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section" id="quiz"
-        style="margin-top: 0; margin-bottom: 0; padding-top: 1rem; padding-bottom: 1rem;">
-        <div class="container is-max-widescreen">
+    <section id="quiz" style="margin-top: 0; margin-bottom: 0; padding-top: 1rem; padding-bottom: 1rem;">
+        <div style="max-width: 1344px; margin: 0 auto;">
             <div class="quiz-section">
                 <div class="quiz-header" style="text-align: center; margin-bottom: 10px;">
                     <h3 style="color: #3e3e3e; font-size: 1.35em; margin-bottom: 4px; font-weight: 600;">Text
@@ -305,25 +213,6 @@
             </div>
         </div>
     </section>
-
-    <section class="section" id="method">
-        <div class="container is-max-desktop">
-            <div class="columns is-centered has-text-left">
-                <div class="column is-four-fifths">
-                    <h2 class="title is-3">The LumberChunker Method</h2>
-                    <div class="content has-text-justified">
-                        <p>
-                            In the example above, Option C provides the most coherent segmentation. The boundary aligns
-                            with the point
-                            where the narrative becomes semantically independent from the preceding context.
-                            <br><br>Our goal is to make this type of segmentation decision practical at scale.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- SEGMENT 2 END -->
 
     <script>
         const QUIZ_DATA = {

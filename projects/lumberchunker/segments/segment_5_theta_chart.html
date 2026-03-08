@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>LumberChunker: Segment 5 (Theta Slider + Line Chart)</title>
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        #theta-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            margin: 10px 0;
+        }
+
+        #theta-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #808080;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        #theta-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #808080;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        #dcg-chart-container {
+            margin: 1.5rem auto;
+            max-width: 620px;
+        }
+
+        #dcg-chart-container .chart-title {
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: #464646;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        #dcg-chart-container svg {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .dcg-tooltip {
+            position: absolute;
+            background: rgba(50, 50, 50, 0.92);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            white-space: nowrap;
+            z-index: 100;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Theta Slider -->
+    <div style="margin-bottom: 20px; text-align: center;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <label for="theta-slider" style="font-weight: 600; font-size: 20px;">θ (Token Budget):
+                <span id="theta-value" style="color: #ffa726; font-weight: 700;">550</span>
+            </label>
+            <div style="width: 300px; position: relative;">
+                <input type="range" id="theta-slider" min="0" max="3" value="1" step="1" style="width: 100%;">
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-top: 5px;">
+                    <span>450</span><span>550</span><span>650</span><span>1000</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive DCG Line Chart -->
+    <div id="dcg-chart-container">
+        <p class="chart-title">DCG@k vs Token Budget (θ)</p>
+        <div id="dcg-line-chart"></div>
+    </div>
+
+    <!-- Tooltip element -->
+    <div class="dcg-tooltip" id="dcg-tooltip"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const slider = document.getElementById('theta-slider');
+            const thetaValueDisplay = document.getElementById('theta-value');
+            const thetaValues = [450, 550, 650, 1000];
+            const thetaColors = ['#1e88e5', '#ffa726', '#26a69a', '#ff7043'];
+
+            const kValues = [1, 2, 5, 10, 20];
+
+            const dcgData = [
+                {
+                    theta: 450, color: '#1e88e5', dash: 'none',
+                    values: [
+                        { k: 1, dcg: 0.474 }, { k: 2, dcg: 0.535 },
+                        { k: 5, dcg: 0.580 }, { k: 10, dcg: 0.597 },
+                        { k: 20, dcg: 0.605 }
+                    ]
+                },
+                {
+                    theta: 550, color: '#ffa726', dash: '10,5',
+                    values: [
+                        { k: 1, dcg: 0.483 }, { k: 2, dcg: 0.549 },
+                        { k: 5, dcg: 0.594 }, { k: 10, dcg: 0.610 },
+                        { k: 20, dcg: 0.621 }
+                    ]
+                },
+                {
+                    theta: 650, color: '#26a69a', dash: '5,5,1,5',
+                    values: [
+                        { k: 1, dcg: 0.448 }, { k: 2, dcg: 0.514 },
+                        { k: 5, dcg: 0.568 }, { k: 10, dcg: 0.585 },
+                        { k: 20, dcg: 0.597 }
+                    ]
+                },
+                {
+                    theta: 1000, color: '#ff7043', dash: '3,3',
+                    values: [
+                        { k: 1, dcg: 0.420 }, { k: 2, dcg: 0.488 },
+                        { k: 5, dcg: 0.540 }, { k: 10, dcg: 0.561 },
+                        { k: 20, dcg: 0.571 }
+                    ]
+                }
+            ];
+
+            const tooltip = document.getElementById('dcg-tooltip');
+            const chartContainer = document.getElementById('dcg-line-chart');
+            const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+            const fullWidth = Math.min(580, chartContainer.clientWidth || 580);
+            const fullHeight = 350;
+            const width = fullWidth - margin.left - margin.right;
+            const height = fullHeight - margin.top - margin.bottom;
+
+            const svg = d3.select('#dcg-line-chart')
+                .append('svg')
+                .attr('viewBox', `0 0 ${fullWidth} ${fullHeight}`)
+                .attr('preserveAspectRatio', 'xMidYMid meet')
+                .style('width', '100%')
+                .style('max-width', fullWidth + 'px')
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scalePoint().domain(kValues).range([0, width]).padding(0.15);
+            const y = d3.scaleLinear().domain([0.38, 0.65]).range([height, 0]);
+
+            // Grid
+            svg.append('g').selectAll('line').data(y.ticks(6)).enter().append('line')
+                .attr('x1', 0).attr('x2', width).attr('y1', d => y(d)).attr('y2', d => y(d))
+                .attr('stroke', '#e8e8e8').attr('stroke-dasharray', '3,3');
+
+            // X axis
+            const xAxisG = svg.append('g').attr('transform', `translate(0,${height})`).call(d3.axisBottom(x));
+            xAxisG.selectAll('text').style('font-size', '12px').style('fill', '#666');
+            xAxisG.select('.domain').attr('stroke', '#ccc');
+            xAxisG.selectAll('.tick line').attr('stroke', '#ccc');
+            svg.append('text').attr('x', width / 2).attr('y', height + 40).attr('text-anchor', 'middle')
+                .style('font-size', '13px').style('fill', '#666').text('k');
+
+            // Y axis
+            const yAxisG = svg.append('g').call(d3.axisLeft(y).ticks(6).tickFormat(d3.format('.2f')));
+            yAxisG.selectAll('text').style('font-size', '12px').style('fill', '#666');
+            yAxisG.select('.domain').attr('stroke', '#ccc');
+            yAxisG.selectAll('.tick line').attr('stroke', '#ccc');
+            svg.append('text').attr('transform', 'rotate(-90)').attr('y', -45).attr('x', -height / 2)
+                .attr('text-anchor', 'middle').style('font-size', '13px').style('fill', '#666').text('DCG');
+
+            const line = d3.line().x(d => x(d.k)).y(d => y(d.dcg)).curve(d3.curveMonotoneX);
+
+            const lineGroups = [];
+            dcgData.forEach((series, idx) => {
+                const path = svg.append('path').datum(series.values)
+                    .attr('fill', 'none').attr('stroke', series.color)
+                    .attr('stroke-width', idx === 1 ? 3 : 2)
+                    .attr('stroke-dasharray', series.dash).attr('d', line).attr('opacity', 1);
+
+                const totalLength = path.node().getTotalLength();
+                path.attr('stroke-dasharray', series.dash === 'none' ? `${totalLength} ${totalLength}` : series.dash)
+                    .attr('stroke-dashoffset', series.dash === 'none' ? totalLength : 0);
+                if (series.dash === 'none') {
+                    path.transition('draw').duration(1200).delay(idx * 200).ease(d3.easeCubicOut)
+                        .attr('stroke-dashoffset', 0)
+                        .on('end', function () { d3.select(this).attr('stroke-dasharray', 'none').attr('stroke-dashoffset', 0); });
+                }
+
+                const dots = svg.selectAll(`.dot-${idx}`).data(series.values).enter().append('circle')
+                    .attr('class', `dot-${idx}`).attr('cx', d => x(d.k)).attr('cy', d => y(d.dcg))
+                    .attr('r', 0).attr('fill', series.color).attr('stroke', '#fff').attr('stroke-width', 1.5)
+                    .style('cursor', 'pointer')
+                    .on('mouseenter', function (event, d) {
+                        d3.select(this).transition().duration(150).attr('r', 7);
+                        tooltip.style.opacity = 1;
+                        tooltip.innerHTML = `<strong>θ: ${series.theta}</strong><br>k = ${d.k}<br>DCG = ${d.dcg.toFixed(3)}`;
+                    })
+                    .on('mousemove', function (event) {
+                        tooltip.style.left = (event.pageX + 12) + 'px';
+                        tooltip.style.top = (event.pageY - 50) + 'px';
+                    })
+                    .on('mouseleave', function () {
+                        d3.select(this).transition().duration(150).attr('r', 5);
+                        tooltip.style.opacity = 0;
+                    });
+
+                dots.transition().duration(400).delay((d, i) => 400 + idx * 200 + i * 100).attr('r', 5);
+                lineGroups.push({ path, dots, series });
+            });
+
+            // Legend
+            const legend = svg.append('g').attr('transform', `translate(${width - 130}, ${height - 100})`);
+            legend.append('rect').attr('x', -10).attr('y', -12).attr('width', 140)
+                .attr('height', dcgData.length * 24 + 10).attr('fill', 'rgba(255,255,255,0.92)')
+                .attr('stroke', '#e0e0e0').attr('rx', 4);
+            dcgData.forEach((series, i) => {
+                const g = legend.append('g').attr('transform', `translate(0, ${i * 24})`);
+                g.append('line').attr('x1', 0).attr('x2', 25).attr('y1', 0).attr('y2', 0)
+                    .attr('stroke', series.color).attr('stroke-width', 2).attr('stroke-dasharray', series.dash);
+                g.append('circle').attr('cx', 12).attr('cy', 0).attr('r', 3.5).attr('fill', series.color);
+                g.append('text').attr('x', 32).attr('y', 4).style('font-size', '12px').style('fill', '#555')
+                    .text(`θ: ${series.theta}`);
+            });
+
+            function highlightTheta(thetaIdx) {
+                lineGroups.forEach((lg, idx) => {
+                    const isActive = idx === thetaIdx;
+                    lg.path.transition().duration(300).attr('stroke-width', isActive ? 3.5 : 1.5).attr('opacity', isActive ? 1 : 0.3);
+                    lg.dots.transition().duration(300).attr('r', isActive ? 6 : 3.5).attr('opacity', isActive ? 1 : 0.3);
+                });
+            }
+
+            if (slider) {
+                slider.addEventListener('input', function () {
+                    const idx = parseInt(this.value);
+                    thetaValueDisplay.textContent = thetaValues[idx];
+                    thetaValueDisplay.style.color = thetaColors[idx];
+                    highlightTheta(idx);
+                });
+                highlightTheta(1);
+            }
+        });
+    </script>
+</body>
+
+</html>
